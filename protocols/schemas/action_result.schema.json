@@ -1,0 +1,117 @@
+{
+  "$defs": {
+    "ActionResultStatus": {
+      "enum": [
+        "accepted",
+        "executed",
+        "failed",
+        "blocked",
+        "timed_out",
+        "rolled_back"
+      ],
+      "type": "string"
+    },
+    "Label": {
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$",
+      "type": "string"
+    },
+    "NonNegativeInt": {
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "$id": "https://schemas.omnisense.dev/osip/0.1/action_result.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "action_id": {
+      "$ref": "#/$defs/Label"
+    },
+    "command_id": {
+      "minLength": 1,
+      "title": "Command Id",
+      "type": "string"
+    },
+    "completed_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Completed At"
+    },
+    "error": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Error"
+    },
+    "latency_ms": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NonNegativeInt"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "output": {
+      "additionalProperties": true,
+      "title": "Output",
+      "type": "object"
+    },
+    "result_id": {
+      "minLength": 1,
+      "title": "Result Id",
+      "type": "string"
+    },
+    "rollback_performed": {
+      "default": false,
+      "title": "Rollback Performed",
+      "type": "boolean"
+    },
+    "schema_version": {
+      "const": "osip/0.1",
+      "default": "osip/0.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "started_at": {
+      "format": "date-time",
+      "title": "Started At",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/ActionResultStatus"
+    },
+    "type": {
+      "const": "action.result",
+      "default": "action.result",
+      "title": "Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "result_id",
+    "command_id",
+    "action_id",
+    "status",
+    "started_at"
+  ],
+  "title": "ActionResult",
+  "type": "object"
+}

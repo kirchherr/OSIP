@@ -1,0 +1,12 @@
+{
+  "schema_version": "osip/0.1",
+  "type": "action.proposal",
+  "proposal_id": "actprop_000001",
+  "based_on_context": "ctx_20260612_143109_001",
+  "action_id": "room.speaker.ask_help_needed",
+  "priority": "high",
+  "confidence": 0.84,
+  "deadline_ms": 500,
+  "reason": "Fall candidate supported by pressure, audio and radar.",
+  "requires_confirmation": false
+}

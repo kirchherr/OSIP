@@ -1,0 +1,14 @@
+{
+  "schema_version": "osip/0.1",
+  "type": "action.command",
+  "command_id": "cmd_000001",
+  "proposal_id": "actprop_000001",
+  "action_id": "room.speaker.ask_help_needed",
+  "target": "room.speaker",
+  "operation": "room.speaker.speak",
+  "parameters": {
+    "text": "Brauchst du Hilfe?"
+  },
+  "execute_before_ms": 300,
+  "idempotency_key": "ctx_20260612_143109_001:ask_help_needed"
+}

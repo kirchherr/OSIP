@@ -1,0 +1,29 @@
+{
+  "schema_version": "osip/0.1",
+  "type": "model.capability",
+  "model_id": "vision.pose_activity_v1",
+  "display_name": "Vision Pose and Activity Model",
+  "version": "0.1.0",
+  "modalities": [
+    "rgb",
+    "depth"
+  ],
+  "outputs": [
+    "person.presence",
+    "person.pose",
+    "event.fall_candidate",
+    "object.interaction"
+  ],
+  "latency_profile": {
+    "p50_ms": 25,
+    "p95_ms": 80,
+    "max_budget_ms": 120
+  },
+  "spatial_reference": "room_xyz",
+  "confidence_calibrated": false,
+  "embedding": {
+    "available": true,
+    "dimension": 768,
+    "space": "vision_pose_activity_v1"
+  }
+}

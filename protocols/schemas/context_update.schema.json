@@ -1,0 +1,185 @@
+{
+  "$defs": {
+    "Confidence": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "type": "number"
+    },
+    "ContextEntity": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "$ref": "#/$defs/Confidence"
+        },
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "state": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Identifier"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "type": {
+          "$ref": "#/$defs/Identifier"
+        },
+        "zone": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Identifier"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "confidence"
+      ],
+      "title": "ContextEntity",
+      "type": "object"
+    },
+    "ContextEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "$ref": "#/$defs/Confidence"
+        },
+        "contradictions": {
+          "items": {
+            "$ref": "#/$defs/Label"
+          },
+          "title": "Contradictions",
+          "type": "array"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Label"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "label": {
+          "$ref": "#/$defs/Label"
+        },
+        "urgency": {
+          "$ref": "#/$defs/Confidence"
+        }
+      },
+      "required": [
+        "label",
+        "confidence",
+        "urgency",
+        "evidence"
+      ],
+      "title": "ContextEvent",
+      "type": "object"
+    },
+    "GlobalRisk": {
+      "additionalProperties": false,
+      "properties": {
+        "comfort": {
+          "$ref": "#/$defs/Confidence"
+        },
+        "maintenance": {
+          "$ref": "#/$defs/Confidence"
+        },
+        "safety": {
+          "$ref": "#/$defs/Confidence"
+        }
+      },
+      "required": [
+        "safety",
+        "comfort",
+        "maintenance"
+      ],
+      "title": "GlobalRisk",
+      "type": "object"
+    },
+    "Identifier": {
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)*(_v[0-9]+)?$",
+      "type": "string"
+    },
+    "Label": {
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$",
+      "type": "string"
+    },
+    "PositiveInt": {
+      "exclusiveMinimum": 0,
+      "type": "integer"
+    }
+  },
+  "$id": "https://schemas.omnisense.dev/osip/0.1/context_update.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "context_id": {
+      "minLength": 1,
+      "title": "Context Id",
+      "type": "string"
+    },
+    "entities": {
+      "items": {
+        "$ref": "#/$defs/ContextEntity"
+      },
+      "title": "Entities",
+      "type": "array"
+    },
+    "events": {
+      "items": {
+        "$ref": "#/$defs/ContextEvent"
+      },
+      "title": "Events",
+      "type": "array"
+    },
+    "global_risk": {
+      "$ref": "#/$defs/GlobalRisk"
+    },
+    "room": {
+      "$ref": "#/$defs/Identifier"
+    },
+    "schema_version": {
+      "const": "osip/0.1",
+      "default": "osip/0.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "time_window_ms": {
+      "$ref": "#/$defs/PositiveInt"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "title": "Timestamp",
+      "type": "string"
+    },
+    "type": {
+      "const": "context.update",
+      "default": "context.update",
+      "title": "Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "context_id",
+    "timestamp",
+    "time_window_ms",
+    "room",
+    "global_risk"
+  ],
+  "title": "ContextUpdate",
+  "type": "object"
+}

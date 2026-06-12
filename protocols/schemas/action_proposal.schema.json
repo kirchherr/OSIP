@@ -1,0 +1,87 @@
+{
+  "$defs": {
+    "ActionPriority": {
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "critical"
+      ],
+      "type": "string"
+    },
+    "Confidence": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "type": "number"
+    },
+    "Label": {
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$",
+      "type": "string"
+    },
+    "PositiveInt": {
+      "exclusiveMinimum": 0,
+      "type": "integer"
+    }
+  },
+  "$id": "https://schemas.omnisense.dev/osip/0.1/action_proposal.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "action_id": {
+      "$ref": "#/$defs/Label"
+    },
+    "based_on_context": {
+      "minLength": 1,
+      "title": "Based On Context",
+      "type": "string"
+    },
+    "confidence": {
+      "$ref": "#/$defs/Confidence"
+    },
+    "deadline_ms": {
+      "$ref": "#/$defs/PositiveInt"
+    },
+    "priority": {
+      "$ref": "#/$defs/ActionPriority"
+    },
+    "proposal_id": {
+      "minLength": 1,
+      "title": "Proposal Id",
+      "type": "string"
+    },
+    "reason": {
+      "minLength": 1,
+      "title": "Reason",
+      "type": "string"
+    },
+    "requires_confirmation": {
+      "title": "Requires Confirmation",
+      "type": "boolean"
+    },
+    "schema_version": {
+      "const": "osip/0.1",
+      "default": "osip/0.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "type": {
+      "const": "action.proposal",
+      "default": "action.proposal",
+      "title": "Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "proposal_id",
+    "based_on_context",
+    "action_id",
+    "priority",
+    "confidence",
+    "deadline_ms",
+    "reason",
+    "requires_confirmation"
+  ],
+  "title": "ActionProposal",
+  "type": "object"
+}

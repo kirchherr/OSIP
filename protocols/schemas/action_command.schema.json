@@ -1,0 +1,73 @@
+{
+  "$defs": {
+    "Label": {
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$",
+      "type": "string"
+    },
+    "PositiveInt": {
+      "exclusiveMinimum": 0,
+      "type": "integer"
+    }
+  },
+  "$id": "https://schemas.omnisense.dev/osip/0.1/action_command.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "action_id": {
+      "$ref": "#/$defs/Label"
+    },
+    "command_id": {
+      "minLength": 1,
+      "title": "Command Id",
+      "type": "string"
+    },
+    "execute_before_ms": {
+      "$ref": "#/$defs/PositiveInt"
+    },
+    "idempotency_key": {
+      "minLength": 1,
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "operation": {
+      "$ref": "#/$defs/Label"
+    },
+    "parameters": {
+      "additionalProperties": true,
+      "title": "Parameters",
+      "type": "object"
+    },
+    "proposal_id": {
+      "minLength": 1,
+      "title": "Proposal Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "osip/0.1",
+      "default": "osip/0.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "target": {
+      "$ref": "#/$defs/Label"
+    },
+    "type": {
+      "const": "action.command",
+      "default": "action.command",
+      "title": "Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "command_id",
+    "proposal_id",
+    "action_id",
+    "target",
+    "operation",
+    "execute_before_ms",
+    "idempotency_key"
+  ],
+  "title": "ActionCommand",
+  "type": "object"
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": "osip/0.1",
+  "type": "action.result",
+  "result_id": "actres_000001",
+  "command_id": "cmd_000001",
+  "action_id": "room.speaker.ask_help_needed",
+  "status": "executed",
+  "started_at": "2026-06-12T14:31:09.420Z",
+  "completed_at": "2026-06-12T14:31:09.470Z",
+  "latency_ms": 50,
+  "output": {
+    "speaker_response": "queued"
+  },
+  "rollback_performed": false
+}

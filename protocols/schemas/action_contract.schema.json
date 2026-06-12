@@ -1,0 +1,125 @@
+{
+  "$defs": {
+    "Confidence": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "type": "number"
+    },
+    "Label": {
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$",
+      "type": "string"
+    },
+    "NonNegativeInt": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "PositiveInt": {
+      "exclusiveMinimum": 0,
+      "type": "integer"
+    },
+    "RiskClass": {
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "https://schemas.omnisense.dev/osip/0.1/action_contract.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "action_id": {
+      "$ref": "#/$defs/Label"
+    },
+    "allowed_contexts": {
+      "items": {
+        "$ref": "#/$defs/Label"
+      },
+      "minItems": 1,
+      "title": "Allowed Contexts",
+      "type": "array"
+    },
+    "cooldown_ms": {
+      "$ref": "#/$defs/NonNegativeInt"
+    },
+    "idempotent": {
+      "title": "Idempotent",
+      "type": "boolean"
+    },
+    "max_decision_latency_ms": {
+      "$ref": "#/$defs/PositiveInt"
+    },
+    "min_confidence": {
+      "$ref": "#/$defs/Confidence"
+    },
+    "operation": {
+      "$ref": "#/$defs/Label"
+    },
+    "preconditions": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Preconditions",
+      "type": "array"
+    },
+    "risk_class": {
+      "$ref": "#/$defs/RiskClass"
+    },
+    "rollback": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Label"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "safe_state": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Label"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "schema_version": {
+      "const": "osip/0.1",
+      "default": "osip/0.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "target": {
+      "$ref": "#/$defs/Label"
+    },
+    "type": {
+      "const": "action.contract",
+      "default": "action.contract",
+      "title": "Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "action_id",
+    "target",
+    "operation",
+    "risk_class",
+    "allowed_contexts",
+    "preconditions",
+    "min_confidence",
+    "max_decision_latency_ms",
+    "cooldown_ms",
+    "idempotent"
+  ],
+  "title": "ActionContract",
+  "type": "object"
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": "osip/0.1",
+  "type": "event.detected",
+  "event_id": "evt_20260612_143109_001",
+  "timestamp": "2026-06-12T14:31:09.360Z",
+  "label": "event.fall_candidate",
+  "confidence": 0.86,
+  "urgency": 0.81,
+  "room": "living_room",
+  "zone": "sofa_area",
+  "evidence": [
+    "tactile.floor_pressure_spike",
+    "audio.impact_sound",
+    "radar.motion_drop"
+  ],
+  "contradictions": [],
+  "context_id": "ctx_20260612_143109_001"
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "OSIP Project"
+  short_description: "OSIP open-standard project workflow"
+  default_prompt: "Use the OSIP project skill to read Masterplan.md and AGENTS.md, align public interfaces with open standards, keep tests simulation-first, and implement the next smallest validated step."

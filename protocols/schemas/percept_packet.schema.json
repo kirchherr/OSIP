@@ -1,0 +1,294 @@
+{
+  "$defs": {
+    "Claim": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "$ref": "#/$defs/Confidence"
+        },
+        "label": {
+          "$ref": "#/$defs/Label"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "items": {},
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "label",
+        "confidence"
+      ],
+      "title": "Claim",
+      "type": "object"
+    },
+    "Confidence": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "type": "number"
+    },
+    "EmbeddingRef": {
+      "additionalProperties": false,
+      "properties": {
+        "dimension": {
+          "$ref": "#/$defs/PositiveInt"
+        },
+        "ref": {
+          "minLength": 1,
+          "title": "Ref",
+          "type": "string"
+        },
+        "space": {
+          "$ref": "#/$defs/Identifier"
+        }
+      },
+      "required": [
+        "ref",
+        "dimension",
+        "space"
+      ],
+      "title": "EmbeddingRef",
+      "type": "object"
+    },
+    "Identifier": {
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)*(_v[0-9]+)?$",
+      "type": "string"
+    },
+    "Label": {
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$",
+      "type": "string"
+    },
+    "Location": {
+      "additionalProperties": false,
+      "properties": {
+        "azimuth_deg": {
+          "anyOf": [
+            {
+              "maximum": 180.0,
+              "minimum": -180.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Azimuth Deg"
+        },
+        "coordinates": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Coordinates"
+        },
+        "room": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Identifier"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "zone": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Identifier"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "Location",
+      "type": "object"
+    },
+    "NonNegativeInt": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "PositiveInt": {
+      "exclusiveMinimum": 0,
+      "type": "integer"
+    },
+    "QualityStatus": {
+      "enum": [
+        "usable",
+        "degraded",
+        "unusable"
+      ],
+      "type": "string"
+    },
+    "SensorQuality": {
+      "additionalProperties": false,
+      "properties": {
+        "drift_score": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Confidence"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "signal_noise": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Confidence"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "status": {
+          "$ref": "#/$defs/QualityStatus"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "title": "SensorQuality",
+      "type": "object"
+    }
+  },
+  "$id": "https://schemas.omnisense.dev/osip/0.1/percept_packet.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "claims": {
+      "items": {
+        "$ref": "#/$defs/Claim"
+      },
+      "minItems": 1,
+      "title": "Claims",
+      "type": "array"
+    },
+    "embedding": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EmbeddingRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "id": {
+      "minLength": 1,
+      "title": "Id",
+      "type": "string"
+    },
+    "latency_ms": {
+      "$ref": "#/$defs/NonNegativeInt"
+    },
+    "location": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Location"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "modality": {
+      "$ref": "#/$defs/Identifier"
+    },
+    "quality": {
+      "$ref": "#/$defs/SensorQuality"
+    },
+    "received_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Received At"
+    },
+    "schema_version": {
+      "const": "osip/0.1",
+      "default": "osip/0.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_model": {
+      "$ref": "#/$defs/Identifier"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "title": "Timestamp",
+      "type": "string"
+    },
+    "type": {
+      "const": "percept.packet",
+      "default": "percept.packet",
+      "title": "Type",
+      "type": "string"
+    },
+    "valid_for_ms": {
+      "$ref": "#/$defs/PositiveInt"
+    }
+  },
+  "required": [
+    "id",
+    "source_model",
+    "modality",
+    "timestamp",
+    "valid_for_ms",
+    "latency_ms",
+    "claims",
+    "quality"
+  ],
+  "title": "PerceptPacket",
+  "type": "object"
+}

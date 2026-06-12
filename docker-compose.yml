@@ -1,0 +1,29 @@
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: osip-dev:latest
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - osip-uv-cache:/root/.cache/uv
+    environment:
+      PYTHONPATH: /workspace/packages/osip:/workspace/packages/bus:/workspace/packages/context_engine:/workspace/packages/decision_runtime:/workspace/packages/simulators:/workspace/packages/gateway:/workspace/packages/sdk_python
+      UV_PROJECT_ENVIRONMENT: /opt/venv
+      UV_LINK_MODE: copy
+    command: bash
+    stdin_open: true
+    tty: true
+
+  nats:
+    image: nats:2.10-alpine
+    profiles:
+      - broker
+    command: ["-js", "-m", "8222"]
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+
+volumes:
+  osip-uv-cache:

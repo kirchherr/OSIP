@@ -1,0 +1,35 @@
+{
+  "schema_version": "osip/0.1",
+  "type": "context.update",
+  "context_id": "ctx_20260612_143109_001",
+  "timestamp": "2026-06-12T14:31:09.350Z",
+  "time_window_ms": 250,
+  "room": "living_room",
+  "entities": [
+    {
+      "id": "person_anon_1",
+      "type": "person",
+      "zone": "sofa_area",
+      "state": "possibly_on_floor",
+      "confidence": 0.79
+    }
+  ],
+  "events": [
+    {
+      "label": "event.fall_candidate",
+      "confidence": 0.86,
+      "urgency": 0.81,
+      "evidence": [
+        "tactile.floor_pressure_spike",
+        "audio.impact_sound",
+        "radar.motion_drop"
+      ],
+      "contradictions": []
+    }
+  ],
+  "global_risk": {
+    "safety": 0.82,
+    "comfort": 0.21,
+    "maintenance": 0.05
+  }
+}

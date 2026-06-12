@@ -1,0 +1,161 @@
+{
+  "$defs": {
+    "EmbeddingCapability": {
+      "additionalProperties": false,
+      "properties": {
+        "available": {
+          "title": "Available",
+          "type": "boolean"
+        },
+        "dimension": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PositiveInt"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "space": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Identifier"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "available"
+      ],
+      "title": "EmbeddingCapability",
+      "type": "object"
+    },
+    "Identifier": {
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)*(_v[0-9]+)?$",
+      "type": "string"
+    },
+    "Label": {
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$",
+      "type": "string"
+    },
+    "LatencyProfile": {
+      "additionalProperties": false,
+      "properties": {
+        "max_budget_ms": {
+          "$ref": "#/$defs/PositiveInt"
+        },
+        "p50_ms": {
+          "$ref": "#/$defs/PositiveInt"
+        },
+        "p95_ms": {
+          "$ref": "#/$defs/PositiveInt"
+        }
+      },
+      "required": [
+        "p50_ms",
+        "p95_ms",
+        "max_budget_ms"
+      ],
+      "title": "LatencyProfile",
+      "type": "object"
+    },
+    "PositiveInt": {
+      "exclusiveMinimum": 0,
+      "type": "integer"
+    }
+  },
+  "$id": "https://schemas.omnisense.dev/osip/0.1/model_capability.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "confidence_calibrated": {
+      "title": "Confidence Calibrated",
+      "type": "boolean"
+    },
+    "display_name": {
+      "minLength": 1,
+      "title": "Display Name",
+      "type": "string"
+    },
+    "embedding": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EmbeddingCapability"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "latency_profile": {
+      "$ref": "#/$defs/LatencyProfile"
+    },
+    "modalities": {
+      "items": {
+        "$ref": "#/$defs/Identifier"
+      },
+      "minItems": 1,
+      "title": "Modalities",
+      "type": "array"
+    },
+    "model_id": {
+      "$ref": "#/$defs/Identifier"
+    },
+    "outputs": {
+      "items": {
+        "$ref": "#/$defs/Label"
+      },
+      "minItems": 1,
+      "title": "Outputs",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "osip/0.1",
+      "default": "osip/0.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "spatial_reference": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Identifier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "type": {
+      "const": "model.capability",
+      "default": "model.capability",
+      "title": "Type",
+      "type": "string"
+    },
+    "version": {
+      "minLength": 1,
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "model_id",
+    "display_name",
+    "version",
+    "modalities",
+    "outputs",
+    "latency_profile",
+    "confidence_calibrated"
+  ],
+  "title": "ModelCapabilityDescriptor",
+  "type": "object"
+}

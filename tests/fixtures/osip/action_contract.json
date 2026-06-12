@@ -1,0 +1,21 @@
+{
+  "schema_version": "osip/0.1",
+  "type": "action.contract",
+  "action_id": "hvac.ventilation_boost",
+  "target": "hvac.living_room",
+  "operation": "ventilation.boost",
+  "risk_class": "low",
+  "allowed_contexts": [
+    "context.bad_air",
+    "context.possible_smoke_low_risk",
+    "context.high_occupancy_stale_air"
+  ],
+  "preconditions": [
+    "hvac.available == true"
+  ],
+  "min_confidence": 0.6,
+  "max_decision_latency_ms": 250,
+  "cooldown_ms": 30000,
+  "rollback": "hvac.ventilation_normal",
+  "idempotent": true
+}

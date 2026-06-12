@@ -1,0 +1,114 @@
+{
+  "$defs": {
+    "Confidence": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "type": "number"
+    },
+    "Identifier": {
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)*(_v[0-9]+)?$",
+      "type": "string"
+    },
+    "Label": {
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$",
+      "type": "string"
+    }
+  },
+  "$id": "https://schemas.omnisense.dev/osip/0.1/event_detected.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "confidence": {
+      "$ref": "#/$defs/Confidence"
+    },
+    "context_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Context Id"
+    },
+    "contradictions": {
+      "items": {
+        "$ref": "#/$defs/Label"
+      },
+      "title": "Contradictions",
+      "type": "array"
+    },
+    "event_id": {
+      "minLength": 1,
+      "title": "Event Id",
+      "type": "string"
+    },
+    "evidence": {
+      "items": {
+        "$ref": "#/$defs/Label"
+      },
+      "minItems": 1,
+      "title": "Evidence",
+      "type": "array"
+    },
+    "label": {
+      "$ref": "#/$defs/Label"
+    },
+    "room": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Identifier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "schema_version": {
+      "const": "osip/0.1",
+      "default": "osip/0.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "title": "Timestamp",
+      "type": "string"
+    },
+    "type": {
+      "const": "event.detected",
+      "default": "event.detected",
+      "title": "Type",
+      "type": "string"
+    },
+    "urgency": {
+      "$ref": "#/$defs/Confidence"
+    },
+    "zone": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Identifier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "event_id",
+    "timestamp",
+    "label",
+    "confidence",
+    "urgency",
+    "evidence"
+  ],
+  "title": "EventDetected",
+  "type": "object"
+}
