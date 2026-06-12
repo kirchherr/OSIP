@@ -49,6 +49,7 @@ profile and at least one existing profile need the same concept.
 - Context fusion `profile_id`:
 - Decision policy:
 - Default Action Contract bundle:
+- Decision profile `profile_id`:
 - Gateway or SDK profile hooks:
 
 ## Fixtures And Scenarios

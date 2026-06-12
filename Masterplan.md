@@ -1633,7 +1633,7 @@ Diese Werte sind Forschungsziele, keine Garantien für beliebige Hardware.
 - H5: Profil-spezifische Vokabulare, Fixtures, Szenarien, Benchmarks und Safety Cases voneinander trennen
 - H6: Adapter-Regel definieren: Simulatoren, ROS 2/DDS, MQTT, NATS, Robot-SDKs und Gebaeudetechnik bleiben ausserhalb von OSIP Core
 - H7: Core-Promotion-Regel einfuehren: Ein Profilkonzept wird erst Core, wenn mindestens zwei Profile es gemeinsam brauchen
-- H8: Runtime-Registries fuer Profil-Fusion und spaeter Profil-Policies einfuehren, damit `rooms`, `physical-ai` und `xxx` ohne Core-Umbau andocken koennen
+- H8: Runtime-Registries fuer Profil-Fusion und Profil-Policies einfuehren, damit `rooms`, `physical-ai` und `xxx` ohne Core-Umbau andocken koennen
 
 ### Epic I - Experience & Learning Layer
 

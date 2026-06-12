@@ -30,7 +30,7 @@ class ContextFusionRegistry:
     def with_defaults(cls) -> Self:
         """Build the default registry with the reference rooms profile."""
 
-        from omnisense_profiles.rooms import RoomsFusion
+        from omnisense_profiles.rooms.context_fusion import RoomsFusion
 
         return cls([RoomsFusion()])
 

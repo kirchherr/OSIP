@@ -47,12 +47,14 @@ the first reliable pipeline exists:
    bounds, and continuous-action contracts.
 3. Provide a `physical-ai` context-fusion implementation through the profile
    registry once vocabulary and fixtures exist.
-4. Build simulator adapter boundaries without pulling simulator dependencies into
+4. Provide a `physical-ai` decision profile with contract-bounded manipulation,
+   navigation, safe-stop, and observation policies before any runtime proposals.
+5. Build simulator adapter boundaries without pulling simulator dependencies into
    OSIP Core.
-5. Add Sim2Real benchmark metadata: simulator version, robot/world description,
+6. Add Sim2Real benchmark metadata: simulator version, robot/world description,
    seed, sensor noise, domain randomization, latency jitter, safe-stop events,
    and action-bound violations.
-6. Design ROS 2/DDS bridge semantics with QoS kept in adapter configuration.
+7. Design ROS 2/DDS bridge semantics with QoS kept in adapter configuration.
 
 ## Learning Signals
 

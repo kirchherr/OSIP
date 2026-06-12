@@ -2,20 +2,48 @@
 
 The Decision Runtime turns fused `ContextUpdate` messages into bounded
 `ActionProposal` messages. It is deterministic, contract-driven, and
-simulation-first.
+simulation-first. The default Application Profile is `rooms`, but profile
+policies and default Action Contract bundles are selected through a registry
+instead of being hard-wired into the runtime.
 
 ## Scope
 
 - `ActionContractRegistry`: stores and matches registered Action Contracts.
+- `DecisionPolicy`: profile-facing interface for matching context events,
+  assigning priority, confirmation requirements, and proposal reasons.
+- `DecisionProfileRegistry`: maps application profile ids to a decision policy
+  plus the profile's default Action Contracts.
 - `PreconditionsEvaluator`: evaluates a small non-executable precondition
   language such as `hvac.available == true` or `room.co2_ppm < 1200`.
 - `CooldownTracker`: prevents repeated proposals for the same action inside the
   contract cooldown window.
-- `RoomsDecisionPolicy`: maps rooms-profile context events to default contracts.
+- `RoomsDecisionPolicy`: maps rooms-profile context events to default contracts,
+  provided by `omnisense_profiles.rooms.decision`.
 - `DecisionRuntime`: publishes `ActionProposal` messages to
   `omnisense.actions.proposals`.
 - `ActionCommandExecutorStub`: builds and publishes `ActionCommand` messages
   without real side effects.
+
+## Profile Registry
+
+`DecisionRuntime(bus)` keeps `rooms` as the MVP default. A new profile attaches
+by registering a `DecisionProfile` that contains a `DecisionPolicy` and its
+default Action Contracts.
+
+```python
+profile = DecisionProfile(
+    profile_id="xxx",
+    policy=XxxDecisionPolicy(),
+    contracts=tuple(default_xxx_contracts()),
+)
+runtime = DecisionRuntime(
+    bus,
+    application_profile="xxx",
+    profile_registry=DecisionProfileRegistry([profile]),
+)
+```
+
+Unknown profiles fail closed with `UnknownDecisionProfileError`.
 
 ## Default Rooms Contracts
 

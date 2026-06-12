@@ -10,8 +10,9 @@ from omnisense_osip import ActionProposal, ContextUpdate
 
 from omnisense_decision.contracts import ActionContractRegistry
 from omnisense_decision.cooldown import CooldownTracker
-from omnisense_decision.policy import ContractMatch, RoomsDecisionPolicy, default_rooms_contracts
+from omnisense_decision.interfaces import ContractMatch, DecisionPolicy
 from omnisense_decision.preconditions import PreconditionsEvaluator, ScalarFact
+from omnisense_decision.profiles import DecisionProfileRegistry
 
 
 @dataclass(frozen=True, slots=True)
@@ -38,19 +39,43 @@ class DecisionRuntime:
         self,
         bus: AsyncMessageBus,
         *,
+        application_profile: str = "rooms",
         registry: ActionContractRegistry | None = None,
+        profile_registry: DecisionProfileRegistry | None = None,
         preconditions: PreconditionsEvaluator | None = None,
         cooldowns: CooldownTracker | None = None,
-        policy: RoomsDecisionPolicy | None = None,
+        policy: DecisionPolicy | None = None,
         facts: Mapping[str, ScalarFact] | None = None,
     ) -> None:
         self._bus = bus
-        self._registry = registry or ActionContractRegistry(default_rooms_contracts())
+        decision_profile = (
+            (profile_registry or DecisionProfileRegistry.with_defaults()).get(application_profile)
+            if registry is None or policy is None
+            else None
+        )
+        if registry is None:
+            if decision_profile is None:
+                msg = "decision profile is required when no action contract registry is provided"
+                raise ValueError(msg)
+            self._registry = ActionContractRegistry(decision_profile.contracts)
+        else:
+            self._registry = registry
+        if policy is None:
+            if decision_profile is None:
+                msg = "decision profile is required when no decision policy is provided"
+                raise ValueError(msg)
+            self._policy = decision_profile.policy
+        else:
+            self._policy = policy
         self._preconditions = preconditions or PreconditionsEvaluator()
         self._cooldowns = cooldowns or CooldownTracker()
-        self._policy = policy or RoomsDecisionPolicy()
+        self._application_profile = self._policy.profile_id
         self._facts: dict[str, ScalarFact] = dict(facts or {})
         self._proposal_counter = 0
+
+    @property
+    def application_profile(self) -> str:
+        return self._application_profile
 
     async def evaluate(
         self,

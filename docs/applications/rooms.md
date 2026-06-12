@@ -10,6 +10,8 @@ intelligent rooms and smart environments.
 - Context: room state, zones, people, events, comfort, safety, maintenance risk.
 - Context fusion: `omnisense_profiles.rooms.RoomsFusion` registered under
   profile id `rooms`.
+- Decision policy: `omnisense_profiles.rooms.decision.RoomsDecisionPolicy` and
+  default room Action Contracts registered under profile id `rooms`.
 - Actions: HVAC, lighting, speakers, notifications, blinds, appliance controls.
 - Safety: cooldowns, confirmations, preconditions, rollback, safe state, audit
   trail.
@@ -37,7 +39,9 @@ intelligent rooms and smart environments.
    air, sensor conflict, and sensor dropout.
 3. Keep context fusion in the profile package and register it with the
    profile-aware Context Engine.
-4. Add gateway and SDK only after schemas, bus, simulator, context, and decision
+4. Keep decision policy and default Action Contracts in the profile package and
+   register them with the profile-aware Decision Runtime.
+5. Add gateway and SDK only after schemas, bus, simulator, context, and decision
    runtime are stable.
 
 ## Learning Signals
