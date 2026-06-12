@@ -58,6 +58,22 @@ dataset contracts. Room reward signals should document feedback delay and
 ambiguity, for example whether a jacket, opened window, cough, or user override
 really reflects the action or an unrelated cause.
 
+## Autonomy Signals
+
+The `rooms` profile can use emergent autonomy for bounded investigation and
+maintenance goals:
+
+- surprise: unexpected air-quality shifts, open/closed device state changes,
+  unusual occupancy transitions, or sensor/model disagreement,
+- epistemic value: request another modality, ask for confirmation, increase
+  sampling briefly, or inspect a zone with a permitted sensor,
+- homeostasis: request sensor cleaning, calibration, degraded-node fallback, or
+  maintenance notification.
+
+Room autonomy must not "restore normality" automatically. A window opened by a
+person, a user override, or a privacy-sensitive zone should normally produce a
+confirmation or observation goal, not a corrective action.
+
 ## Acceptance Criteria
 
 - Valid room percepts validate against OSIP schemas.
@@ -66,3 +82,4 @@ really reflects the action or an unrelated cause.
 - No action is proposed without an Action Contract.
 - Low-confidence or missing-precondition actions are blocked.
 - Learning exports include provenance and cannot promote models automatically.
+- Generated goals are blocked or decomposed when no safe Action Contract exists.

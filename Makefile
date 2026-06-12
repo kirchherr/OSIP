@@ -1,7 +1,7 @@
 DOCKER_COMPOSE ?= docker compose
 SERVICE ?= dev
 
-.PHONY: docker-build docker-shell docker-run docker-test docker-lint docker-format docker-typecheck docker-env nats-up nats-down test lint format typecheck env openapi
+.PHONY: docker-build docker-shell docker-run docker-test docker-lint docker-format docker-typecheck docker-env nats-up nats-down test lint format typecheck env openapi benchmark
 
 docker-build:
 	$(DOCKER_COMPOSE) build dev
@@ -50,3 +50,6 @@ env:
 
 openapi:
 	uv run python scripts/export_openapi.py
+
+benchmark:
+	uv run python scripts/run_benchmark.py

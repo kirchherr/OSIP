@@ -5,11 +5,11 @@ Runtime.
 
 It is not a Smart-Room-only architecture and it is not a robotics framework by
 itself. It is the shared semantic layer that applications can use to connect
-specialized perception models, context/world modeling, bounded actions, and
-controlled learning from runtime experience.
+specialized perception models, context/world modeling, emergent goal
+hypotheses, bounded actions, and controlled learning from runtime experience.
 
 ```text
-Perception -> Context / World Model -> Bounded Action -> Result / Outcome -> Learning
+Perception -> Context / World Model -> Goal Hypothesis -> Bounded Action -> Result / Outcome -> Learning
 ```
 
 ## Core Responsibilities
@@ -21,9 +21,29 @@ Perception -> Context / World Model -> Bounded Action -> Result / Outcome -> Lea
 - Represent uncertainty, latency, validity windows, quality, evidence,
   contradictions, calibration, and action boundaries.
 - Provide deterministic replay and benchmark hooks.
+- Provide hooks for goal hypotheses derived from surprise, epistemic value, and
+  system health without turning them into direct action authority.
 - Provide trace hooks for later experience datasets, model evaluation, and
   controlled model promotion.
 - Keep tests simulation-first and hardware-free.
+
+## Emergent Autonomy
+
+Emergent autonomy is a bounded goal-generation layer between context/world
+modeling and decision making. It can produce auditable `goal.packet` candidates
+from:
+
+- prediction error or surprise,
+- epistemic value or information gain,
+- digital homeostasis or agency maintenance.
+
+Generated goals are not permissions. They must be evaluated by Application
+Profiles, policies, simulation/benchmark gates, and Action Contracts before any
+proposal or command is emitted.
+
+Surprise should usually produce an investigation goal first. For example, an
+unexpected sensor shift can ask for more evidence or human confirmation before
+it attempts to change the physical environment.
 
 ## Experience & Learning Layer
 
@@ -82,6 +102,7 @@ Good core additions:
 - validation helpers,
 - transport-neutral topics,
 - action-contract primitives,
+- goal packet primitives,
 - replay metadata hooks.
 - experience trace metadata,
 - dataset and model lifecycle primitives.
@@ -94,6 +115,7 @@ Profile-only additions:
 - vendor device APIs,
 - learned models,
 - profile-specific labels and outcomes for learning,
+- profile-specific autonomy priorities and preference envelopes,
 - hardware drivers.
 
 When in doubt, put the detail in an application profile first. Promote it to

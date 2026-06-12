@@ -2,11 +2,12 @@
 
 ## Project Goal
 
-Build OmniSense Runtime: an open, modular, simulation-first Perception-to-Action runtime with a domain-neutral OSIP Core and attachable Application Profiles. The first profile is `rooms`; later profiles include `physical-ai` and future domains such as `xxx`. Specialized sensory, proprioceptive, and kinematic models publish OSIP Percept Packets; a context engine fuses them into operational context/world state; a bounded decision runtime triggers actions only through Action Contracts and safety bounds. A controlled Experience & Learning Layer extracts learnable traces from decisions, actions, results, and outcomes so later models can be trained, calibrated, evaluated, and promoted with provenance.
+Build OmniSense Runtime: an open, modular, simulation-first Perception-to-Action runtime with a domain-neutral OSIP Core and attachable Application Profiles. The first profile is `rooms`; later profiles include `physical-ai` and future domains such as `xxx`. Specialized sensory, proprioceptive, and kinematic models publish OSIP Percept Packets; a context engine fuses them into operational context/world state; a bounded decision runtime triggers actions only through Action Contracts and safety bounds. A controlled Experience & Learning Layer extracts learnable traces from decisions, actions, results, and outcomes so later models can be trained, calibrated, evaluated, and promoted with provenance. Emergent autonomy is handled through auditable goal hypotheses, not free actions.
 
 ## Read First
 
 - Read `Masterplan.md` before architectural or interface work.
+- Read `docs/emergent-autonomy.md` before changing goal generation, autonomy semantics, surprise/epistemic/homeostatic scoring, `goal.packet`, or goal-to-contract mapping.
 - Read `docs/learning-layer.md` before changing trace export, datasets, calibration, ML lifecycle, model registry, model promotion, or learning-related schemas.
 - Read `docs/project-preparation.md` before changing public schemas, protocols, benchmarks, source governance, or standards alignment.
 - Use the repo skill `osip-project` when working on OSIP Core, Application Profiles, OSIP schemas, bus, context fusion, decision runtime, simulation, benchmarks, Physical AI, robotics adapters, safety bounds, or open-standard interface decisions.
@@ -20,17 +21,20 @@ Build OmniSense Runtime: an open, modular, simulation-first Perception-to-Action
 - Profile-aware by default: keep OSIP Core domain-neutral; put Rooms, Physical AI, and future XXX domain details into Application Profiles.
 - Transport agnostic: OSIP semantics live in schemas and vocabulary, not in HTTP, NATS, MQTT, or ROS 2 code.
 - Physical-AI aware: design Perception -> Context -> Action contracts so they can later support robot/world state, 3D transforms, proprioception, manipulation, navigation, and continuous-control boundaries without making hardware mandatory.
+- Autonomy-aware: generated goals are hypotheses derived from surprise, epistemic value, or digital homeostasis; they must pass profiles, policies, simulation, benchmark, and Action Contract gates before any effect.
 - Learning-aware: treat `PerceptPacket -> ContextUpdate -> ActionProposal -> ActionCommand -> ActionResult -> Outcome` as a future Experience Trace, but keep learning and training outside the Reflex/Fast Path.
 - Closed-loop aware: link post-action percepts to the causing or preceding action with trace id, action id, feedback window, delay, uncertainty, and known confounders before deriving reward signals.
 - Promote a concept from profile to Core only when at least two profiles need it.
 - Version every public schema and avoid breaking `schema_version` without migration notes.
 - No LLM, database, cloud API, or blocking network call in Reflex Layer or other fast-path decision logic.
+- No self-generated goal may bypass the Decision Runtime, Action Contracts, profile safety cases, human-confirmation rules, or explicit review state.
 - No online self-training, automatic model promotion, or self-modifying action policy in production behavior.
 - No action without an `action.contract`; check preconditions, confidence, cooldown, idempotency, deadline, rollback or safe state where possible.
 - No direct actuator, motor, robot, vehicle, or manipulator command without explicit bounds, rate limits, workspace limits, stop conditions, and a safe-state path.
 - Treat missing, late, duplicate, degraded, or conflicting sensor data as expected runtime conditions.
 - Treat train/eval/test split, provenance, source trace hash, scenario id, profile id, schema version, and model capability metadata as first-class learning metadata.
 - Distinguish model families: distillation accelerates bounded decisions, world models predict action consequences, and IRL/reward models propose reviewable objectives.
+- Treat surprise as an investigation trigger first, not an automatic instruction to restore a prior state.
 - Public interfaces need typed models, validation, examples, negative tests, and documentation.
 
 ## Standards Posture
@@ -41,6 +45,7 @@ Build OmniSense Runtime: an open, modular, simulation-first Perception-to-Action
 - Align smart-building vocabulary with Brick where practical, while keeping OSIP labels stable and lightweight.
 - Align Physical AI adapters with ROS 2/DDS concepts, QoS as adapter configuration, URDF/SDF/OpenUSD-style scene and robot descriptions, and simulator-first workflows such as MuJoCo, Gazebo, Isaac Sim, or PyBullet without adding them to core tests by default.
 - Align learning lineage with W3C PROV and OpenLineage concepts, model lifecycle with registry concepts such as MLflow Model Registry, model documentation with Model Cards, dataset documentation with Datasheets for Datasets, and AI-risk thinking with NIST AI RMF.
+- Align emergent-autonomy research with active inference, expected free energy, intrinsic motivation, and homeostatic/allostatic control ideas, while keeping OSIP behavior contract-bounded and auditable.
 - Treat safety standards such as ISO 10218, ISO/TS 15066, ISO 26262, and IEC 61508 as design references for hazards, bounds, emergency stop, auditability, and functional safety, not as claims of certification.
 - Expose observability through OpenTelemetry concepts and Prometheus/OpenMetrics-compatible metrics.
 - Keep open-source governance reviewable: clear license, SPDX/REUSE-compatible notices, dependency pinning, CI tests, and supply-chain provenance planning.
@@ -52,8 +57,9 @@ Build OmniSense Runtime: an open, modular, simulation-first Perception-to-Action
 3. Add or update positive and negative tests before or alongside implementation.
 4. Keep changes small enough for review.
 5. For learning-related work, start with trace/dataset/model-card contracts and benchmark gates before model training code.
-6. Run the narrowest relevant checks; once foundation exists, prefer `make test`, `make lint`, `make typecheck`, and `make benchmark`.
-7. Document changed public interfaces in `docs/` or `protocols/`.
+6. For autonomy-related work, start with `goal.packet` contracts, forbidden-goal examples, missing-contract behavior, and goal-to-contract audit trails before live goal execution.
+7. Run the narrowest relevant checks; once foundation exists, prefer `make test`, `make lint`, `make typecheck`, and `make benchmark`.
+8. Document changed public interfaces in `docs/` or `protocols/`.
 
 ## Done Means
 
@@ -73,6 +79,7 @@ Build OmniSense Runtime: an open, modular, simulation-first Perception-to-Action
 - Do not make hardware, cloud services, or external model APIs required for tests.
 - Do not couple OSIP Core directly to MuJoCo, Gazebo, Isaac Sim, PyBullet, ROS 2, DDS, or any robot vendor SDK; use adapters.
 - Do not model continuous physical control as free-form arbitrary commands; use bounded contracts and simulator-verified examples first.
+- Do not treat emergent goals as permissions. They are hypotheses that must be mapped to safe contracts or rejected.
 - Do not let learned models bypass Action Contracts, safety bounds, preconditions, cooldowns, idempotency, or safe-state requirements.
 - Do not promote a learned model without trace provenance, dataset datasheet, model card, benchmark pass, shadow-mode evaluation, rollback target, and explicit approval state.
 - Do not mix simulation-only behavior with production code without explicit boundaries.

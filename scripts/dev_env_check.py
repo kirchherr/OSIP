@@ -21,6 +21,7 @@ REQUIRED_MODULES = [
     "pydantic",
     "pytest",
     "yaml",
+    "omnisense_benchmarks",
 ]
 
 

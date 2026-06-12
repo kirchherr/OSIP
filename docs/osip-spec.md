@@ -13,6 +13,8 @@ vocabulary, fixtures, scenarios, adapters, and safety-bounded action contracts.
 OSIP also prepares a controlled Experience & Learning Layer that can turn
 runtime traces into datasets and evaluated models without changing live behavior
 automatically.
+Emergent autonomy is treated as future goal-hypothesis generation through
+`goal.packet`, not as direct action authority.
 
 ## Versioning
 
@@ -41,6 +43,10 @@ automatically.
 
 Future learning-related messages should stay out of v0.1 runtime-critical paths:
 
+- `goal.packet`: records a generated goal hypothesis from surprise, epistemic
+  value, or homeostatic pressure. It includes triggering context, scores,
+  target, allowed/forbidden contract classes, expiry, safety class, review
+  state, evidence, and contradictions.
 - `experience.trace`: links percepts, context updates, proposals, commands,
   results, and outcomes for replay and learning.
 - `decision.trace`: records one decision cycle, including active state,
@@ -74,6 +80,11 @@ Future learning-related messages should stay out of v0.1 runtime-critical paths:
   dependencies.
 - Physical actuators require explicit Action Contracts with bounds, rate limits,
   stop conditions, and safe states before any real hardware adapter is allowed.
+- Generated goals must be routed through profiles, policies, Decision Runtime,
+  Action Contracts, benchmark evidence, and audit trails before they can affect
+  the world.
+- `goal.packet` may suggest information gathering or human confirmation even
+  when no physical action is allowed.
 - Learning lineage should align with W3C PROV and OpenLineage concepts.
 - Learned models require dataset documentation, model cards, benchmark results,
   shadow-mode evaluation, registry state, and rollback before runtime use.

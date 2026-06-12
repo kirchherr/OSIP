@@ -10,6 +10,7 @@ Dieses Dokument ist meine fachliche Vorbereitung fuer die Arbeit an OmniSense Ru
 - Projektkern ist OSIP: ein offenes Percept-, Context- und Action-Protokoll.
 - Erste technische Prioritaet laut Masterplan: Repository Foundation, OSIP Schemas, In-memory Bus, Scenario Replay, Context Engine v0.1, Decision Runtime v0.1, Gateway API, Benchmark Runner.
 - Neue Konzeptprioritaet: Experience & Learning Layer als kontrollierter Weg von Runtime-Traces zu Datensaetzen, Kalibrierung, Modellbewertung und spaeterer Modellpromotion.
+- Neue Autonomieprioritaet: Goal Generation Engine als kontrollierte Schicht fuer Surprise, epistemischen Wert und digitale Homoeostase, ohne direkte Aktionsautoritaet.
 - Nicht-Ziele fuer die erste Phase: echte Hardware als Pflicht, monolithische KI, freie autonome Aktionen, Datenschutz-Fokusprojekt, externe LLMs im Reflex Layer.
 
 ## Leitthese fuer die Umsetzung
@@ -22,6 +23,8 @@ OSIP ist ein generisches Perception-to-Action-Protokoll mit einem domain-neutral
 
 OSIP soll zusaetzlich als Experience-to-Learning-System vorbereitet werden: Entscheidungen, Actions, Results und Outcomes werden nicht nur geloggt, sondern mit Provenance, Schema-Versionen, Modellfaehigkeiten und Benchmark-Kontext so strukturiert, dass daraus spaeter reproduzierbare Lernbeispiele entstehen.
 
+OSIP soll ausserdem emergente Autonomie vorbereiten: Das System darf aus Surprise, Unsicherheit und Systemgesundheit Zielhypothesen generieren, aber diese Ziele bleiben `goal.packet`-Kandidaten und muessen durch Profile, Policies, Simulation, Benchmarks und Action Contracts begrenzt werden.
+
 Praktische Konsequenz:
 
 - `packages/osip` definiert Semantik und Validierung.
@@ -31,6 +34,7 @@ Praktische Konsequenz:
 - Transportadapter duerfen austauschbar bleiben.
 - Physical-AI-Erweiterungen gehoeren zuerst in Vocabulary, Schemas, Simulatoren, Benchmarks und Adapter-Designs, nicht in direkte Hardwaresteuerung.
 - Learning-Erweiterungen gehoeren zuerst in Trace-, Dataset-, Model-Card-, Registry- und Benchmark-Vertraege, nicht in selbstveraendernde Runtime-Logik.
+- Autonomie-Erweiterungen gehoeren zuerst in `goal.packet`, Goal-to-Contract-Mapping, Negative Tests, Simulation und Review-Status, nicht in freie Zielausfuehrung.
 
 ## Application-Profile-Modell
 
@@ -70,6 +74,23 @@ Modellfamilien aus Experience Tuples:
 - **Knowledge Distillation**: langsamere Deliberative-Entscheidungen, Ensembles oder human-reviewte Traces dienen als Teacher fuer kleine Student-Modelle. Ziel ist Reflex-Beschleunigung bei gleichbleibender Contract-Beschraenkung.
 - **Predictive World Models**: Modelle lernen, welche Percepts oder Contexts nach `State_t + ActionContract_t` wahrscheinlich entstehen. Ziel ist Action-Dry-Run, Szenarioerweiterung und Sim2Real-Gap-Analyse.
 - **Inverse Reinforcement Learning / Reward Models**: Historische erfolgreiche Aktionen, geblockte Aktionen und explizites Feedback liefern Kandidaten fuer Komfort-, Sicherheits-, Energie- oder Manipulationsziele. Diese Rewards sind pruefbare Hypothesen und brauchen Review.
+
+## Emergent-Autonomy-Modell
+
+OSIP trennt Zielgenerierung und Zielausfuehrung:
+
+- **Context / World Model**: liefert beobachteten Zustand, Unsicherheit, Evidenz, Widersprueche und spaeter Vorhersagemetadaten.
+- **Goal Generation Engine**: berechnet Surprise-/Prediction-Error-, Epistemic-Value- und Homeostatic-Scores.
+- **GoalPacket Layer**: erzeugt auditierbare Zielhypothesen mit Kontextbezug, Score-Begruendung, Ablaufzeit, Safety-Klasse, erlaubten/verbotenen Contract-Klassen und Review-Status.
+- **Decision Runtime**: uebersetzt Goals nur dann in `ActionProposal`, wenn ein registrierter Action Contract, passende Preconditions, Profilfreigabe und Safety-Gates existieren.
+
+Autonomie-Regeln:
+
+- Surprise erzeugt zuerst Untersuchungsziele, nicht automatische Weltkorrektur.
+- Epistemische Ziele duerfen Sensordaten, Blickwinkel, Sampling oder Rueckfragen verbessern, aber nicht heimlich riskante Aktionen starten.
+- Digitale Homoeostase darf Sensor-/Systemgesundheit sichern, aber niemals menschliche Sicherheit, Profilregeln oder Not-Aus/Safe-State-Pfade ueberstimmen.
+- Kein `goal.packet` ist eine Permission. Ohne Contract wird das Ziel verworfen oder in sichere Informations-Subgoals zerlegt.
+- Praeferenzrahmen und Prioritaeten gehoeren in Application Profiles und Safety Cases; sie duerfen nicht als versteckte Werte in Modellen oder Heuristiken liegen.
 
 ## Standards-Stack
 
@@ -350,6 +371,36 @@ OSIP-Entscheidung:
 - Reward-Modelle brauchen menschliche oder profilverantwortliche Review, bevor gegen sie optimiert wird.
 - Transfer in andere Raeume, Roboter oder Profile braucht Drift- und Validierungsberichte.
 
+**Active Inference / Expected Free Energy**
+
+Nutzen: Active Inference formuliert Wahrnehmung und Handlung als Inferenz unter Unsicherheit. Expected Free Energy verbindet Zielerreichung mit epistemischen Anteilen wie Informationsgewinn und Ambiguitaetsreduktion. Quellen: https://arxiv.org/abs/2004.08128 und https://arxiv.org/abs/2109.00541
+
+OSIP-Entscheidung:
+
+- OSIP nutzt Active Inference als Forschungsanker fuer Goal Generation, nicht als Behauptung biologischer Allgemeingueltigkeit.
+- Surprise und Expected-Free-Energy-artige Scores werden als transparente Diagnostik und Goal-Hypothesen modelliert.
+- Ziele duerfen nur durch Action Contracts, Profile und Benchmarks wirksam werden.
+
+**Intrinsic Motivation**
+
+Nutzen: Intrinsische Motivationen beschreiben Informationssuche, Neugier und andere nicht rein externe Reward-Signale im Perception-Action Loop. Quelle: https://arxiv.org/abs/1806.08083
+
+OSIP-Entscheidung:
+
+- Epistemische Ziele werden auf messbare Unsicherheit, Widerspruch und erwarteten Informationsgewinn begrenzt.
+- Explorative Aktionen brauchen engere Bounds als reaktive Sicherheitsaktionen.
+- Human confirmation ist ein valider epistemischer Action Contract, wenn Sensorik nicht ausreicht.
+
+**Digital Homeostasis / Allostatic Control**
+
+Nutzen: Homeostase und Allostase liefern ein Vorbild fuer Systemgesundheit und vorausschauende Stabilisierung. In OSIP wird das nicht biologisiert, sondern als Sensor-, Aktor-, Modell- und Runtime-Health umgesetzt.
+
+OSIP-Entscheidung:
+
+- Homeostatic Goals duerfen Wartung, Kalibrierung, Lastreduktion oder Fallbacks vorschlagen.
+- Systemerhalt bleibt nachrangig gegen Menschen, Safety Cases und Profilprioritaeten.
+- Health-Goals brauchen Audit Trails, weil sie sonst leicht zu versteckter Selbstpriorisierung werden.
+
 ## Wissenschaftliche Arbeitsweise
 
 ### Reproduzierbarkeit
@@ -430,6 +481,16 @@ OSIP-Lernen muss wie wissenschaftliche Datenerzeugung behandelt werden:
 - Distillation misst Teacher-Agreement, Safety-Fehler, harte Negativszenarien und Latenzbudget.
 - World Models messen Vorhersagefehler pro Horizont, Unsicherheitskalibrierung, Rare-Event-Recall und Safety-False-Negatives.
 - IRL/Reward Models messen Zielkonflikte, Transferverhalten, menschliche Akzeptanz, Counterexamples und Reward-Hacking-Risiken.
+
+### Emergent Autonomy
+
+Autonomie muss als messbares, falsifizierbares Verhalten behandelt werden:
+
+- Jede Zielgenerierung braucht Trigger-Context, Score-Version, Schwellenwert, Evidenz, Widerspruch, Ablaufzeit und Profilfreigabe.
+- Negative Tests muessen beweisen, dass Ziele ohne Contract, mit verbotenem Contract, zu hoher Unsicherheit oder Safety-Konflikt blockiert werden.
+- Surprise-Metriken muessen zwischen harmloser Abweichung, menschlicher Intervention, Sensorfehler und echter Gefahr unterscheiden.
+- Epistemic Goals muessen Informationsgewinn gegen Risiko, Kosten, Latenz und Privatsphaere abwaegen.
+- Homeostatic Goals muessen zeigen, dass Systemerhalt nicht ueber Personen-, Raum- oder Robotersicherheit gestellt wird.
 
 ## Open-Source- und Governance-Leitplanken
 
@@ -547,11 +608,14 @@ Mittelfristig:
 - Wie verhindert man Label-Chaos bei Drittmodellen?
 - Welche Outcomes sind stark genug, um als Label fuer gelerntes Verhalten zu dienen?
 - Welche Teile der Fusionslogik duerfen gelernt werden, ohne Safety-Nachvollziehbarkeit zu verlieren?
+- Wie berechnet OSIP Surprise so, dass menschlich gewollte Abweichungen nicht automatisch korrigiert werden?
+- Welche Goal-Prioritaeten gehoeren ins Profil, welche duerfen Core-Primitiven werden?
 
 Spaeter:
 
 - Learned Fusion vs. regelbasierte Fusion.
 - Registry- und Promotion-Policy fuer gelernte OSIP-Modelle.
+- Goal Generation Engine und `goal.packet`.
 - DDS/ROS 2 QoS-Mapping.
 - SensorThings/SSN/RDF Export.
 - OPA/Rego oder aehnliche Policy Engine fuer komplexere Action Contracts, sofern der Fast Path nicht blockiert.
@@ -568,7 +632,8 @@ Wenn eine Implementierungsaufgabe startet:
 6. Erst dann Runtime-Logik bauen.
 7. Falls ein externer Standard betroffen ist, Quelle im Doc oder Spec-Kommentar verlinken.
 8. Bei Learning-Themen zuerst Trace-, Dataset-, Model-Card-, Registry- und Benchmark-Gates definieren.
-9. Check ausfuehren und Ergebnis dokumentieren.
+9. Bei Autonomie-Themen zuerst `goal.packet`, Negative Tests, Profilfreigabe, Goal-to-Contract-Mapping und Audit Trail definieren.
+10. Check ausfuehren und Ergebnis dokumentieren.
 
 ## Empfohlene erste Umsetzung
 

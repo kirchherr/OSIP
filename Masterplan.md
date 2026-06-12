@@ -13,6 +13,8 @@ Architekturweite Einordnung:
 
 > Ergänzend entsteht eine kontrollierte Experience & Learning Layer: OSIP kann aus Percepts, Context Updates, Entscheidungen, Actions, Ergebnissen und späteren Outcomes lernbare Erfahrungen extrahieren, damit zukünftige Modelle aus belegten Erkenntnissen trainiert, kalibriert und bewertet werden können.
 
+> Als weitere Ebene entsteht emergente Autonomie: OSIP darf aus Surprise, epistemischem Wert und digitaler Homöostase eigene Zielhypothesen erzeugen. Diese Ziele bleiben jedoch auditierbare `goal.packet`-Kandidaten und dürfen nur über Profile, Policies, Simulation, Benchmarks und Action Contracts in Handlungen übersetzt werden.
+
 Smart Rooms bleiben der erste Referenzdemonstrator. Die Grundarchitektur muss jedoch so allgemein bleiben, dass spaetere Profile fuer Robotik, mobile Plattformen, Manipulatoren, Simulationen, Safety-Controller oder andere autonome Systeme dieselben OSIP-Prinzipien nutzen koennen.
 
 **OmniSense Runtime** ist ein offenes, modulares **Perception-to-Action-System** für intelligente Räume.
@@ -24,7 +26,8 @@ Nicht das Ziel:
 - kein Fokusprojekt zu Datenschutz,
 - keine Abhängigkeit von realer Hardware in der ersten Phase,
 - keine frei improvisierende autonome KI ohne Aktionsgrenzen,
-- kein selbstveränderndes Produktionsmodell, das ohne Review, Benchmark und Registry-Freigabe Live-Verhalten ändert.
+- kein selbstveränderndes Produktionsmodell, das ohne Review, Benchmark und Registry-Freigabe Live-Verhalten ändert,
+- keine Zielgenerierung, die menschliche Sicherheit, Profile, Action Contracts oder Review-Pfade übergeht.
 
 Das Ziel:
 
@@ -50,7 +53,8 @@ OmniSense beweist diese These durch einen lauffähigen Referenzprototypen mit:
 6. Action Contracts,
 7. Simulations- und Benchmark-Umgebung,
 8. reproduzierbaren Demonstratoren,
-9. kontrollierter Experience-to-Learning-Pipeline.
+9. kontrollierter Experience-to-Learning-Pipeline,
+10. begrenzter emergenter Autonomie über Goal Generation, nicht über freie Aktionen.
 
 ---
 
@@ -141,6 +145,50 @@ Guardrails:
 
 ---
 
+### 1.4 Emergent Autonomy und Goal Generation Engine
+
+OSIP soll Autonomie nicht als frei improvisierende Handlung verstehen, sondern als Fähigkeit, aus Wahrnehmung und Weltmodell **Zielhypothesen** zu erzeugen. Diese Zielhypothesen werden erst später durch Profile, Policies, Simulation, Benchmarks und Action Contracts in erlaubte Handlungen übersetzt.
+
+Die Goal Generation Engine (GGE) sitzt zwischen Context/World Model und Deliberative/Decision Runtime:
+
+```text
+PerceptPacket -> Context / World Model -> Goal Generation Engine -> GoalPacket -> Decision Runtime -> Action Contracts
+```
+
+Sie berechnet drei transparente Scores:
+
+1. **Surprise / Prediction Error**: Wie stark weicht die beobachtete Realität von der Vorhersage des Weltmodells ab?
+2. **Epistemic Value**: Wie wertvoll wäre zusätzliche Information, um Unsicherheit, Widersprüche oder fehlende Modalitäten aufzulösen?
+3. **Digital Homeostasis**: Wie stark ist die eigene Wahrnehmungs-, Rechen- oder Handlungsfähigkeit des Systems gefährdet?
+
+Aus diesen Scores kann ein `goal.packet` entstehen, zum Beispiel:
+
+- `goal.explain_surprise`,
+- `goal.reduce_ambiguity`,
+- `goal.restore_sensor_quality`,
+- `goal.request_human_confirmation`,
+- `goal.find_safe_subgoal`.
+
+Wichtig: Surprise ist kein automatischer Auftrag, die Welt wieder "normal" zu machen. Surprise erzeugt zuerst ein Untersuchungsziel. Ein geöffnetes Fenster, fallende VOC-Werte oder ein unbekanntes Signal können menschlich gewollt, sicherheitsrelevant oder harmlos sein. OSIP muss deshalb zwischen **erklären**, **mehr Evidenz sammeln**, **bestätigen lassen** und **handeln** unterscheiden.
+
+Ein `goal.packet` ist ein normaler, versionierter OSIP-Kandidat mit:
+
+- Goal-ID, Profil, Kontextbezug und Ablaufzeit,
+- Surprise-, Epistemic- und Homeostatic-Score,
+- Evidenz, Widersprüchen und Unsicherheit,
+- erlaubten und verbotenen Action-Contract-Klassen,
+- Safety-Klasse, Confirmation-Anforderung und Review-Status.
+
+Guardrails:
+
+- Keine versteckten Werte: Profile müssen Präferenzrahmen, Safety Cases und Zielprioritäten explizit dokumentieren.
+- Keine direkte physische Wirkung: Ein Ziel darf nur über registrierte Action Contracts zu `ActionProposal` oder `ActionCommand` führen.
+- Keine Selbst-Erhaltung über Menschen: digitale Homöostase darf menschliche Sicherheit und Profilregeln nicht überstimmen.
+- Keine automatische Goal-Policy-Promotion: neue Zielgeneratoren brauchen Simulation, Benchmark, Shadow Mode, Audit Trail, Rollback und Review.
+- Wenn kein sicherer Contract existiert, wird das Ziel verworfen oder in ein sicheres Informations- oder Rückfrage-Subziel zerlegt.
+
+---
+
 ## 2. Codex-Arbeitsprinzipien
 
 Codex soll dieses Projekt **schnittstellen-, test- und simulationsgetrieben** entwickeln.
@@ -177,7 +225,8 @@ Codex darf nicht:
 - beliebige autonome Aktionen ohne Preconditions erlauben,
 - Latenzpfade durch Datenbank-, Netzwerk- oder LLM-Aufrufe blockieren,
 - Learning- oder Trainingslogik in den Reflex/Fast Path einbauen,
-- gelernte Modelle ohne Trace-Provenance, Datasheet, Model Card, Benchmark-Gate und Rollback-Pfad freigeben.
+- gelernte Modelle ohne Trace-Provenance, Datasheet, Model Card, Benchmark-Gate und Rollback-Pfad freigeben,
+- selbstgenerierte Ziele direkt in Aktionen übersetzen, ohne Profile, Policies, Simulation, Action Contracts und Safety-Gates zu prüfen.
 
 ### 2.3 Definition of Done für jede Codex-Aufgabe
 
@@ -1598,6 +1647,17 @@ Diese Werte sind Forschungsziele, keine Garantien für beliebige Hardware.
 - I9: Modellfamilien als Roadmap-Slots trennen: Knowledge Distillation fuer Reflex-Beschleunigung, Predictive World Models fuer Action-Dry-Runs, IRL/Reward Models fuer Ziel- und Komforthypothesen
 - I10: Reward-Signal-Audit definieren: Delay, Leakage, Konfundierung, Sensor-Bias, Zielkonflikte, Profilwechsel und menschliche Review
 
+### Epic J - Emergent Autonomy und Goal Generation
+
+- J1: Emergent-Autonomy-Konzept dokumentieren: Surprise, epistemischer Wert, digitale Homoeostase und Bounded Autonomy
+- J2: `goal.packet` als zukuenftigen OSIP-Vertrag entwerfen, inklusive Scores, Kontextbezug, Evidenz, Ablaufzeit, Safety-Klasse und Review-Status
+- J3: Goal Generation Engine als Schicht zwischen Context/World Model und Decision Runtime beschreiben
+- J4: Goal-to-Contract-Mapping definieren: Ziele duerfen nur registrierte Action Contracts vorschlagen oder sichere Subgoals erzeugen
+- J5: Negative Autonomy Tests planen: kein Contract, verbotener Contract, zu hohe Unsicherheit, Safety-Prioritaet, fehlende Profilfreigabe
+- J6: Surprise-Audit definieren: Prediction Error erzeugt zuerst Untersuchungsziele, nicht automatische Korrekturhandlungen
+- J7: Homeostatic-Audit definieren: Systemerhalt darf menschliche Sicherheit und Profilregeln niemals ueberstimmen
+- J8: Shadow-Mode- und Benchmark-Gates fuer neue Goal-Generatoren festlegen
+
 ---
 
 ## 20. Konkrete Codex-Prompts
@@ -1668,6 +1728,12 @@ Teile OSIP sauber in Grundkonzept/Core und Application Profiles auf. Lege Profil
 
 ```text
 Erweitere OSIP um ein kontrolliertes Experience-to-Learning-Konzept. Dokumentiere, wie PerceptPacket, ContextUpdate, ActionProposal, ActionCommand, ActionResult, nachfolgende PerceptPackets und Outcome zu versionierten Decision Traces, Experience Tuples, Dataset-Manifests, Model Cards und Registry-Eintraegen werden. Nenne Knowledge Distillation, Predictive World Models und IRL/Reward Models als getrennte Modellfamilien. Wichtig: keine Online-Selbstoptimierung im Reflex Layer, keine Modellpromotion ohne Benchmark, Shadow Mode, Rollback, Reward-Audit und Action-Contract-Gates. Done when: docs/learning-layer.md existiert, Masterplan/AGENTS/Skill/README/Core-Konzept die Learning-Grenzen nennen und make test/lint/typecheck gruen sind.
+```
+
+### Prompt 12 - Emergent Autonomy und Goal Generation
+
+```text
+Erweitere OSIP um emergente Autonomie. Nutze osip_autonomie.md als Ideengeber und dokumentiere eine Goal Generation Engine, die Surprise/Prediction Error, epistemischen Wert und digitale Homoeostase in auditierbare goal.packet-Kandidaten uebersetzt. Wichtig: Goal-Packets sind Zielhypothesen, keine direkten Aktionen; jede Wirkung laeuft weiter ueber Profile, Policies, Simulation, Benchmarks und Action Contracts. Done when: docs/emergent-autonomy.md existiert, Masterplan/AGENTS/Skill/README/Core-Konzept/OSIP-Spec die Goal-Grenzen nennen und make test/lint/typecheck gruen sind.
 ```
 
 ---
@@ -1924,8 +1990,9 @@ Die nächsten Aufgaben sind in dieser Reihenfolge umzusetzen:
 8. Benchmark Runner.
 9. Application Profiles: Grundkonzept/Core von Anwendungen trennen, `rooms` als MVP-Profil fuehren, `physical-ai` als spaeteres Profil vorbereiten und `xxx` als andockbares Profil-Template vorsehen.
 10. Experience & Learning Layer: Trace-, Dataset-, Model-Card-, Registry- und Promotion-Gates vorbereiten, bevor echte ML-Modelle aus OSIP-Erfahrungen trainiert oder produktiv genutzt werden.
+11. Emergent Autonomy: Goal Generation Engine, `goal.packet`, Surprise-/Epistemic-/Homeostatic-Scores und Goal-to-Contract-Gates vorbereiten, bevor autonom generierte Ziele runtimewirksam werden.
 
-Codex soll keine Hardwareadapter, kein Dashboard, keine komplexen ML-Modelle und keine direkte physische Aktorsteuerung bauen, bevor die MVP-Pipeline funktioniert. Die Learning Layer beginnt deshalb mit offenen Trace-/Dataset-Vertraegen und Governance, nicht mit einem trainierten Produktionsmodell. Neue Anwendungsdomaenen beginnen als Application Profile mit Docs, Vokabular, Fixtures, Simulation, Safety Bounds und Adapter-Design, nicht als Core-Umbau.
+Codex soll keine Hardwareadapter, kein Dashboard, keine komplexen ML-Modelle, keine Goal-Generatoren mit Live-Wirkung und keine direkte physische Aktorsteuerung bauen, bevor die MVP-Pipeline funktioniert. Die Learning Layer beginnt deshalb mit offenen Trace-/Dataset-Vertraegen und Governance, nicht mit einem trainierten Produktionsmodell. Emergent Autonomy beginnt mit Doku, `goal.packet`-Entwurf, Simulation, Negative Tests und Contract-Gates, nicht mit freier Zielausfuehrung. Neue Anwendungsdomaenen beginnen als Application Profile mit Docs, Vokabular, Fixtures, Simulation, Safety Bounds und Adapter-Design, nicht als Core-Umbau.
 
 ---
 
@@ -1949,6 +2016,9 @@ Diese Quellen sind als Hintergrund relevant, aber das Projekt soll unabhängig l
 - Distilling the Knowledge in a Neural Network: https://arxiv.org/abs/1503.02531
 - World Models: https://arxiv.org/abs/1803.10122
 - Algorithms for Inverse Reinforcement Learning: https://ai.stanford.edu/~ang/papers/icml00-irl.pdf
+- Whence the Expected Free Energy?: https://arxiv.org/abs/2004.08128
+- Expanding the Active Inference Landscape: https://arxiv.org/abs/1806.08083
+- Active Inference and Epistemic Value in Graphical Models: https://arxiv.org/abs/2109.00541
 - ROS 2 Middleware and QoS: https://docs.ros.org/en/rolling/Concepts/Intermediate/About-Different-Middleware-Vendors.html
 - ROS 2 QoS settings: https://docs.ros.org/en/rolling/Concepts/Intermediate/About-Quality-of-Service-Settings.html
 - SDFormat specification for robot/world descriptions: https://sdformat.org/spec

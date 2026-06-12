@@ -66,6 +66,17 @@ profile and at least one existing profile need the same concept.
 - Dataset split and provenance requirements:
 - Model-card and promotion gates:
 
+## Autonomy Signals
+
+- Surprise signals:
+- Epistemic-value signals:
+- Homeostatic / agency-maintenance signals:
+- Allowed goal labels:
+- Forbidden goal labels:
+- Allowed goal-to-contract mappings:
+- Goals requiring human confirmation:
+- Autonomy-specific privacy or safety constraints:
+
 ## Acceptance Criteria
 
 - Valid profile payloads validate through OSIP schemas or profile extensions.
@@ -74,3 +85,5 @@ profile and at least one existing profile need the same concept.
 - Profile documentation explains what stays in Core and what stays in profile.
 - Learning exports cannot bypass Action Contracts or promote models without
   benchmark, model-card, registry, shadow-mode, and rollback evidence.
+- Generated goals cannot bypass Action Contracts, profile permissions,
+  confirmation rules, or negative autonomy tests.

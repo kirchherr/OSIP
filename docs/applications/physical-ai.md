@@ -72,6 +72,22 @@ passed. No learned model may directly change continuous control, motor commands,
 workspace limits, emergency-stop behavior, or action contracts without explicit
 review, benchmark evidence, uncertainty reporting, and rollback.
 
+## Autonomy Signals
+
+The `physical-ai` profile can use emergent autonomy for bounded perception and
+maintenance goals:
+
+- surprise: predicted contact, pose, force, or obstacle state differs from
+  observed sensor feedback,
+- epistemic value: move to a better viewpoint, request tactile confirmation,
+  slow down for more reliable perception, or ask a supervisor,
+- homeostasis: degraded camera, overheated compute node, stale calibration,
+  repeated safe-stop, or actuator acknowledgement loss.
+
+Physical-AI autonomy must prefer information-gathering and safe-state goals over
+high-impact manipulation. Generated goals cannot change continuous controllers,
+workspace limits, emergency-stop behavior, or safety-rated monitored stops.
+
 ## Acceptance Criteria
 
 - A valid Physical-AI percept fixture validates through OSIP schemas.
@@ -81,3 +97,5 @@ review, benchmark evidence, uncertainty reporting, and rollback.
   safety outcomes.
 - Learning exports capture simulator version, robot/world description, seed,
   outcome labels, and safety gate results before any model promotion.
+- Generated goals require simulator or shadow-mode evidence before they can
+  influence physical actions.

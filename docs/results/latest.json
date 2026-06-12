@@ -1,0 +1,172 @@
+{
+  "passed": true,
+  "scenarios": [
+    {
+      "action_contract_blocks": 1,
+      "action_latency_budget_ms": 500,
+      "action_latency_budget_passed": true,
+      "application_profile": "rooms",
+      "context_latency_budget_ms": 250,
+      "context_latency_budget_passed": true,
+      "detected_contexts": [
+        "context.possible_fall"
+      ],
+      "expected_actions": [
+        "action.room.speaker.ask_help_needed"
+      ],
+      "expected_contexts": [
+        "context.possible_fall"
+      ],
+      "first_action_proposal_latency_ms": 70,
+      "first_context_latency_ms": 70,
+      "missing_actions": [],
+      "missing_contexts": [],
+      "passed": true,
+      "percept_count": 3,
+      "proposed_actions": [
+        "action.room.speaker.ask_help_needed"
+      ],
+      "room": "living_room",
+      "scenario_id": "fall_candidate",
+      "scenario_name": "Fall candidate scenario",
+      "unexpected_actions": [],
+      "unexpected_contexts": []
+    },
+    {
+      "action_contract_blocks": 2,
+      "action_latency_budget_ms": 500,
+      "action_latency_budget_passed": true,
+      "application_profile": "rooms",
+      "context_latency_budget_ms": 250,
+      "context_latency_budget_passed": true,
+      "detected_contexts": [
+        "context.possible_burning_food"
+      ],
+      "expected_actions": [
+        "action.notify.local",
+        "action.hvac.ventilation_boost"
+      ],
+      "expected_contexts": [
+        "context.possible_burning_food"
+      ],
+      "first_action_proposal_latency_ms": 250,
+      "first_context_latency_ms": 250,
+      "missing_actions": [],
+      "missing_contexts": [],
+      "passed": true,
+      "percept_count": 4,
+      "proposed_actions": [
+        "action.notify.local",
+        "action.hvac.ventilation_boost"
+      ],
+      "room": "kitchen",
+      "scenario_id": "kitchen_burning_food",
+      "scenario_name": "Kitchen burning food scenario",
+      "unexpected_actions": [],
+      "unexpected_contexts": []
+    },
+    {
+      "action_contract_blocks": 0,
+      "action_latency_budget_ms": 500,
+      "action_latency_budget_passed": null,
+      "application_profile": "rooms",
+      "context_latency_budget_ms": 250,
+      "context_latency_budget_passed": null,
+      "detected_contexts": [],
+      "expected_actions": [],
+      "expected_contexts": [],
+      "first_action_proposal_latency_ms": null,
+      "first_context_latency_ms": null,
+      "missing_actions": [],
+      "missing_contexts": [],
+      "passed": true,
+      "percept_count": 4,
+      "proposed_actions": [],
+      "room": "kitchen",
+      "scenario_id": "normal_cooking_no_alarm",
+      "scenario_name": "Normal cooking no alarm scenario",
+      "unexpected_actions": [],
+      "unexpected_contexts": []
+    },
+    {
+      "action_contract_blocks": 0,
+      "action_latency_budget_ms": 500,
+      "action_latency_budget_passed": null,
+      "application_profile": "rooms",
+      "context_latency_budget_ms": 250,
+      "context_latency_budget_passed": true,
+      "detected_contexts": [
+        "context.sensor_conflict"
+      ],
+      "expected_actions": [],
+      "expected_contexts": [
+        "context.sensor_conflict"
+      ],
+      "first_action_proposal_latency_ms": null,
+      "first_context_latency_ms": 120,
+      "missing_actions": [],
+      "missing_contexts": [],
+      "passed": true,
+      "percept_count": 2,
+      "proposed_actions": [],
+      "room": "kitchen",
+      "scenario_id": "sensor_conflict_smoke",
+      "scenario_name": "Conflicting smoke indicators scenario",
+      "unexpected_actions": [],
+      "unexpected_contexts": []
+    },
+    {
+      "action_contract_blocks": 1,
+      "action_latency_budget_ms": 800,
+      "action_latency_budget_passed": true,
+      "application_profile": "rooms",
+      "context_latency_budget_ms": 500,
+      "context_latency_budget_passed": true,
+      "detected_contexts": [
+        "context.high_occupancy_stale_air"
+      ],
+      "expected_actions": [
+        "action.hvac.ventilation_boost"
+      ],
+      "expected_contexts": [
+        "context.high_occupancy_stale_air"
+      ],
+      "first_action_proposal_latency_ms": 200,
+      "first_context_latency_ms": 200,
+      "missing_actions": [],
+      "missing_contexts": [],
+      "passed": true,
+      "percept_count": 3,
+      "proposed_actions": [
+        "action.hvac.ventilation_boost"
+      ],
+      "room": "meeting_room",
+      "scenario_id": "stale_air_high_occupancy",
+      "scenario_name": "High occupancy stale air scenario",
+      "unexpected_actions": [],
+      "unexpected_contexts": []
+    }
+  ],
+  "summary": {
+    "action_contract_blocks": 4,
+    "action_proposal_latency": {
+      "count": 3,
+      "p50_ms": 200.0,
+      "p95_ms": 250.0,
+      "p99_ms": 250.0
+    },
+    "context_latency": {
+      "count": 4,
+      "p50_ms": 120.0,
+      "p95_ms": 250.0,
+      "p99_ms": 250.0
+    },
+    "failed_scenarios": 0,
+    "false_negative_actions": 0,
+    "false_negative_contexts": 0,
+    "false_positive_actions": 0,
+    "false_positive_contexts": 0,
+    "passed_scenarios": 5,
+    "scenario_count": 5
+  }
+}
