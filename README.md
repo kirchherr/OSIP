@@ -69,6 +69,18 @@ Run decision runtime tests:
 docker compose run --rm dev uv run pytest tests/integration/test_decision_runtime_flow.py
 ```
 
+Run gateway API tests:
+
+```bash
+docker compose run --rm dev uv run pytest tests/integration/test_gateway_api.py
+```
+
+Regenerate Gateway OpenAPI:
+
+```bash
+docker compose run --rm dev make openapi
+```
+
 Open a shell:
 
 ```bash

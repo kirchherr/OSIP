@@ -1,0 +1,883 @@
+{
+  "components": {
+    "schemas": {
+      "ActionPriority": {
+        "enum": [
+          "low",
+          "normal",
+          "high",
+          "critical"
+        ],
+        "type": "string"
+      },
+      "ActionProposal": {
+        "additionalProperties": false,
+        "properties": {
+          "action_id": {
+            "$ref": "#/components/schemas/Label"
+          },
+          "based_on_context": {
+            "minLength": 1,
+            "title": "Based On Context",
+            "type": "string"
+          },
+          "confidence": {
+            "$ref": "#/components/schemas/Confidence"
+          },
+          "deadline_ms": {
+            "$ref": "#/components/schemas/PositiveInt"
+          },
+          "priority": {
+            "$ref": "#/components/schemas/ActionPriority"
+          },
+          "proposal_id": {
+            "minLength": 1,
+            "title": "Proposal Id",
+            "type": "string"
+          },
+          "reason": {
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "requires_confirmation": {
+            "title": "Requires Confirmation",
+            "type": "boolean"
+          },
+          "schema_version": {
+            "const": "osip/0.1",
+            "default": "osip/0.1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "type": {
+            "const": "action.proposal",
+            "default": "action.proposal",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "proposal_id",
+          "based_on_context",
+          "action_id",
+          "priority",
+          "confidence",
+          "deadline_ms",
+          "reason",
+          "requires_confirmation"
+        ],
+        "title": "ActionProposal",
+        "type": "object"
+      },
+      "Claim": {
+        "additionalProperties": false,
+        "properties": {
+          "confidence": {
+            "$ref": "#/components/schemas/Confidence"
+          },
+          "label": {
+            "$ref": "#/components/schemas/Label"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "label",
+          "confidence"
+        ],
+        "title": "Claim",
+        "type": "object"
+      },
+      "Confidence": {
+        "maximum": 1.0,
+        "minimum": 0.0,
+        "type": "number"
+      },
+      "ContextEntity": {
+        "additionalProperties": false,
+        "properties": {
+          "confidence": {
+            "$ref": "#/components/schemas/Confidence"
+          },
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identifier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": {
+            "$ref": "#/components/schemas/Identifier"
+          },
+          "zone": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identifier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "confidence"
+        ],
+        "title": "ContextEntity",
+        "type": "object"
+      },
+      "ContextEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "confidence": {
+            "$ref": "#/components/schemas/Confidence"
+          },
+          "contradictions": {
+            "items": {
+              "$ref": "#/components/schemas/Label"
+            },
+            "title": "Contradictions",
+            "type": "array"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/Label"
+            },
+            "minItems": 1,
+            "title": "Evidence",
+            "type": "array"
+          },
+          "label": {
+            "$ref": "#/components/schemas/Label"
+          },
+          "urgency": {
+            "$ref": "#/components/schemas/Confidence"
+          }
+        },
+        "required": [
+          "label",
+          "confidence",
+          "urgency",
+          "evidence"
+        ],
+        "title": "ContextEvent",
+        "type": "object"
+      },
+      "ContextUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "context_id": {
+            "minLength": 1,
+            "title": "Context Id",
+            "type": "string"
+          },
+          "entities": {
+            "items": {
+              "$ref": "#/components/schemas/ContextEntity"
+            },
+            "title": "Entities",
+            "type": "array"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/ContextEvent"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "global_risk": {
+            "$ref": "#/components/schemas/GlobalRisk"
+          },
+          "room": {
+            "$ref": "#/components/schemas/Identifier"
+          },
+          "schema_version": {
+            "const": "osip/0.1",
+            "default": "osip/0.1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "time_window_ms": {
+            "$ref": "#/components/schemas/PositiveInt"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "title": "Timestamp",
+            "type": "string"
+          },
+          "type": {
+            "const": "context.update",
+            "default": "context.update",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "context_id",
+          "timestamp",
+          "time_window_ms",
+          "room",
+          "global_risk"
+        ],
+        "title": "ContextUpdate",
+        "type": "object"
+      },
+      "EmbeddingCapability": {
+        "additionalProperties": false,
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "dimension": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PositiveInt"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "space": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identifier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "available"
+        ],
+        "title": "EmbeddingCapability",
+        "type": "object"
+      },
+      "EmbeddingRef": {
+        "additionalProperties": false,
+        "properties": {
+          "dimension": {
+            "$ref": "#/components/schemas/PositiveInt"
+          },
+          "ref": {
+            "minLength": 1,
+            "title": "Ref",
+            "type": "string"
+          },
+          "space": {
+            "$ref": "#/components/schemas/Identifier"
+          }
+        },
+        "required": [
+          "ref",
+          "dimension",
+          "space"
+        ],
+        "title": "EmbeddingRef",
+        "type": "object"
+      },
+      "GlobalRisk": {
+        "additionalProperties": false,
+        "properties": {
+          "comfort": {
+            "$ref": "#/components/schemas/Confidence"
+          },
+          "maintenance": {
+            "$ref": "#/components/schemas/Confidence"
+          },
+          "safety": {
+            "$ref": "#/components/schemas/Confidence"
+          }
+        },
+        "required": [
+          "safety",
+          "comfort",
+          "maintenance"
+        ],
+        "title": "GlobalRisk",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "Identifier": {
+        "minLength": 1,
+        "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)*(_v[0-9]+)?$",
+        "type": "string"
+      },
+      "Label": {
+        "minLength": 1,
+        "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$",
+        "type": "string"
+      },
+      "LatencyProfile": {
+        "additionalProperties": false,
+        "properties": {
+          "max_budget_ms": {
+            "$ref": "#/components/schemas/PositiveInt"
+          },
+          "p50_ms": {
+            "$ref": "#/components/schemas/PositiveInt"
+          },
+          "p95_ms": {
+            "$ref": "#/components/schemas/PositiveInt"
+          }
+        },
+        "required": [
+          "p50_ms",
+          "p95_ms",
+          "max_budget_ms"
+        ],
+        "title": "LatencyProfile",
+        "type": "object"
+      },
+      "Location": {
+        "additionalProperties": false,
+        "properties": {
+          "azimuth_deg": {
+            "anyOf": [
+              {
+                "maximum": 180.0,
+                "minimum": -180.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Azimuth Deg"
+          },
+          "coordinates": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coordinates"
+          },
+          "room": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identifier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "zone": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identifier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "Location",
+        "type": "object"
+      },
+      "ModelCapabilityDescriptor": {
+        "additionalProperties": false,
+        "properties": {
+          "confidence_calibrated": {
+            "title": "Confidence Calibrated",
+            "type": "boolean"
+          },
+          "display_name": {
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "embedding": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EmbeddingCapability"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "latency_profile": {
+            "$ref": "#/components/schemas/LatencyProfile"
+          },
+          "modalities": {
+            "items": {
+              "$ref": "#/components/schemas/Identifier"
+            },
+            "minItems": 1,
+            "title": "Modalities",
+            "type": "array"
+          },
+          "model_id": {
+            "$ref": "#/components/schemas/Identifier"
+          },
+          "outputs": {
+            "items": {
+              "$ref": "#/components/schemas/Label"
+            },
+            "minItems": 1,
+            "title": "Outputs",
+            "type": "array"
+          },
+          "schema_version": {
+            "const": "osip/0.1",
+            "default": "osip/0.1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "spatial_reference": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identifier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": {
+            "const": "model.capability",
+            "default": "model.capability",
+            "title": "Type",
+            "type": "string"
+          },
+          "version": {
+            "minLength": 1,
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "model_id",
+          "display_name",
+          "version",
+          "modalities",
+          "outputs",
+          "latency_profile",
+          "confidence_calibrated"
+        ],
+        "title": "ModelCapabilityDescriptor",
+        "type": "object"
+      },
+      "ModelRegistrationResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "model_id": {
+            "title": "Model Id",
+            "type": "string"
+          },
+          "registered": {
+            "title": "Registered",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "model_id",
+          "registered"
+        ],
+        "title": "ModelRegistrationResponse",
+        "type": "object"
+      },
+      "NonNegativeInt": {
+        "minimum": 0.0,
+        "type": "integer"
+      },
+      "PerceptIngestResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "action_proposals": {
+            "items": {
+              "$ref": "#/components/schemas/ActionProposal"
+            },
+            "title": "Action Proposals",
+            "type": "array"
+          },
+          "context": {
+            "$ref": "#/components/schemas/ContextUpdate"
+          },
+          "percept_id": {
+            "title": "Percept Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "percept_id",
+          "context",
+          "action_proposals"
+        ],
+        "title": "PerceptIngestResponse",
+        "type": "object"
+      },
+      "PerceptPacket": {
+        "additionalProperties": false,
+        "properties": {
+          "claims": {
+            "items": {
+              "$ref": "#/components/schemas/Claim"
+            },
+            "minItems": 1,
+            "title": "Claims",
+            "type": "array"
+          },
+          "embedding": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EmbeddingRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "latency_ms": {
+            "$ref": "#/components/schemas/NonNegativeInt"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Location"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "modality": {
+            "$ref": "#/components/schemas/Identifier"
+          },
+          "quality": {
+            "$ref": "#/components/schemas/SensorQuality"
+          },
+          "received_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Received At"
+          },
+          "schema_version": {
+            "const": "osip/0.1",
+            "default": "osip/0.1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_model": {
+            "$ref": "#/components/schemas/Identifier"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "title": "Timestamp",
+            "type": "string"
+          },
+          "type": {
+            "const": "percept.packet",
+            "default": "percept.packet",
+            "title": "Type",
+            "type": "string"
+          },
+          "valid_for_ms": {
+            "$ref": "#/components/schemas/PositiveInt"
+          }
+        },
+        "required": [
+          "id",
+          "source_model",
+          "modality",
+          "timestamp",
+          "valid_for_ms",
+          "latency_ms",
+          "claims",
+          "quality"
+        ],
+        "title": "PerceptPacket",
+        "type": "object"
+      },
+      "PositiveInt": {
+        "exclusiveMinimum": 0.0,
+        "type": "integer"
+      },
+      "QualityStatus": {
+        "enum": [
+          "usable",
+          "degraded",
+          "unusable"
+        ],
+        "type": "string"
+      },
+      "SensorQuality": {
+        "additionalProperties": false,
+        "properties": {
+          "drift_score": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Confidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "signal_noise": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Confidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "$ref": "#/components/schemas/QualityStatus"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "SensorQuality",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "HTTP and WebSocket gateway for OSIP v0.1 messages.",
+    "title": "OmniSense Runtime Gateway",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/v1/context/current": {
+      "get": {
+        "operationId": "current_context_v1_context_current_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "room",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Room"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextUpdate"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Current Context"
+      }
+    },
+    "/v1/models/register": {
+      "post": {
+        "operationId": "register_model_v1_models_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelCapabilityDescriptor"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelRegistrationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Register Model"
+      }
+    },
+    "/v1/percepts": {
+      "post": {
+        "operationId": "ingest_percept_v1_percepts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PerceptPacket"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerceptIngestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Ingest Percept"
+      }
+    }
+  }
+}
