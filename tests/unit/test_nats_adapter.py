@@ -5,8 +5,17 @@ from pathlib import Path
 from typing import cast
 
 import pytest
-from omnisense_adapters import NatsBridgeCodec, NatsSubjectMapper, ensure_nats_subject
+from omnisense_adapters import (
+    NatsBridgeCodec,
+    NatsInboundBridge,
+    NatsInboundMessage,
+    NatsOutboundBridge,
+    NatsPublishRecord,
+    NatsSubjectMapper,
+    ensure_nats_subject,
+)
 from omnisense_bus import (
+    InMemoryBus,
     model_capabilities_topic,
     percept_filter,
     percept_topic,
@@ -15,6 +24,24 @@ from omnisense_bus import (
 from omnisense_osip import PerceptPacket, ProfileSafetyCase
 
 FIXTURE_DIR = Path(__file__).parents[1] / "fixtures" / "osip"
+
+
+class RecordingNatsTransport:
+    def __init__(self) -> None:
+        self.records: list[NatsPublishRecord] = []
+
+    async def publish(self, record: NatsPublishRecord) -> None:
+        self.records.append(record)
+
+
+class QueuedNatsSource:
+    def __init__(self, messages: list[NatsInboundMessage]) -> None:
+        self.messages = list(messages)
+
+    async def receive(self) -> NatsInboundMessage | None:
+        if not self.messages:
+            return None
+        return self.messages.pop(0)
 
 
 def _load_fixture(name: str) -> dict[str, object]:
@@ -146,3 +173,134 @@ def test_nats_channel_mapping_still_handles_model_capabilities() -> None:
     assert record.nats_subject == "omnisense.models.capabilities"
     assert record.mode == "jetstream"
     assert record.ack_policy == "explicit"
+
+
+@pytest.mark.asyncio
+async def test_nats_outbound_bridge_publishes_through_transport() -> None:
+    transport = RecordingNatsTransport()
+    bridge = NatsOutboundBridge(transport, profile_id="rooms")
+    bus_topic = percept_topic("audio", "audio.event_classifier_v1")
+
+    result = await bridge.publish_message(bus_topic, _load_fixture("percept_packet.json"))
+
+    assert bridge.metadata.adapter_id == "nats.outbound_bridge"
+    assert bridge.metadata.role == "sink"
+    assert bridge.metadata.requires_hardware is False
+    assert result.published_count == 1
+    assert result.topics == (bus_topic,)
+    assert result.target_topics == ("omnisense.percepts.audio.audio.event_classifier_v1",)
+    assert result.message_types == ("percept.packet",)
+    assert len(transport.records) == 1
+    assert transport.records[0].mode == "core"
+
+
+@pytest.mark.asyncio
+async def test_nats_outbound_bridge_rejects_unsupported_message_type() -> None:
+    transport = RecordingNatsTransport()
+    bridge = NatsOutboundBridge(transport, supported_message_types=("profile.safety_case",))
+
+    with pytest.raises(ValueError, match="not supported"):
+        await bridge.publish_message(
+            percept_topic("audio", "audio.event_classifier_v1"),
+            _load_fixture("percept_packet.json"),
+        )
+
+    assert transport.records == []
+
+
+def test_nats_outbound_bridge_requires_supported_message_types() -> None:
+    with pytest.raises(ValueError, match="supported_message_types"):
+        NatsOutboundBridge(RecordingNatsTransport(), supported_message_types=())
+
+
+@pytest.mark.asyncio
+async def test_nats_inbound_bridge_decodes_and_publishes_to_bus() -> None:
+    codec = NatsBridgeCodec()
+    outbound = codec.encode_publish(
+        percept_topic("audio", "audio.event_classifier_v1"),
+        _load_fixture("percept_packet.json"),
+    )
+    source = QueuedNatsSource(
+        [
+            NatsInboundMessage(
+                nats_subject=outbound.nats_subject,
+                payload=outbound.payload,
+            )
+        ]
+    )
+    bridge = NatsInboundBridge(source, profile_id="rooms", codec=codec)
+    bus = InMemoryBus()
+
+    async with bus.subscribe("omnisense.>") as subscription:
+        result = await bridge.publish_to(bus)
+        message = await subscription.receive()
+
+    assert bridge.metadata.adapter_id == "nats.inbound_bridge"
+    assert bridge.metadata.role == "source"
+    assert result.published_count == 1
+    assert result.topics == (percept_topic("audio", "audio.event_classifier_v1"),)
+    assert result.target_topics == ("omnisense.percepts.audio.audio.event_classifier_v1",)
+    assert result.message_types == ("percept.packet",)
+    assert isinstance(message.payload, PerceptPacket)
+
+
+@pytest.mark.asyncio
+async def test_nats_inbound_bridge_honors_max_messages() -> None:
+    codec = NatsBridgeCodec()
+    percept = codec.encode_publish(
+        percept_topic("audio", "audio.event_classifier_v1"),
+        _load_fixture("percept_packet.json"),
+    )
+    safety = codec.encode_publish(
+        profile_safety_case_topic("physical-ai"),
+        _load_fixture("profile_safety_case.json"),
+    )
+    source = QueuedNatsSource(
+        [
+            NatsInboundMessage(nats_subject=percept.nats_subject, payload=percept.payload),
+            NatsInboundMessage(nats_subject=safety.nats_subject, payload=safety.payload),
+        ]
+    )
+    bridge = NatsInboundBridge(source, codec=codec)
+
+    result = await bridge.publish_to(InMemoryBus(), max_messages=1)
+
+    assert result.published_count == 1
+    assert result.message_types == ("percept.packet",)
+    assert len(source.messages) == 1
+
+
+@pytest.mark.asyncio
+async def test_nats_inbound_bridge_rejects_unsupported_message_type() -> None:
+    codec = NatsBridgeCodec()
+    outbound = codec.encode_publish(
+        percept_topic("audio", "audio.event_classifier_v1"),
+        _load_fixture("percept_packet.json"),
+    )
+    source = QueuedNatsSource(
+        [NatsInboundMessage(nats_subject=outbound.nats_subject, payload=outbound.payload)]
+    )
+    bridge = NatsInboundBridge(
+        source,
+        codec=codec,
+        supported_message_types=("profile.safety_case",),
+    )
+    bus = InMemoryBus()
+
+    async with bus.subscribe("omnisense.>") as subscription:
+        with pytest.raises(ValueError, match="not supported"):
+            await bridge.publish_to(bus)
+        assert subscription.pending_count == 0
+
+
+@pytest.mark.asyncio
+async def test_nats_inbound_bridge_rejects_invalid_max_messages() -> None:
+    bridge = NatsInboundBridge(QueuedNatsSource([]))
+
+    with pytest.raises(ValueError, match="max_messages"):
+        await bridge.publish_to(InMemoryBus(), max_messages=-1)
+
+
+def test_nats_inbound_bridge_requires_supported_message_types() -> None:
+    with pytest.raises(ValueError, match="supported_message_types"):
+        NatsInboundBridge(QueuedNatsSource([]), supported_message_types=())

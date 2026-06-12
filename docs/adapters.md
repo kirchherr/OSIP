@@ -53,6 +53,10 @@ Deployment prefixes such as `site_a.osip` are supported while decoded bus topics
 remain rooted at `omnisense`. Core NATS versus JetStream intent, explicit ack,
 retention, and max-age hints are derived from the shared QoS mapping.
 
+`NatsOutboundBridge` and `NatsInboundBridge` mirror the MQTT bridge structure.
+They use small broker-independent transport/source protocols so unit tests stay
+broker-free while a live adapter can later wrap `nats-py`.
+
 ## Rules
 
 - Tests must not require real sensors, brokers, robot middleware, or hardware.
