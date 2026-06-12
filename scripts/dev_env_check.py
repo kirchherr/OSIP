@@ -16,6 +16,7 @@ REQUIRED_MODULES = [
     "omnisense_gateway",
     "omnisense_osip",
     "omnisense_profiles",
+    "omnisense_safety",
     "omnisense_sdk",
     "omnisense_sim",
     "prometheus_client",

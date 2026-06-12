@@ -74,6 +74,12 @@ Run decision runtime tests:
 docker compose run --rm dev uv run pytest tests/integration/test_decision_runtime_flow.py
 ```
 
+Run safety watchdog tests:
+
+```bash
+docker compose run --rm dev uv run pytest tests/unit/test_safety_watchdog.py
+```
+
 Run gateway API tests:
 
 ```bash

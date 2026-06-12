@@ -4,7 +4,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     UV_PROJECT_ENVIRONMENT=/opt/venv \
     UV_LINK_MODE=copy \
-    PATH="/opt/venv/bin:${PATH}"
+    PATH="/opt/venv/bin:${PATH}" \
+    PYTHONPATH="/workspace/packages/osip:/workspace/packages/bus:/workspace/packages/context_engine:/workspace/packages/profiles:/workspace/packages/decision_runtime:/workspace/packages/safety:/workspace/packages/benchmarks:/workspace/packages/simulators:/workspace/packages/gateway:/workspace/packages/sdk_python"
 
 WORKDIR /workspace
 

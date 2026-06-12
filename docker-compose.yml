@@ -9,7 +9,7 @@ services:
       - .:/workspace
       - osip-uv-cache:/root/.cache/uv
     environment:
-      PYTHONPATH: /workspace/packages/osip:/workspace/packages/bus:/workspace/packages/context_engine:/workspace/packages/profiles:/workspace/packages/decision_runtime:/workspace/packages/benchmarks:/workspace/packages/simulators:/workspace/packages/gateway:/workspace/packages/sdk_python
+      PYTHONPATH: /workspace/packages/osip:/workspace/packages/bus:/workspace/packages/context_engine:/workspace/packages/profiles:/workspace/packages/decision_runtime:/workspace/packages/safety:/workspace/packages/benchmarks:/workspace/packages/simulators:/workspace/packages/gateway:/workspace/packages/sdk_python
       UV_PROJECT_ENVIRONMENT: /opt/venv
       UV_LINK_MODE: copy
     command: bash

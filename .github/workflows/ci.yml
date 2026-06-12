@@ -13,6 +13,8 @@ jobs:
   test:
     name: Test, lint, typecheck, and contracts
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: packages/osip:packages/bus:packages/context_engine:packages/profiles:packages/decision_runtime:packages/safety:packages/benchmarks:packages/simulators:packages/gateway:packages/sdk_python
     steps:
       - name: Check out repository
         uses: actions/checkout@v4

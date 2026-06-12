@@ -104,6 +104,19 @@ Physical-AI autonomy must prefer information-gathering and safe-state goals over
 high-impact manipulation. Generated goals cannot change continuous controllers,
 workspace limits, emergency-stop behavior, or safety-rated monitored stops.
 
+## Safety Watchdog
+
+Physical-AI adapters should evaluate `profile.safety_case` with
+`omnisense_safety.SafetyWatchdog` before accepting action commands. The watchdog
+can detect stale context, heartbeat timeout, adapter error, bus disconnect,
+manual emergency stop, contract violation, and sensor dropout, then request the
+profile-defined safe state.
+
+The reference watchdog is deterministic and simulation-safe. Certified
+emergency-stop behavior, hard realtime braking, torque limits, and workspace
+enforcement still belong in hardware safety controllers or adapter-specific
+supervisors.
+
 ## Acceptance Criteria
 
 - A valid Physical-AI percept fixture validates through OSIP schemas.

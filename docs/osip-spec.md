@@ -95,6 +95,11 @@ the profile-specific safe state rather than inventing a generic fallback.
 OSIP describes and audits that behavior; hardware-rated emergency stops and hard
 realtime control remain adapter or controller responsibilities.
 
+The reference watchdog evaluator lives in `packages/safety/omnisense_safety`.
+It deterministically turns stale context, heartbeat timeouts, adapter errors,
+bus disconnects, manual stops, contract violations, or sensor dropouts into
+`SafeStateActivation` decisions for tests, simulations, and future adapters.
+
 Future learning-related messages should stay out of v0.1 runtime-critical paths:
 
 - `goal.packet`: records a generated goal hypothesis from surprise, epistemic
