@@ -6,7 +6,7 @@ import json
 from collections.abc import Mapping
 from pathlib import Path
 
-from omnisense_benchmarks.runner import SuiteBenchmarkResult
+from omnisense_benchmarks.runner import BenchmarkGateResult, SuiteBenchmarkResult
 
 
 def write_reports(
@@ -36,6 +36,8 @@ def render_markdown_report(result: SuiteBenchmarkResult) -> str:
         f"- Scenarios: {summary.scenario_count}",
         f"- Passed: {summary.passed_scenarios}",
         f"- Failed: {summary.failed_scenarios}",
+        f"- Application profiles: {', '.join(summary.application_profiles)}",
+        f"- Benchmark gate failures: {summary.benchmark_gate_failures}",
         f"- Context latency p50/p95/p99: {_format_percentiles(summary.context_latency.as_dict())}",
         (
             "- Action proposal latency p50/p95/p99: "
@@ -49,8 +51,11 @@ def render_markdown_report(result: SuiteBenchmarkResult) -> str:
         "",
         "## Scenarios",
         "",
-        "| Scenario | Result | Contexts | Actions | Context Latency | Action Latency |",
-        "| --- | --- | --- | --- | --- | --- |",
+        (
+            "| Scenario | Profile | Result | Gates | Contexts | Actions | "
+            "Context Latency | Action Latency |"
+        ),
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for scenario in result.scenarios:
         context_latency = _format_budget(
@@ -64,7 +69,9 @@ def render_markdown_report(result: SuiteBenchmarkResult) -> str:
         lines.append(
             "| "
             f"{scenario.scenario_id} | "
+            f"{scenario.application_profile} | "
             f"{'PASS' if scenario.passed else 'FAIL'} | "
+            f"{_format_gates(scenario.gates)} | "
             f"{_format_expected_actual(scenario.expected_contexts, scenario.detected_contexts)} | "
             f"{_format_expected_actual(scenario.expected_actions, scenario.proposed_actions)} | "
             f"{context_latency} | "
@@ -84,6 +91,13 @@ def _format_expected_actual(expected: tuple[str, ...], actual: tuple[str, ...]) 
     expected_text = ", ".join(expected) if expected else "none"
     actual_text = ", ".join(actual) if actual else "none"
     return f"expected: {expected_text}<br>actual: {actual_text}"
+
+
+def _format_gates(gates: tuple[BenchmarkGateResult, ...]) -> str:
+    failed = [gate.name for gate in gates if not gate.passed]
+    if not failed:
+        return "all passed"
+    return "failed: " + ", ".join(failed)
 
 
 def _format_budget(observed: int | None, budget: int | None) -> str:

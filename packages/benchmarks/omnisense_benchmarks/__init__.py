@@ -3,6 +3,7 @@
 from omnisense_benchmarks.metrics import PercentileSummary, percentile_summary
 from omnisense_benchmarks.reports import render_markdown_report, write_reports
 from omnisense_benchmarks.runner import (
+    BenchmarkGateResult,
     BenchmarkSummary,
     ScenarioBenchmarkResult,
     ScenarioBenchmarkRunner,
@@ -11,6 +12,7 @@ from omnisense_benchmarks.runner import (
 
 __all__ = [
     "BenchmarkSummary",
+    "BenchmarkGateResult",
     "PercentileSummary",
     "ScenarioBenchmarkResult",
     "ScenarioBenchmarkRunner",

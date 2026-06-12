@@ -19,7 +19,9 @@ It produces machine-readable JSON and human-readable Markdown reports under
 - simulated first-action-proposal latency,
 - p50/p95/p99 summaries,
 - false-positive and false-negative context/action counts,
-- action-contract block count.
+- action-contract block count,
+- registered Application Profile metadata,
+- per-scenario benchmark gate results.
 
 The first implementation uses deterministic scenario timestamps, not wall-clock
 performance timing. That keeps CI stable and makes the report reproducible.
@@ -41,3 +43,7 @@ Outputs:
 The command exits non-zero if any scenario misses expected contexts/actions,
 emits unexpected contexts/actions, or violates a configured scenario latency
 budget.
+
+The runner also fails closed when a scenario references an unregistered
+Application Profile. Reports expose the failing gate instead of crashing, which
+keeps CI output machine-readable.

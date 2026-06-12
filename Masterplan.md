@@ -1625,6 +1625,8 @@ Diese Werte sind Forschungsziele, keine Garantien für beliebige Hardware.
 - G3: Latency Report
 - G4: Dropout Tests
 - G5: Model Swap Demo
+- G6: Benchmark-Gates mit Application-Profile-Metadaten und fail-closed
+  Verhalten fuer unbekannte Profile ausgeben
 
 ### Epic H - Application Profiles
 

@@ -6,6 +6,9 @@
       "action_latency_budget_ms": 500,
       "action_latency_budget_passed": true,
       "application_profile": "rooms",
+      "application_profile_display_name": "Rooms",
+      "application_profile_requires_hardware": false,
+      "application_profile_version": "0.1",
       "context_latency_budget_ms": 250,
       "context_latency_budget_passed": true,
       "detected_contexts": [
@@ -19,6 +22,43 @@
       ],
       "first_action_proposal_latency_ms": 70,
       "first_context_latency_ms": 70,
+      "gates": [
+        {
+          "detail": "application profile is registered",
+          "name": "application_profile_registered",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "expected_contexts_detected",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "no_unexpected_contexts",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "expected_actions_proposed",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "no_unexpected_actions",
+          "passed": true
+        },
+        {
+          "detail": "context latency within budget",
+          "name": "context_latency_budget",
+          "passed": true
+        },
+        {
+          "detail": "action proposal latency within budget",
+          "name": "action_latency_budget",
+          "passed": true
+        }
+      ],
       "missing_actions": [],
       "missing_contexts": [],
       "passed": true,
@@ -37,6 +77,9 @@
       "action_latency_budget_ms": 500,
       "action_latency_budget_passed": true,
       "application_profile": "rooms",
+      "application_profile_display_name": "Rooms",
+      "application_profile_requires_hardware": false,
+      "application_profile_version": "0.1",
       "context_latency_budget_ms": 250,
       "context_latency_budget_passed": true,
       "detected_contexts": [
@@ -51,6 +94,43 @@
       ],
       "first_action_proposal_latency_ms": 250,
       "first_context_latency_ms": 250,
+      "gates": [
+        {
+          "detail": "application profile is registered",
+          "name": "application_profile_registered",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "expected_contexts_detected",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "no_unexpected_contexts",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "expected_actions_proposed",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "no_unexpected_actions",
+          "passed": true
+        },
+        {
+          "detail": "context latency within budget",
+          "name": "context_latency_budget",
+          "passed": true
+        },
+        {
+          "detail": "action proposal latency within budget",
+          "name": "action_latency_budget",
+          "passed": true
+        }
+      ],
       "missing_actions": [],
       "missing_contexts": [],
       "passed": true,
@@ -70,6 +150,9 @@
       "action_latency_budget_ms": 500,
       "action_latency_budget_passed": null,
       "application_profile": "rooms",
+      "application_profile_display_name": "Rooms",
+      "application_profile_requires_hardware": false,
+      "application_profile_version": "0.1",
       "context_latency_budget_ms": 250,
       "context_latency_budget_passed": null,
       "detected_contexts": [],
@@ -77,6 +160,33 @@
       "expected_contexts": [],
       "first_action_proposal_latency_ms": null,
       "first_context_latency_ms": null,
+      "gates": [
+        {
+          "detail": "application profile is registered",
+          "name": "application_profile_registered",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "expected_contexts_detected",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "no_unexpected_contexts",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "expected_actions_proposed",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "no_unexpected_actions",
+          "passed": true
+        }
+      ],
       "missing_actions": [],
       "missing_contexts": [],
       "passed": true,
@@ -93,6 +203,9 @@
       "action_latency_budget_ms": 500,
       "action_latency_budget_passed": null,
       "application_profile": "rooms",
+      "application_profile_display_name": "Rooms",
+      "application_profile_requires_hardware": false,
+      "application_profile_version": "0.1",
       "context_latency_budget_ms": 250,
       "context_latency_budget_passed": true,
       "detected_contexts": [
@@ -104,6 +217,38 @@
       ],
       "first_action_proposal_latency_ms": null,
       "first_context_latency_ms": 120,
+      "gates": [
+        {
+          "detail": "application profile is registered",
+          "name": "application_profile_registered",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "expected_contexts_detected",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "no_unexpected_contexts",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "expected_actions_proposed",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "no_unexpected_actions",
+          "passed": true
+        },
+        {
+          "detail": "context latency within budget",
+          "name": "context_latency_budget",
+          "passed": true
+        }
+      ],
       "missing_actions": [],
       "missing_contexts": [],
       "passed": true,
@@ -120,6 +265,9 @@
       "action_latency_budget_ms": 800,
       "action_latency_budget_passed": true,
       "application_profile": "rooms",
+      "application_profile_display_name": "Rooms",
+      "application_profile_requires_hardware": false,
+      "application_profile_version": "0.1",
       "context_latency_budget_ms": 500,
       "context_latency_budget_passed": true,
       "detected_contexts": [
@@ -133,6 +281,43 @@
       ],
       "first_action_proposal_latency_ms": 200,
       "first_context_latency_ms": 200,
+      "gates": [
+        {
+          "detail": "application profile is registered",
+          "name": "application_profile_registered",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "expected_contexts_detected",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "no_unexpected_contexts",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "expected_actions_proposed",
+          "passed": true
+        },
+        {
+          "detail": "passed",
+          "name": "no_unexpected_actions",
+          "passed": true
+        },
+        {
+          "detail": "context latency within budget",
+          "name": "context_latency_budget",
+          "passed": true
+        },
+        {
+          "detail": "action proposal latency within budget",
+          "name": "action_latency_budget",
+          "passed": true
+        }
+      ],
       "missing_actions": [],
       "missing_contexts": [],
       "passed": true,
@@ -155,6 +340,10 @@
       "p95_ms": 250.0,
       "p99_ms": 250.0
     },
+    "application_profiles": [
+      "rooms"
+    ],
+    "benchmark_gate_failures": 0,
     "context_latency": {
       "count": 4,
       "p50_ms": 120.0,
