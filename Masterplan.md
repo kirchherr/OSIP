@@ -1887,7 +1887,9 @@ Nach dem MVP:
 3. ROS 2/DDS Adapter schrittweise ausbauen: die brokerfreie Topic-/Payload-/
    QoS-Codec-Schicht ist der erste Referenzvertrag; Live-`rclpy`-Adapter und
    harte Realtime-Anbindung bleiben nachgelagert.
-4. EmbeddingRef und Embedding Store integrieren.
+4. EmbeddingRef und Embedding Store integrieren: zuerst deterministischer
+   In-memory-Store mit Dimension-, Space- und Provenance-Validierung; spaeter
+   optionale Vektor-DB-Adapter.
 5. Context Graph persistierbar machen.
 6. Modell-Plug-in-System verbessern.
 7. Dashboard erweitern.

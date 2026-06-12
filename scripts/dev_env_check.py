@@ -13,6 +13,7 @@ REQUIRED_MODULES = [
     "omnisense_bus",
     "omnisense_context",
     "omnisense_decision",
+    "omnisense_embedding",
     "omnisense_gateway",
     "omnisense_osip",
     "omnisense_profiles",

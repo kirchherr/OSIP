@@ -258,3 +258,24 @@ The first implementation should be a deterministic trace exporter and dataset
 manifest generator. Model training itself should remain optional and outside
 core CI until the MVP pipeline, benchmark runner, and governance contracts are
 solid.
+
+## Embedding Store Boundary
+
+`EmbeddingRef` is the OSIP payload contract for vector references. The vectors
+themselves stay outside OSIP messages so large multimodal embeddings do not
+inflate bus traffic, traces, or action contracts.
+
+The reference implementation starts with `InMemoryEmbeddingStore` in
+`omnisense_embedding`. It is intentionally small and deterministic:
+
+- stores vectors by `EmbeddingRef.ref`,
+- validates dimension, finite numeric values, non-zero norm, and embedding
+  space,
+- preserves source message id, trace id, correlation id, and caller metadata,
+- supports space-scoped cosine search for replay, tests, and local analysis,
+- rejects incompatible reuse of the same reference across dimensions or spaces.
+
+This is not a production vector database. Future adapters may map the same
+`EmbeddingStore` boundary to FAISS, pgvector, Milvus, Qdrant, or another
+backend, but OSIP Core should continue to exchange `EmbeddingRef` plus
+provenance, not raw vectors.
