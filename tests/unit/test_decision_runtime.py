@@ -20,8 +20,12 @@ def context_with_event(
     confidence: float = 0.84,
     timestamp: datetime | None = None,
     context_id: str = "ctx_test_001",
+    trace_id: str | None = None,
+    correlation_id: str | None = None,
 ) -> ContextUpdate:
     return ContextUpdate(
+        trace_id=trace_id,
+        correlation_id=correlation_id,
         context_id=context_id,
         timestamp=timestamp or datetime(2026, 6, 12, 12, 0, tzinfo=UTC),
         time_window_ms=250,
@@ -130,3 +134,28 @@ async def test_command_executor_stub_publishes_bounded_command() -> None:
     assert command.operation == contract.operation
     assert command.parameters == {"room": "kitchen"}
     assert command.idempotency_key == f"{context.context_id}:{contract.action_id}"
+
+
+async def test_decision_runtime_propagates_trace_ids_to_proposal_and_command() -> None:
+    bus = InMemoryBus()
+    registry = ActionContractRegistry(default_rooms_contracts())
+    contract = registry.get("action.hvac.ventilation_boost")
+    runtime = DecisionRuntime(bus, registry=registry, facts={"hvac.available": True})
+    context = context_with_event(
+        "context.high_occupancy_stale_air",
+        confidence=0.78,
+        trace_id="trace_decision_001",
+        correlation_id="corr_decision_001",
+    )
+
+    proposal = (await runtime.evaluate(context)).proposals[0]
+    command = await ActionCommandExecutorStub(bus).dispatch(
+        proposal,
+        contract,
+        parameters={"room": context.room},
+    )
+
+    assert proposal.trace_id == "trace_decision_001"
+    assert proposal.correlation_id == "corr_decision_001"
+    assert command.trace_id == "trace_decision_001"
+    assert command.correlation_id == "corr_decision_001"

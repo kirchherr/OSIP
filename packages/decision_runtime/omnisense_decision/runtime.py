@@ -155,6 +155,8 @@ class DecisionRuntime:
         event = match.event
         self._proposal_counter += 1
         return ActionProposal(
+            trace_id=context.trace_id,
+            correlation_id=context.correlation_id or context.trace_id or context.context_id,
             proposal_id=f"actprop_{self._proposal_counter:06d}",
             based_on_context=context.context_id,
             action_id=contract.action_id,

@@ -70,6 +70,10 @@
     "PositiveInt": {
       "exclusiveMinimum": 0,
       "type": "integer"
+    },
+    "TraceIdentifier": {
+      "minLength": 1,
+      "type": "string"
     }
   },
   "$id": "https://schemas.omnisense.dev/osip/0.1/model_capability.schema.json",
@@ -79,6 +83,17 @@
     "confidence_calibrated": {
       "title": "Confidence Calibrated",
       "type": "boolean"
+    },
+    "correlation_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TraceIdentifier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "display_name": {
       "minLength": 1,
@@ -128,6 +143,17 @@
       "anyOf": [
         {
           "$ref": "#/$defs/Identifier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "trace_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TraceIdentifier"
         },
         {
           "type": "null"

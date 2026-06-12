@@ -12,6 +12,7 @@ from omnisense_osip import (
     ActionResult,
     ContextUpdate,
     EventDetected,
+    EvidenceRef,
     ModelCapabilityDescriptor,
     PerceptPacket,
     from_json,
@@ -91,6 +92,41 @@ def test_context_events_require_evidence() -> None:
 
     with pytest.raises(ValidationError, match="evidence"):
         ContextUpdate.model_validate(data)
+
+
+def test_context_event_accepts_structured_evidence_refs() -> None:
+    data = load_fixture("context_update.json")
+    data["trace_id"] = "trace_kitchen_001"
+    data["correlation_id"] = "corr_kitchen_001"
+    data["events"][0]["evidence_refs"] = [
+        {
+            "source_type": "percept.packet",
+            "source_id": "percept_smoke_001",
+            "claim_label": "chemical.air.smoke_like_pattern",
+            "confidence": 0.91,
+            "source_model": "air_quality_model_v1",
+            "modality": "chemical",
+            "timestamp": data["timestamp"],
+        }
+    ]
+
+    update = ContextUpdate.model_validate(data)
+
+    assert update.trace_id == "trace_kitchen_001"
+    assert update.correlation_id == "corr_kitchen_001"
+    assert update.events[0].evidence_refs[0].source_id == "percept_smoke_001"
+    assert update.events[0].evidence_refs[0].claim_label == "chemical.air.smoke_like_pattern"
+
+
+def test_evidence_ref_rejects_naive_timestamp() -> None:
+    with pytest.raises(ValidationError, match="timezone"):
+        EvidenceRef.model_validate(
+            {
+                "source_type": "percept.packet",
+                "source_id": "percept_smoke_001",
+                "timestamp": "2026-06-12T12:00:00",
+            }
+        )
 
 
 def test_high_risk_contract_requires_rollback_or_safe_state() -> None:

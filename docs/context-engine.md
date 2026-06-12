@@ -45,6 +45,10 @@ without importing domain logic into OSIP Core.
 Each emitted event carries evidence and contradictions. Normal cooking with
 contradictory smoke evidence remains quiet.
 
+Rooms fusion now emits both compatible label evidence and structured
+`EvidenceRef` entries so later replay, audit, and learning tools can trace a
+context event back to the source percept claims.
+
 ## Boundary
 
 The engine is not a monolithic world model. The current rules belong to the

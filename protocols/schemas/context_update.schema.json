@@ -56,6 +56,13 @@
         "confidence": {
           "$ref": "#/$defs/Confidence"
         },
+        "contradiction_refs": {
+          "items": {
+            "$ref": "#/$defs/EvidenceRef"
+          },
+          "title": "Contradiction Refs",
+          "type": "array"
+        },
         "contradictions": {
           "items": {
             "$ref": "#/$defs/Label"
@@ -69,6 +76,13 @@
           },
           "minItems": 1,
           "title": "Evidence",
+          "type": "array"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/EvidenceRef"
+          },
+          "title": "Evidence Refs",
           "type": "array"
         },
         "label": {
@@ -86,6 +100,93 @@
       ],
       "title": "ContextEvent",
       "type": "object"
+    },
+    "EvidenceRef": {
+      "additionalProperties": false,
+      "description": "Structured reference to the source evidence behind a context event.",
+      "properties": {
+        "claim_label": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Label"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Confidence"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "modality": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Identifier"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "source_id": {
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Identifier"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "source_type": {
+          "$ref": "#/$defs/EvidenceSourceType"
+        },
+        "timestamp": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timestamp"
+        }
+      },
+      "required": [
+        "source_type",
+        "source_id"
+      ],
+      "title": "EvidenceRef",
+      "type": "object"
+    },
+    "EvidenceSourceType": {
+      "enum": [
+        "percept.packet",
+        "context.update",
+        "event.detected",
+        "action.result",
+        "external"
+      ],
+      "type": "string"
     },
     "GlobalRisk": {
       "additionalProperties": false,
@@ -121,6 +222,10 @@
     "PositiveInt": {
       "exclusiveMinimum": 0,
       "type": "integer"
+    },
+    "TraceIdentifier": {
+      "minLength": 1,
+      "type": "string"
     }
   },
   "$id": "https://schemas.omnisense.dev/osip/0.1/context_update.schema.json",
@@ -131,6 +236,17 @@
       "minLength": 1,
       "title": "Context Id",
       "type": "string"
+    },
+    "correlation_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TraceIdentifier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "entities": {
       "items": {
@@ -165,6 +281,17 @@
       "format": "date-time",
       "title": "Timestamp",
       "type": "string"
+    },
+    "trace_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TraceIdentifier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "type": {
       "const": "context.update",

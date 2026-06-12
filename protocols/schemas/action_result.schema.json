@@ -19,6 +19,10 @@
     "NonNegativeInt": {
       "minimum": 0,
       "type": "integer"
+    },
+    "TraceIdentifier": {
+      "minLength": 1,
+      "type": "string"
     }
   },
   "$id": "https://schemas.omnisense.dev/osip/0.1/action_result.schema.json",
@@ -45,6 +49,17 @@
       ],
       "default": null,
       "title": "Completed At"
+    },
+    "correlation_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TraceIdentifier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "error": {
       "anyOf": [
@@ -97,6 +112,17 @@
     },
     "status": {
       "$ref": "#/$defs/ActionResultStatus"
+    },
+    "trace_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TraceIdentifier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "type": {
       "const": "action.result",

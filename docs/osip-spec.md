@@ -20,6 +20,10 @@ Emergent autonomy is treated as future goal-hypothesis generation through
 
 - Current schema version: `osip/0.1`.
 - Every top-level OSIP message includes `schema_version` and `type`.
+- Every top-level OSIP message can carry optional `trace_id` and
+  `correlation_id` fields so replay, benchmarking, action chains, and later
+  Experience Traces can link related payloads without a transport-specific
+  envelope.
 - Unknown schema versions are rejected by the v0.1 reference models.
 - Breaking changes require a new schema version and migration notes.
 
@@ -40,6 +44,24 @@ Emergent autonomy is treated as future goal-hypothesis generation through
 - `action.command`: dispatches an approved action with parameters, deadline, and
   idempotency key.
 - `action.result`: records the result status and execution timing.
+
+## Evidence And Traceability
+
+`ContextEvent.evidence` and `ContextEvent.contradictions` remain label lists in
+`osip/0.1` for backwards compatibility. New producers should also populate
+`evidence_refs` and `contradiction_refs` with structured `EvidenceRef` objects.
+
+An `EvidenceRef` can point to a source percept, context update, event, action
+result, or external evidence source. For percept-backed claims it can include
+the source id, claim label, confidence, source model, modality, and timestamp.
+This gives the Learning Layer and audit tools a machine-readable path from a
+fused event back to the claims that produced it.
+
+Trace propagation starts with the earliest known message. Reference runtime
+behavior currently carries `trace_id` and `correlation_id` from
+`PerceptPacket -> ContextUpdate -> ActionProposal -> ActionCommand`. Future
+`action.result`, `experience.trace`, and `outcome.evaluation` producers should
+continue the same identifiers.
 
 Future learning-related messages should stay out of v0.1 runtime-critical paths:
 

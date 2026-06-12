@@ -192,6 +192,10 @@
       ],
       "title": "SensorQuality",
       "type": "object"
+    },
+    "TraceIdentifier": {
+      "minLength": 1,
+      "type": "string"
     }
   },
   "$id": "https://schemas.omnisense.dev/osip/0.1/percept_packet.schema.json",
@@ -205,6 +209,17 @@
       "minItems": 1,
       "title": "Claims",
       "type": "array"
+    },
+    "correlation_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TraceIdentifier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "embedding": {
       "anyOf": [
@@ -268,6 +283,17 @@
       "format": "date-time",
       "title": "Timestamp",
       "type": "string"
+    },
+    "trace_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TraceIdentifier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "type": {
       "const": "percept.packet",

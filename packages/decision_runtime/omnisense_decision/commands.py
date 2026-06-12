@@ -43,6 +43,8 @@ class ActionCommandExecutorStub:
 
         self._command_counter += 1
         return ActionCommand(
+            trace_id=proposal.trace_id,
+            correlation_id=proposal.correlation_id or proposal.trace_id or proposal.proposal_id,
             command_id=f"cmd_{self._command_counter:06d}",
             proposal_id=proposal.proposal_id,
             action_id=contract.action_id,

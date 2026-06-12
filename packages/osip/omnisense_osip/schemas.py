@@ -17,10 +17,18 @@ type NonNegativeInt = Annotated[int, Field(ge=0)]
 type PositiveInt = Annotated[int, Field(gt=0)]
 type Label = Annotated[str, Field(min_length=1, pattern=LABEL_PATTERN)]
 type Identifier = Annotated[str, Field(min_length=1, pattern=IDENTIFIER_PATTERN)]
+type TraceIdentifier = Annotated[str, Field(min_length=1)]
 
 type QualityStatus = Literal["usable", "degraded", "unusable"]
 type RiskClass = Literal["low", "medium", "high", "critical"]
 type ActionPriority = Literal["low", "normal", "high", "critical"]
+type EvidenceSourceType = Literal[
+    "percept.packet",
+    "context.update",
+    "event.detected",
+    "action.result",
+    "external",
+]
 type ActionResultStatus = Literal[
     "accepted",
     "executed",
@@ -80,6 +88,8 @@ class EmbeddingCapability(OSIPModel):
 class ModelCapabilityDescriptor(OSIPModel):
     schema_version: Literal["osip/0.1"] = OSIP_SCHEMA_VERSION
     type: Literal["model.capability"] = "model.capability"
+    trace_id: TraceIdentifier | None = None
+    correlation_id: TraceIdentifier | None = None
     model_id: Identifier
     display_name: str = Field(min_length=1)
     version: str = Field(min_length=1)
@@ -119,6 +129,8 @@ class SensorQuality(OSIPModel):
 class PerceptPacket(OSIPModel):
     schema_version: Literal["osip/0.1"] = OSIP_SCHEMA_VERSION
     type: Literal["percept.packet"] = "percept.packet"
+    trace_id: TraceIdentifier | None = None
+    correlation_id: TraceIdentifier | None = None
     id: str = Field(min_length=1)
     source_model: Identifier
     modality: Identifier
@@ -150,12 +162,31 @@ class ContextEntity(OSIPModel):
     confidence: Confidence
 
 
+class EvidenceRef(OSIPModel):
+    """Structured reference to the source evidence behind a context event."""
+
+    source_type: EvidenceSourceType
+    source_id: str = Field(min_length=1)
+    claim_label: Label | None = None
+    confidence: Confidence | None = None
+    source_model: Identifier | None = None
+    modality: Identifier | None = None
+    timestamp: datetime | None = None
+
+    @field_validator("timestamp")
+    @classmethod
+    def timestamp_has_timezone(cls, value: datetime | None) -> datetime | None:
+        return require_optional_timezone(value)
+
+
 class ContextEvent(OSIPModel):
     label: Label
     confidence: Confidence
     urgency: Confidence
     evidence: list[Label] = Field(min_length=1)
     contradictions: list[Label] = Field(default_factory=list)
+    evidence_refs: list[EvidenceRef] = Field(default_factory=list)
+    contradiction_refs: list[EvidenceRef] = Field(default_factory=list)
 
 
 class GlobalRisk(OSIPModel):
@@ -167,6 +198,8 @@ class GlobalRisk(OSIPModel):
 class ContextUpdate(OSIPModel):
     schema_version: Literal["osip/0.1"] = OSIP_SCHEMA_VERSION
     type: Literal["context.update"] = "context.update"
+    trace_id: TraceIdentifier | None = None
+    correlation_id: TraceIdentifier | None = None
     context_id: str = Field(min_length=1)
     timestamp: datetime
     time_window_ms: PositiveInt
@@ -184,6 +217,8 @@ class ContextUpdate(OSIPModel):
 class EventDetected(OSIPModel):
     schema_version: Literal["osip/0.1"] = OSIP_SCHEMA_VERSION
     type: Literal["event.detected"] = "event.detected"
+    trace_id: TraceIdentifier | None = None
+    correlation_id: TraceIdentifier | None = None
     event_id: str = Field(min_length=1)
     timestamp: datetime
     label: Label
@@ -204,6 +239,8 @@ class EventDetected(OSIPModel):
 class ActionContract(OSIPModel):
     schema_version: Literal["osip/0.1"] = OSIP_SCHEMA_VERSION
     type: Literal["action.contract"] = "action.contract"
+    trace_id: TraceIdentifier | None = None
+    correlation_id: TraceIdentifier | None = None
     action_id: Label
     target: Label
     operation: Label
@@ -232,6 +269,8 @@ class ActionContract(OSIPModel):
 class ActionProposal(OSIPModel):
     schema_version: Literal["osip/0.1"] = OSIP_SCHEMA_VERSION
     type: Literal["action.proposal"] = "action.proposal"
+    trace_id: TraceIdentifier | None = None
+    correlation_id: TraceIdentifier | None = None
     proposal_id: str = Field(min_length=1)
     based_on_context: str = Field(min_length=1)
     action_id: Label
@@ -245,6 +284,8 @@ class ActionProposal(OSIPModel):
 class ActionCommand(OSIPModel):
     schema_version: Literal["osip/0.1"] = OSIP_SCHEMA_VERSION
     type: Literal["action.command"] = "action.command"
+    trace_id: TraceIdentifier | None = None
+    correlation_id: TraceIdentifier | None = None
     command_id: str = Field(min_length=1)
     proposal_id: str = Field(min_length=1)
     action_id: Label
@@ -258,6 +299,8 @@ class ActionCommand(OSIPModel):
 class ActionResult(OSIPModel):
     schema_version: Literal["osip/0.1"] = OSIP_SCHEMA_VERSION
     type: Literal["action.result"] = "action.result"
+    trace_id: TraceIdentifier | None = None
+    correlation_id: TraceIdentifier | None = None
     result_id: str = Field(min_length=1)
     command_id: str = Field(min_length=1)
     action_id: Label

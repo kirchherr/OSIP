@@ -24,6 +24,16 @@
           "confidence": {
             "$ref": "#/components/schemas/Confidence"
           },
+          "correlation_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TraceIdentifier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "deadline_ms": {
             "$ref": "#/components/schemas/PositiveInt"
           },
@@ -49,6 +59,16 @@
             "default": "osip/0.1",
             "title": "Schema Version",
             "type": "string"
+          },
+          "trace_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TraceIdentifier"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "type": {
             "const": "action.proposal",
@@ -169,6 +189,13 @@
           "confidence": {
             "$ref": "#/components/schemas/Confidence"
           },
+          "contradiction_refs": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceRef"
+            },
+            "title": "Contradiction Refs",
+            "type": "array"
+          },
           "contradictions": {
             "items": {
               "$ref": "#/components/schemas/Label"
@@ -182,6 +209,13 @@
             },
             "minItems": 1,
             "title": "Evidence",
+            "type": "array"
+          },
+          "evidence_refs": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceRef"
+            },
+            "title": "Evidence Refs",
             "type": "array"
           },
           "label": {
@@ -207,6 +241,16 @@
             "minLength": 1,
             "title": "Context Id",
             "type": "string"
+          },
+          "correlation_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TraceIdentifier"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "entities": {
             "items": {
@@ -241,6 +285,16 @@
             "format": "date-time",
             "title": "Timestamp",
             "type": "string"
+          },
+          "trace_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TraceIdentifier"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "type": {
             "const": "context.update",
@@ -315,6 +369,88 @@
         ],
         "title": "EmbeddingRef",
         "type": "object"
+      },
+      "EvidenceRef": {
+        "additionalProperties": false,
+        "description": "Structured reference to the source evidence behind a context event.",
+        "properties": {
+          "claim_label": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Label"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Confidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "modality": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identifier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_id": {
+            "minLength": 1,
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_model": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identifier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_type": {
+            "$ref": "#/components/schemas/EvidenceSourceType"
+          },
+          "timestamp": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timestamp"
+          }
+        },
+        "required": [
+          "source_type",
+          "source_id"
+        ],
+        "title": "EvidenceRef",
+        "type": "object"
+      },
+      "EvidenceSourceType": {
+        "enum": [
+          "percept.packet",
+          "context.update",
+          "event.detected",
+          "action.result",
+          "external"
+        ],
+        "type": "string"
       },
       "GlobalRisk": {
         "additionalProperties": false,
@@ -442,6 +578,16 @@
             "title": "Confidence Calibrated",
             "type": "boolean"
           },
+          "correlation_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TraceIdentifier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "display_name": {
             "minLength": 1,
             "title": "Display Name",
@@ -489,6 +635,16 @@
             "anyOf": [
               {
                 "$ref": "#/components/schemas/Identifier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "trace_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TraceIdentifier"
               },
               {
                 "type": "null"
@@ -579,6 +735,16 @@
             "title": "Claims",
             "type": "array"
           },
+          "correlation_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TraceIdentifier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "embedding": {
             "anyOf": [
               {
@@ -638,6 +804,16 @@
             "format": "date-time",
             "title": "Timestamp",
             "type": "string"
+          },
+          "trace_id": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TraceIdentifier"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "type": {
             "const": "percept.packet",
@@ -706,6 +882,10 @@
         ],
         "title": "SensorQuality",
         "type": "object"
+      },
+      "TraceIdentifier": {
+        "minLength": 1,
+        "type": "string"
       },
       "ValidationError": {
         "properties": {

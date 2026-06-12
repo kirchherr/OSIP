@@ -65,6 +65,12 @@ perfect data. Rewards can be delayed, noisy, biased, confounded, or based on
 missing sensors. OSIP must preserve that uncertainty instead of pretending that
 every post-action percept is a clean label.
 
+OSIP v0.1 starts this lineage path with optional `trace_id` and
+`correlation_id` fields on every top-level message plus structured
+`EvidenceRef` entries on context events. The label lists remain for
+compatibility, while `EvidenceRef` provides machine-readable links from fused
+contexts back to source percept claims.
+
 ## Responsibilities
 
 - Capture versioned runtime traces across perception, context, decision, action,

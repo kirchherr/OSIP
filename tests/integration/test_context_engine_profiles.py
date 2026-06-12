@@ -59,6 +59,8 @@ class ProfileTestFusion:
 def build_test_percept() -> PerceptPacket:
     timestamp = datetime(2026, 6, 12, 8, 0, tzinfo=UTC)
     return PerceptPacket(
+        trace_id="trace_profile_test",
+        correlation_id="corr_profile_test",
         id="percept_profile_test",
         source_model="profile_test_model",
         modality="test",
@@ -87,6 +89,8 @@ async def test_context_engine_uses_registered_application_profile() -> None:
 
     assert engine.application_profile == "xxx"
     assert fusion.seen_percept_ids == ["percept_profile_test"]
+    assert update.trace_id == "trace_profile_test"
+    assert update.correlation_id == "corr_profile_test"
     assert [event.label for event in update.events] == ["context.profile_test"]
     assert delivered.topic == context_update_topic("lab")
     assert delivered.payload == update

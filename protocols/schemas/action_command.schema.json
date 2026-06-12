@@ -8,6 +8,10 @@
     "PositiveInt": {
       "exclusiveMinimum": 0,
       "type": "integer"
+    },
+    "TraceIdentifier": {
+      "minLength": 1,
+      "type": "string"
     }
   },
   "$id": "https://schemas.omnisense.dev/osip/0.1/action_command.schema.json",
@@ -21,6 +25,17 @@
       "minLength": 1,
       "title": "Command Id",
       "type": "string"
+    },
+    "correlation_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TraceIdentifier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "execute_before_ms": {
       "$ref": "#/$defs/PositiveInt"
@@ -51,6 +66,17 @@
     },
     "target": {
       "$ref": "#/$defs/Label"
+    },
+    "trace_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TraceIdentifier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "type": {
       "const": "action.command",

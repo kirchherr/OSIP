@@ -22,6 +22,10 @@
     "PositiveInt": {
       "exclusiveMinimum": 0,
       "type": "integer"
+    },
+    "TraceIdentifier": {
+      "minLength": 1,
+      "type": "string"
     }
   },
   "$id": "https://schemas.omnisense.dev/osip/0.1/action_proposal.schema.json",
@@ -38,6 +42,17 @@
     },
     "confidence": {
       "$ref": "#/$defs/Confidence"
+    },
+    "correlation_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TraceIdentifier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "deadline_ms": {
       "$ref": "#/$defs/PositiveInt"
@@ -64,6 +79,17 @@
       "default": "osip/0.1",
       "title": "Schema Version",
       "type": "string"
+    },
+    "trace_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TraceIdentifier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "type": {
       "const": "action.proposal",

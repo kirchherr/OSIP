@@ -51,6 +51,12 @@ class ContextEngine:
             room=room,
             time_window_ms=self._window.window_ms,
         )
+        update = update.model_copy(
+            update={
+                "trace_id": percept.trace_id or percept.id,
+                "correlation_id": percept.correlation_id or percept.trace_id or percept.id,
+            }
+        )
         await self._bus.publish(context_update_topic(update.room), update)
         return update
 

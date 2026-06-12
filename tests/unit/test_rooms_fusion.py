@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import cast
 
 from omnisense_context import RoomsFusion
-from omnisense_osip import PerceptPacket
+from omnisense_osip import ContextUpdate, PerceptPacket
 from omnisense_sim import ScenarioLoader, SimulatedClock, build_percept_packet
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -22,17 +23,24 @@ def build_percepts(scenario_name: str) -> list[PerceptPacket]:
 
 def event_labels_for(scenario_name: str) -> list[str]:
     percepts = build_percepts(scenario_name)
+    update = update_for(percepts)
+    return [event.label for event in update.events]
+
+
+def update_for(percepts: list[PerceptPacket]) -> ContextUpdate:
     timestamp = percepts[-1].received_at or percepts[-1].timestamp
     location = percepts[-1].location
     room = location.room if location is not None and location.room is not None else "unknown_room"
-    update = RoomsFusion().fuse(
-        percepts,
-        context_id="ctx_test",
-        timestamp=timestamp,
-        room=room,
-        time_window_ms=1000,
+    return cast(
+        ContextUpdate,
+        RoomsFusion().fuse(
+            percepts,
+            context_id="ctx_test",
+            timestamp=timestamp,
+            room=room,
+            time_window_ms=1000,
+        ),
     )
-    return [event.label for event in update.events]
 
 
 def test_rooms_fusion_detects_burning_food() -> None:
@@ -55,3 +63,21 @@ def test_rooms_fusion_keeps_normal_cooking_quiet() -> None:
 
 def test_rooms_fusion_reports_sensor_conflict() -> None:
     assert event_labels_for("sensor_conflict_smoke.yaml") == ["context.sensor_conflict"]
+
+
+def test_rooms_fusion_adds_structured_evidence_refs() -> None:
+    percepts = build_percepts("kitchen_burning_food.yaml")
+    update = update_for(percepts)
+    event = next(
+        event
+        for event in update.events
+        if event.label == "context.possible_burning_food"
+    )
+
+    assert [ref.source_type for ref in event.evidence_refs] == [
+        "percept.packet",
+        "percept.packet",
+        "percept.packet",
+        "percept.packet",
+    ]
+    assert {ref.claim_label for ref in event.evidence_refs} == set(event.evidence)

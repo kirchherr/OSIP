@@ -5,9 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 
-from omnisense_context.claim_index import ClaimIndex
+from omnisense_context.claim_index import ClaimIndex, ClaimObservation
 from omnisense_osip import PerceptPacket
-from omnisense_osip.schemas import ContextEvent, ContextUpdate, GlobalRisk
+from omnisense_osip.schemas import ContextEvent, ContextUpdate, EvidenceRef, GlobalRisk
 
 
 @dataclass(frozen=True, slots=True)
@@ -147,6 +147,8 @@ class RoomsFusion:
             urgency=rule.urgency,
             evidence=evidence,
             contradictions=contradictions,
+            evidence_refs=self._evidence_refs(evidence, index),
+            contradiction_refs=self._evidence_refs(contradictions, index),
         )
 
     def _evidence(self, rule: _Rule, index: ClaimIndex) -> list[str]:
@@ -170,6 +172,27 @@ class RoomsFusion:
             return 0.0
         return sum(values) / len(values)
 
+    @classmethod
+    def _evidence_refs(cls, labels: list[str], index: ClaimIndex) -> list[EvidenceRef]:
+        refs: list[EvidenceRef] = []
+        for label in labels:
+            observation = index.best(label)
+            if observation is not None:
+                refs.append(cls._evidence_ref(observation))
+        return refs
+
+    @staticmethod
+    def _evidence_ref(observation: ClaimObservation) -> EvidenceRef:
+        return EvidenceRef(
+            source_type="percept.packet",
+            source_id=observation.percept_id,
+            claim_label=observation.label,
+            confidence=round(observation.confidence, 3),
+            source_model=observation.source_model,
+            modality=observation.modality,
+            timestamp=observation.timestamp,
+        )
+
     @staticmethod
     def _sensor_conflict(index: ClaimIndex) -> ContextEvent | None:
         smoke_like = index.best("chemical.air.smoke_like_pattern")
@@ -185,4 +208,6 @@ class RoomsFusion:
             urgency=0.45,
             evidence=["chemical.air.smoke_like_pattern"],
             contradictions=["vision.no_smoke_visible"],
+            evidence_refs=[RoomsFusion._evidence_ref(smoke_like)],
+            contradiction_refs=[RoomsFusion._evidence_ref(no_smoke)],
         )

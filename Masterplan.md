@@ -1644,6 +1644,7 @@ Diese Werte sind Forschungsziele, keine Garantien für beliebige Hardware.
 - I4: Feature- und Label-Extraktion als offline Benchmark-/Dataset-Schritt planen, nicht als Reflex/Fast-Path-Logik
 - I5: Model Cards, Dataset Datasheets, Registry-Eintraege und Lineage-Metadaten als Pflichtartefakte fuer gelernte Modelle definieren
 - I6: Shadow-Mode-, Benchmark-, Rollback- und Action-Contract-Gates fuer jede Modellpromotion festlegen
+- I7: `trace_id`, `correlation_id` und strukturierte `EvidenceRef`-Quellen als kompatible OSIP-v0.1-Trace-Grundlage einfuehren
 - I7: Drift-, Kalibrierungs- und Re-Evaluation-Regeln fuer wiederholt gelernte Modelle beschreiben
 - I8: Decision Trace und Experience Tuple entwerfen: `State_t`, `ActionContract_t`, `PostActionPercepts_t+delta`, `Outcome_t+delta` und `RewardSignal_t+delta`
 - I9: Modellfamilien als Roadmap-Slots trennen: Knowledge Distillation fuer Reflex-Beschleunigung, Predictive World Models fuer Action-Dry-Runs, IRL/Reward Models fuer Ziel- und Komforthypothesen

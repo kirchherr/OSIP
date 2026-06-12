@@ -26,6 +26,10 @@
         "critical"
       ],
       "type": "string"
+    },
+    "TraceIdentifier": {
+      "minLength": 1,
+      "type": "string"
     }
   },
   "$id": "https://schemas.omnisense.dev/osip/0.1/action_contract.schema.json",
@@ -45,6 +49,17 @@
     },
     "cooldown_ms": {
       "$ref": "#/$defs/NonNegativeInt"
+    },
+    "correlation_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TraceIdentifier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "idempotent": {
       "title": "Idempotent",
@@ -100,6 +115,17 @@
     },
     "target": {
       "$ref": "#/$defs/Label"
+    },
+    "trace_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TraceIdentifier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "type": {
       "const": "action.contract",
