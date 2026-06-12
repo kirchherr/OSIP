@@ -1413,7 +1413,8 @@ Tasks:
 - Adapter-Interface definieren: `AdapterMetadata`, `AdapterRunResult` und
   source-adapter Protocol.
 - JSONL Adapter bauen, der OSIP-Payloads validiert und auf den Bus publiziert.
-- MQTT Bridge bauen.
+- MQTT Bridge bauen: zunaechst brokerfreie Topic-/Payload-/QoS-Codec-Schicht,
+  danach Live-Adapter gegen Broker.
 - Beispiel für externes Modell als separater Prozess.
 - optional Webcam-/Mikrofon-Stubs, aber nicht als Testvoraussetzung.
 

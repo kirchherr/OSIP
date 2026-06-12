@@ -83,7 +83,7 @@ docker compose run --rm dev uv run pytest tests/unit/test_safety_watchdog.py
 Run adapter contract tests:
 
 ```bash
-docker compose run --rm dev uv run pytest tests/unit/test_jsonl_adapter.py
+docker compose run --rm dev uv run pytest tests/unit/test_jsonl_adapter.py tests/unit/test_mqtt_adapter.py
 ```
 
 Run gateway API tests:

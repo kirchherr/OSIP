@@ -25,6 +25,18 @@ records with `topic` and `payload`, validates each payload through
 `validate_osip_message`, checks the adapter's allowed message types, and then
 publishes typed OSIP models to the bus.
 
+The first MQTT bridge layer is `MqttBridgeCodec`. It does not open a broker
+connection. Instead, it defines the deterministic boundary that a live MQTT
+adapter must preserve:
+
+- OSIP bus topics use dots; MQTT topics use slash-separated levels.
+- Bus wildcard filters `*` and `>` map to MQTT `+` and `#`.
+- Payloads are serialized OSIP JSON and validated on decode.
+- MQTT 5 QoS, retained delivery, and message-expiry hints are derived from the
+  bus `QoSProfile` through the reference MQTT mapping.
+- The codec rejects topic/message mismatches, for example a safety case on a
+  percept topic.
+
 ## Rules
 
 - Tests must not require real sensors, brokers, robot middleware, or hardware.
@@ -34,6 +46,8 @@ publishes typed OSIP models to the bus.
   public bus and schema contracts.
 - QoS mappings remain adapter configuration and telemetry intent, not payload
   semantics.
+- Live broker adapters may use `aiomqtt`, but unit tests for adapter contracts
+  must stay broker-free.
 
 ## JSONL Format
 
@@ -45,3 +59,16 @@ Each line is one JSON object:
 
 The payload above is abbreviated. Real records must validate against the OSIP
 JSON Schemas.
+
+## MQTT Topic Mapping
+
+Default mapping:
+
+```text
+omnisense.percepts.audio.audio.event_classifier_v1
+omnisense/percepts/audio/audio/event_classifier_v1
+```
+
+Custom MQTT prefixes are allowed for deployments, for example
+`site_a/osip/percepts/audio/#`, while decoded bus topics remain rooted at
+`omnisense`.
