@@ -1,4 +1,4 @@
 interface:
   display_name: "OSIP Project"
-  short_description: "OSIP Core and application-profile workflow"
-  default_prompt: "Use the OSIP project skill to read Masterplan.md and AGENTS.md, separate OSIP Core from Application Profiles, align public interfaces with open standards, keep tests simulation-first, preserve safety bounds, and implement the next smallest validated step."
+  short_description: "OSIP Core, application-profile, and learning-layer workflow"
+  default_prompt: "Use the OSIP project skill to read Masterplan.md, AGENTS.md, and learning-layer guidance when relevant; separate OSIP Core from Application Profiles, align public interfaces with open standards, keep tests simulation-first, preserve safety bounds, keep learning out of the fast path, and implement the next smallest validated step."

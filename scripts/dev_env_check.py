@@ -11,6 +11,7 @@ REQUIRED_MODULES = [
     "opentelemetry",
     "orjson",
     "omnisense_bus",
+    "omnisense_context",
     "omnisense_osip",
     "omnisense_sim",
     "prometheus_client",

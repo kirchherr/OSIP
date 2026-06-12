@@ -11,6 +11,8 @@ Architekturweite Einordnung:
 
 > OSIP besteht aus einem domain-neutralen Grundkonzept und andockbaren Application Profiles. Der Kern beschreibt Perception, Context/World Model und Bounded Action. Profile wie Rooms, Physical AI oder spaeter Application XXX liefern Domain-Vokabular, Szenarien, Adapter und Safety-Regeln.
 
+> Ergänzend entsteht eine kontrollierte Experience & Learning Layer: OSIP kann aus Percepts, Context Updates, Entscheidungen, Actions, Ergebnissen und späteren Outcomes lernbare Erfahrungen extrahieren, damit zukünftige Modelle aus belegten Erkenntnissen trainiert, kalibriert und bewertet werden können.
+
 Smart Rooms bleiben der erste Referenzdemonstrator. Die Grundarchitektur muss jedoch so allgemein bleiben, dass spaetere Profile fuer Robotik, mobile Plattformen, Manipulatoren, Simulationen, Safety-Controller oder andere autonome Systeme dieselben OSIP-Prinzipien nutzen koennen.
 
 **OmniSense Runtime** ist ein offenes, modulares **Perception-to-Action-System** für intelligente Räume.
@@ -21,11 +23,14 @@ Nicht das Ziel:
 - kein monolithisches Modell, das alles versteht,
 - kein Fokusprojekt zu Datenschutz,
 - keine Abhängigkeit von realer Hardware in der ersten Phase,
-- keine frei improvisierende autonome KI ohne Aktionsgrenzen.
+- keine frei improvisierende autonome KI ohne Aktionsgrenzen,
+- kein selbstveränderndes Produktionsmodell, das ohne Review, Benchmark und Registry-Freigabe Live-Verhalten ändert.
 
 Das Ziel:
 
 > Viele spezialisierte Sinnesmodelle liefern standardisierte Wahrnehmungspakete. Eine Echtzeit-Kontextschicht fusioniert diese Pakete zu einem operativen Weltzustand. Eine dreistufige Entscheidungslogik löst innerhalb definierter Latenz-, Evidenz- und Aktionsverträge autonome Reaktionen aus.
+
+Zusätzlich dokumentiert OSIP diese Laufzeitkette als versionierte Experience Traces, aus denen später reproduzierbare Datensätze, Kalibrierungen, Modellkarten und kontrolliert freigegebene Modelle entstehen können.
 
 ---
 
@@ -44,7 +49,8 @@ OmniSense beweist diese These durch einen lauffähigen Referenzprototypen mit:
 5. dreistufiger Decision Runtime,
 6. Action Contracts,
 7. Simulations- und Benchmark-Umgebung,
-8. reproduzierbaren Demonstratoren.
+8. reproduzierbaren Demonstratoren,
+9. kontrollierter Experience-to-Learning-Pipeline.
 
 ---
 
@@ -84,6 +90,57 @@ Fuer die Roadmap bedeutet das:
 
 ---
 
+### 1.3 Experience & Learning Layer
+
+OSIP soll ein eigenes maschinenlernfähiges Erfahrungsmodell vorbereiten. Jede relevante Kette aus Wahrnehmung, Kontext, Entscheidung, Aktion, Ergebnis und späterem Outcome kann als nachvollziehbarer Trace gespeichert und zu Lernbeispielen verdichtet werden:
+
+```text
+PerceptPacket -> ContextUpdate -> ActionProposal -> ActionCommand -> ActionResult -> Outcome -> Experience Dataset
+```
+
+Als Trainingsdaten-Fabrik wird daraus ein Experience Tuple:
+
+```text
+State_t + ActionContract_t + PostActionPercepts_t+delta -> Outcome_t+delta -> RewardSignal_t+delta
+```
+
+Die nachfolgenden `percept.packet`-Rückmeldungen werden dabei über Trace-ID, Action-ID, Zeitfenster, Profil, Szenario und Modellversion mit der ausgeführten oder geblockten Aktion verbunden. Dadurch entsteht ein besonders reichhaltiger multimodaler Datensatz. Er ist aber nicht automatisch perfekt: Rewards können verzögert, verrauscht, konfundiert, unvollständig oder durch Sensor-/Policy-Bias verzerrt sein und müssen deshalb explizit bewertet werden.
+
+Ziel ist nicht, die Runtime sich selbst unkontrolliert umschreiben zu lassen. Ziel ist ein wissenschaftlich prüfbarer Lernkreislauf:
+
+1. Runtime Trace erfassen.
+2. Provenance, Schema-Versionen, Profil, Szenario, Modellfähigkeiten und Zeitfenster sichern.
+3. Features, Labels, False Positives, False Negatives, Action Blocks und Outcome-Signale extrahieren.
+4. Offline trainieren oder kalibrieren.
+5. Gegen deterministische Szenarien und Benchmarks testen.
+6. Modellkarte, Dataset-Datasheet und Registry-Eintrag erzeugen.
+7. Neues Modell nur über Shadow Mode, Review, Rollback und Action-Contract-Gates freigeben.
+
+Lernbare OSIP-Erkenntnisse:
+
+- bessere Konfidenzkalibrierung pro Modell und Claim,
+- bessere Fusionsgewichte für widersprüchliche Evidenz,
+- Erkennung wiederkehrender Fehlalarme und verpasster Ereignisse,
+- Vorhersage, wann Actions erfolgreich, geblockt oder riskant sind,
+- Vorschläge für neue Profile, Claims, Preconditions oder Action Contracts, immer mit menschlicher Review.
+
+Extrahierbare Modellfamilien:
+
+- **Knowledge Distillation**: langsame Deliberative-Entscheidungen oder human-reviewte Entscheidungen werden als Teacher genutzt, um kleine, schnelle Student-Modelle für Reflex-Claims oder Contract-Ranking zu trainieren. Student-Modelle dürfen keine neuen Aktionsflächen öffnen, sondern nur innerhalb bestehender Contracts beschleunigen.
+- **Predictive World Models**: Modelle lernen `P(Percepts_t+h, Context_t+h | State_t, ActionContract_t)` und erlauben Action-Dry-Runs, bevor eine Aktion ausgeführt wird. Sie bleiben beratend, bis Replay-, Benchmark-, Unsicherheits- und Safety-Gates erfüllt sind.
+- **Inverse Reinforcement Learning / Reward Models**: erfolgreiche Traces, geblockte Aktionen und Feedback werden genutzt, um Kandidaten für Komfort-, Sicherheits-, Energie- oder Manipulations-Rewards zu lernen. Diese Rewards sind prüfbare Hypothesen, keine automatische normative Wahrheit.
+
+Guardrails:
+
+- Keine Online-Selbstoptimierung im Reflex Layer.
+- Keine automatische Modellpromotion in Produktion.
+- Kein gelerntes Modell darf Action Contracts, Bounds, Preconditions, Cooldowns, Safe States oder Idempotency umgehen.
+- OSIP Core definiert nur generische Trace- und Learning-Verträge; Profile definieren Outcome-Labels, sensible Datenregeln, Metriken und Safety Cases.
+- Reale Daten brauchen explizite Governance für Zustimmung, Aufbewahrung, Pseudonymisierung, Lizenz und Löschung.
+- Reward-Signale müssen auf Leakage, Konfundierung, Zeitverzug, Zielkonflikte und Profilwechsel geprüft werden.
+
+---
+
 ## 2. Codex-Arbeitsprinzipien
 
 Codex soll dieses Projekt **schnittstellen-, test- und simulationsgetrieben** entwickeln.
@@ -118,7 +175,9 @@ Codex darf nicht:
 - fehlende Sensoren als Fehler behandeln, wenn ein Fallback möglich ist,
 - Simulation und Produktion vermischen,
 - beliebige autonome Aktionen ohne Preconditions erlauben,
-- Latenzpfade durch Datenbank-, Netzwerk- oder LLM-Aufrufe blockieren.
+- Latenzpfade durch Datenbank-, Netzwerk- oder LLM-Aufrufe blockieren,
+- Learning- oder Trainingslogik in den Reflex/Fast Path einbauen,
+- gelernte Modelle ohne Trace-Provenance, Datasheet, Model Card, Benchmark-Gate und Rollback-Pfad freigeben.
 
 ### 2.3 Definition of Done für jede Codex-Aufgabe
 
@@ -1526,6 +1585,19 @@ Diese Werte sind Forschungsziele, keine Garantien für beliebige Hardware.
 - H6: Adapter-Regel definieren: Simulatoren, ROS 2/DDS, MQTT, NATS, Robot-SDKs und Gebaeudetechnik bleiben ausserhalb von OSIP Core
 - H7: Core-Promotion-Regel einfuehren: Ein Profilkonzept wird erst Core, wenn mindestens zwei Profile es gemeinsam brauchen
 
+### Epic I - Experience & Learning Layer
+
+- I1: Experience-Trace-Konzept dokumentieren: Perception, Context, Decision, Action, Result und Outcome als zusammenhaengende Lernkette
+- I2: Versionierte Trace- und Dataset-Manifeste entwerfen, inklusive Schema-Version, Profil, Szenario, Modellfaehigkeiten, Provenance und Hashes
+- I3: Label- und Outcome-Schema fuer False Positives, False Negatives, Action Blocks, Action Success und Sensorqualitaet vorbereiten
+- I4: Feature- und Label-Extraktion als offline Benchmark-/Dataset-Schritt planen, nicht als Reflex/Fast-Path-Logik
+- I5: Model Cards, Dataset Datasheets, Registry-Eintraege und Lineage-Metadaten als Pflichtartefakte fuer gelernte Modelle definieren
+- I6: Shadow-Mode-, Benchmark-, Rollback- und Action-Contract-Gates fuer jede Modellpromotion festlegen
+- I7: Drift-, Kalibrierungs- und Re-Evaluation-Regeln fuer wiederholt gelernte Modelle beschreiben
+- I8: Decision Trace und Experience Tuple entwerfen: `State_t`, `ActionContract_t`, `PostActionPercepts_t+delta`, `Outcome_t+delta` und `RewardSignal_t+delta`
+- I9: Modellfamilien als Roadmap-Slots trennen: Knowledge Distillation fuer Reflex-Beschleunigung, Predictive World Models fuer Action-Dry-Runs, IRL/Reward Models fuer Ziel- und Komforthypothesen
+- I10: Reward-Signal-Audit definieren: Delay, Leakage, Konfundierung, Sensor-Bias, Zielkonflikte, Profilwechsel und menschliche Review
+
 ---
 
 ## 20. Konkrete Codex-Prompts
@@ -1590,6 +1662,12 @@ Reviewe die aktuelle Implementierung gegen Masterplan.md. Suche besonders nach: 
 
 ```text
 Teile OSIP sauber in Grundkonzept/Core und Application Profiles auf. Lege Profile fuer Rooms und Physical AI an und erzeuge ein Template fuer zukuenftige Profile wie XXX. Dokumentiere, welche Begriffe, Schemas, Szenarien, Adapter und Safety-Regeln im Profil bleiben und welche Konzepte in OSIP Core duerfen. Done when: docs/core-concept.md, docs/applications/rooms.md, docs/applications/physical-ai.md und ein Profil-Template existieren, Masterplan/AGENTS/Skill die Profile-Regel nennen und make test/lint/typecheck gruen sind.
+```
+
+### Prompt 11 - Experience & Learning Layer
+
+```text
+Erweitere OSIP um ein kontrolliertes Experience-to-Learning-Konzept. Dokumentiere, wie PerceptPacket, ContextUpdate, ActionProposal, ActionCommand, ActionResult, nachfolgende PerceptPackets und Outcome zu versionierten Decision Traces, Experience Tuples, Dataset-Manifests, Model Cards und Registry-Eintraegen werden. Nenne Knowledge Distillation, Predictive World Models und IRL/Reward Models als getrennte Modellfamilien. Wichtig: keine Online-Selbstoptimierung im Reflex Layer, keine Modellpromotion ohne Benchmark, Shadow Mode, Rollback, Reward-Audit und Action-Contract-Gates. Done when: docs/learning-layer.md existiert, Masterplan/AGENTS/Skill/README/Core-Konzept die Learning-Grenzen nennen und make test/lint/typecheck gruen sind.
 ```
 
 ---
@@ -1845,8 +1923,9 @@ Die nächsten Aufgaben sind in dieser Reihenfolge umzusetzen:
 7. Gateway API.
 8. Benchmark Runner.
 9. Application Profiles: Grundkonzept/Core von Anwendungen trennen, `rooms` als MVP-Profil fuehren, `physical-ai` als spaeteres Profil vorbereiten und `xxx` als andockbares Profil-Template vorsehen.
+10. Experience & Learning Layer: Trace-, Dataset-, Model-Card-, Registry- und Promotion-Gates vorbereiten, bevor echte ML-Modelle aus OSIP-Erfahrungen trainiert oder produktiv genutzt werden.
 
-Codex soll keine Hardwareadapter, kein Dashboard, keine komplexen ML-Modelle und keine direkte physische Aktorsteuerung bauen, bevor die MVP-Pipeline funktioniert. Neue Anwendungsdomaenen beginnen als Application Profile mit Docs, Vokabular, Fixtures, Simulation, Safety Bounds und Adapter-Design, nicht als Core-Umbau.
+Codex soll keine Hardwareadapter, kein Dashboard, keine komplexen ML-Modelle und keine direkte physische Aktorsteuerung bauen, bevor die MVP-Pipeline funktioniert. Die Learning Layer beginnt deshalb mit offenen Trace-/Dataset-Vertraegen und Governance, nicht mit einem trainierten Produktionsmodell. Neue Anwendungsdomaenen beginnen als Application Profile mit Docs, Vokabular, Fixtures, Simulation, Safety Bounds und Adapter-Design, nicht als Core-Umbau.
 
 ---
 
@@ -1861,6 +1940,15 @@ Diese Quellen sind als Hintergrund relevant, aber das Projekt soll unabhängig l
 - OpenAPI Specification: https://spec.openapis.org/oas/latest.html
 - AsyncAPI Specification: https://www.asyncapi.com/docs/reference/specification/latest
 - CloudEvents: https://cloudevents.io/
+- NIST AI Risk Management Framework: https://www.nist.gov/itl/ai-risk-management-framework
+- W3C PROV Overview: https://www.w3.org/TR/prov-overview/
+- OpenLineage documentation: https://openlineage.io/docs/
+- MLflow Model Registry: https://mlflow.org/docs/latest/ml/model-registry/
+- Model Cards for Model Reporting: https://arxiv.org/abs/1810.03993
+- Datasheets for Datasets: https://arxiv.org/abs/1803.09010
+- Distilling the Knowledge in a Neural Network: https://arxiv.org/abs/1503.02531
+- World Models: https://arxiv.org/abs/1803.10122
+- Algorithms for Inverse Reinforcement Learning: https://ai.stanford.edu/~ang/papers/icml00-irl.pdf
 - ROS 2 Middleware and QoS: https://docs.ros.org/en/rolling/Concepts/Intermediate/About-Different-Middleware-Vendors.html
 - ROS 2 QoS settings: https://docs.ros.org/en/rolling/Concepts/Intermediate/About-Quality-of-Service-Settings.html
 - SDFormat specification for robot/world descriptions: https://sdformat.org/spec

@@ -9,6 +9,7 @@ Dieses Dokument ist meine fachliche Vorbereitung fuer die Arbeit an OmniSense Ru
 - Repository enthaelt aktuell `Masterplan.md` als zentrale Leitlinie.
 - Projektkern ist OSIP: ein offenes Percept-, Context- und Action-Protokoll.
 - Erste technische Prioritaet laut Masterplan: Repository Foundation, OSIP Schemas, In-memory Bus, Scenario Replay, Context Engine v0.1, Decision Runtime v0.1, Gateway API, Benchmark Runner.
+- Neue Konzeptprioritaet: Experience & Learning Layer als kontrollierter Weg von Runtime-Traces zu Datensaetzen, Kalibrierung, Modellbewertung und spaeterer Modellpromotion.
 - Nicht-Ziele fuer die erste Phase: echte Hardware als Pflicht, monolithische KI, freie autonome Aktionen, Datenschutz-Fokusprojekt, externe LLMs im Reflex Layer.
 
 ## Leitthese fuer die Umsetzung
@@ -19,6 +20,8 @@ Erweiterte Leitthese:
 
 OSIP ist ein generisches Perception-to-Action-Protokoll mit einem domain-neutralen Core und andockbaren Application Profiles. Der Smart-Room-MVP beweist die Pipeline im Profil `rooms`; dieselbe Architektur muss spaeter das Profil `physical-ai` und neue Profile wie `xxx` tragen koennen.
 
+OSIP soll zusaetzlich als Experience-to-Learning-System vorbereitet werden: Entscheidungen, Actions, Results und Outcomes werden nicht nur geloggt, sondern mit Provenance, Schema-Versionen, Modellfaehigkeiten und Benchmark-Kontext so strukturiert, dass daraus spaeter reproduzierbare Lernbeispiele entstehen.
+
 Praktische Konsequenz:
 
 - `packages/osip` definiert Semantik und Validierung.
@@ -27,6 +30,7 @@ Praktische Konsequenz:
 - `protocols/asyncapi` beschreibt Event-Channels.
 - Transportadapter duerfen austauschbar bleiben.
 - Physical-AI-Erweiterungen gehoeren zuerst in Vocabulary, Schemas, Simulatoren, Benchmarks und Adapter-Designs, nicht in direkte Hardwaresteuerung.
+- Learning-Erweiterungen gehoeren zuerst in Trace-, Dataset-, Model-Card-, Registry- und Benchmark-Vertraege, nicht in selbstveraendernde Runtime-Logik.
 
 ## Application-Profile-Modell
 
@@ -41,6 +45,31 @@ Promotion-Regel:
 
 - Ein Konzept bleibt im Profil, solange es nur einer Anwendung dient.
 - Ein Konzept darf erst in OSIP Core wandern, wenn mindestens zwei Profile es brauchen und es transport-/vendor-neutral formuliert werden kann.
+
+## Experience-&-Learning-Modell
+
+OSIP trennt Live-Entscheidung und Lernen:
+
+- **Runtime**: Percepts, Context Updates, Decisions, Actions und Results laufen ueber validierte OSIP-Vertraege und Action Contracts.
+- **Experience Trace**: relevante Ereignisse werden als nachvollziehbare Kette gespeichert: `PerceptPacket -> ContextUpdate -> ActionProposal -> ActionCommand -> ActionResult -> Outcome`.
+- **Decision Trace / Experience Tuple**: jede Aktion wird als `State_t + ActionContract_t + PostActionPercepts_t+delta -> Outcome_t+delta -> RewardSignal_t+delta` auswertbar. Die post-action Percepts werden ueber Trace-ID, Action-ID, Feedback-Fenster, Profil, Szenario und Modellversion mit der Aktion verbunden.
+- **Dataset Layer**: Traces werden offline zu Beispielen, Labels, Splits, Features, Hashes und Datasheets verdichtet.
+- **Learning Layer**: Modelle werden offline trainiert, kalibriert oder evaluiert.
+- **Registry/Promotion Layer**: Modelle werden nur mit Model Card, Benchmark Pass, Shadow Mode, Rollback und explizitem Approval nutzbar.
+
+Learning-Regeln:
+
+- Kein Training, Registry-Zugriff oder Modellpromotion im Reflex/Fast Path.
+- Kein gelerntes Modell darf Action Contracts, Preconditions, Bounds, Safe States, Cooldowns oder Idempotency umgehen.
+- OSIP Core enthaelt nur generische Lern-Vertraege; Profile definieren Outcome-Labels, Datenschutz/Retention, Metriken und Safety Cases.
+- Reale Daten brauchen vor Export oder Training explizite Regeln fuer Zustimmung, Pseudonymisierung, Aufbewahrung, Lizenz und Loeschung.
+- Feedbackdaten sind reichhaltig, aber nicht automatisch wahr: Reward-Signale muessen Delay, Leakage, Konfundierung, Sensor-Bias, Zielkonflikte und Profilwechsel sichtbar machen.
+
+Modellfamilien aus Experience Tuples:
+
+- **Knowledge Distillation**: langsamere Deliberative-Entscheidungen, Ensembles oder human-reviewte Traces dienen als Teacher fuer kleine Student-Modelle. Ziel ist Reflex-Beschleunigung bei gleichbleibender Contract-Beschraenkung.
+- **Predictive World Models**: Modelle lernen, welche Percepts oder Contexts nach `State_t + ActionContract_t` wahrscheinlich entstehen. Ziel ist Action-Dry-Run, Szenarioerweiterung und Sim2Real-Gap-Analyse.
+- **Inverse Reinforcement Learning / Reward Models**: Historische erfolgreiche Aktionen, geblockte Aktionen und explizites Feedback liefern Kandidaten fuer Komfort-, Sicherheits-, Energie- oder Manipulationsziele. Diese Rewards sind pruefbare Hypothesen und brauchen Review.
 
 ## Standards-Stack
 
@@ -243,6 +272,84 @@ OSIP-Entscheidung:
 - Metriken aus Masterplan direkt abbilden: `p95_context_latency_ms`, `action_contract_blocks`, `sensor_dropout_survival_rate`.
 - Histogramme fuer Latenzen statt nur Durchschnittswerte.
 
+### 5. Experience Learning und MLOps
+
+**W3C PROV**
+
+Nutzen: PROV modelliert Herkunft, Ableitung, Aktivitaeten und beteiligte Entitaeten, damit Datenqualitaet, Zuverlaessigkeit und Vertrauen bewertet werden koennen. Quelle: https://www.w3.org/TR/prov-overview/
+
+OSIP-Entscheidung:
+
+- Jeder Experience Trace muss Quelle, Schema-Version, Profil, Szenario, Modellfaehigkeiten, Zeitschnitt und abgeleitete Beispiele nachvollziehbar verknuepfen.
+- Dataset- und Modellartefakte muessen auf ihre Ursprungstraces und Feature-Extraktionsversion zurueckfuehrbar sein.
+
+**OpenLineage**
+
+Nutzen: OpenLineage ist ein offener Rahmen fuer Lineage-Erfassung und -Analyse mit Dataset-, Job- und Run-Entitaeten sowie erweiterbaren Facets. Quelle: https://openlineage.io/docs/
+
+OSIP-Entscheidung:
+
+- Learning-Pipelines koennen spaeter OpenLineage-kompatible Events fuer Dataset-Erzeugung, Feature-Extraktion, Training und Evaluation emittieren.
+- OSIP-spezifische Facets sollten Profil, Szenario, Schema-Version, Action-Contract-Version und Benchmark-Gate erfassen.
+
+**MLflow Model Registry Konzepte**
+
+Nutzen: Eine Model Registry verwaltet Modellversionen, Lifecycle, Lineage, Aliase, Tags und Metadaten vom Experiment bis zur Produktion. Quelle: https://mlflow.org/docs/latest/ml/model-registry/
+
+OSIP-Entscheidung:
+
+- OSIP soll kein Registry-Produkt fest verdrahten, aber Registry-Konzepte als offenen Vertrag vorbereiten: Modellversion, Approval State, Alias, Rollback Target, Benchmark Gate und Deployment Constraints.
+- Runtime darf nur explizit freigegebene, versionierte Modelle referenzieren.
+
+**Model Cards und Datasheets for Datasets**
+
+Nutzen: Model Cards dokumentieren intendierte Nutzung, Leistungscharakteristika, Evaluationsverfahren und Grenzen von Modellen; Datasheets dokumentieren Motivation, Zusammensetzung, Sammlung, empfohlene Nutzung und Grenzen von Datensaetzen. Quellen: https://arxiv.org/abs/1810.03993 und https://arxiv.org/abs/1803.09010
+
+OSIP-Entscheidung:
+
+- Jeder gelernte OSIP-Modellkandidat braucht vor Promotion eine Model Card.
+- Jeder aus OSIP-Traces erzeugte Trainings- oder Evaluationsdatensatz braucht ein Datasheet.
+- Karten und Datasheets muessen Profil, Szenarien, Benchmarks, bekannte Fehlerfaelle und nicht unterstuetzte Nutzungen nennen.
+
+**NIST AI Risk Management Framework**
+
+Nutzen: Das AI RMF bietet einen freiwilligen Rahmen fuer vertrauenswuerdige AI-Risikobetrachtung in Design, Entwicklung, Nutzung und Evaluation. Quelle: https://www.nist.gov/itl/ai-risk-management-framework
+
+OSIP-Entscheidung:
+
+- Learning-Funktionen werden als risikobehaftete Systemaenderungen behandelt, nicht als reine Optimierung.
+- Promotion-Gates muessen bekannte Fehlerfaelle, Unsicherheit, Monitoring, Rollback und Safety-Bounds sichtbar machen.
+
+**Knowledge Distillation**
+
+Nutzen: Teacher-Student-Lernen kann grosse oder langsame Modelle in kleinere Modelle komprimieren und eignet sich deshalb fuer OSIPs Idee, Deliberative-Entscheidungen in Reflex-nahe Modelle zu destillieren. Quelle: https://arxiv.org/abs/1503.02531
+
+OSIP-Entscheidung:
+
+- Distillation darf nur fuer eng definierte Claims, Contract-Ranking oder Vorfilter starten.
+- Student-Modelle muessen gegen harte Negativszenarien, Latenzbudget und Teacher-Version evaluiert werden.
+- Student-Modelle duerfen keine neuen Actions oder Bounds einfuehren.
+
+**Predictive World Models**
+
+Nutzen: World Models lernen interne Vorhersagemodelle der Umgebung und koennen zukuenftige Zustandsfolgen fuer Planung oder Simulation bereitstellen. Quelle: https://arxiv.org/abs/1803.10122
+
+OSIP-Entscheidung:
+
+- World Models sagen zukuenftige Percepts/Contexts mit Unsicherheit und Horizont voraus.
+- Sie duerfen Action-Auswahl beraten, aber nicht allein Aktionen ausfuehren oder Contracts erweitern.
+- Bewertung erfolgt horizon-spezifisch: Kurzfrist-Fehler, Kalibrierung, Rare Events, Safety False Negatives und Sim2Real-Gap.
+
+**Inverse Reinforcement Learning / Reward Learning**
+
+Nutzen: IRL kann aus beobachtetem Verhalten Kandidaten fuer die zugrunde liegende Reward-Funktion ableiten, wenn Ziele wie Komfort oder Wohlbefinden schwer direkt zu formulieren sind. Quelle: https://ai.stanford.edu/~ang/papers/icml00-irl.pdf
+
+OSIP-Entscheidung:
+
+- Gelernte Rewards sind Hypothesen, keine automatische Wahrheit.
+- Reward-Modelle brauchen menschliche oder profilverantwortliche Review, bevor gegen sie optimiert wird.
+- Transfer in andere Raeume, Roboter oder Profile braucht Drift- und Validierungsberichte.
+
 ## Wissenschaftliche Arbeitsweise
 
 ### Reproduzierbarkeit
@@ -310,6 +417,19 @@ OSIP-Regeln:
 - Capability Descriptor muss angeben, ob Confidence kalibriert ist.
 - Context Engine darf unkalibrierte Konfidenzen niedriger gewichten oder pro Modell kalibrieren.
 - Benchmarks muessen False Positive und False Negative Rates ausweisen.
+
+### Experience Learning
+
+OSIP-Lernen muss wie wissenschaftliche Datenerzeugung behandelt werden:
+
+- Jede Lernbeispiel-Extraktion braucht reproduzierbare Skripte, Feature-Version, Labeldefinition, Trace-IDs, Split-Strategie und Hashes.
+- Train/Eval/Test-Splits duerfen nicht durch dieselben Szenarien oder zeitlich benachbarte Traces lecken.
+- Outcome-Labels muessen getrennt von Modellvorhersagen entstehen, damit das System nicht seine eigenen Fehler als Wahrheit lernt.
+- Learned Fusion darf erst regelbasierte Fusion ersetzen, wenn Replay, Benchmark, Kalibrierung und Shadow Mode bessere oder gleich sichere Ergebnisse zeigen.
+- Drift Monitoring muss unterscheiden zwischen Modell-Drift, Sensor-Drift, Profil-Aenderung und veraenderten Action Contracts.
+- Distillation misst Teacher-Agreement, Safety-Fehler, harte Negativszenarien und Latenzbudget.
+- World Models messen Vorhersagefehler pro Horizont, Unsicherheitskalibrierung, Rare-Event-Recall und Safety-False-Negatives.
+- IRL/Reward Models messen Zielkonflikte, Transferverhalten, menschliche Akzeptanz, Counterexamples und Reward-Hacking-Risiken.
 
 ## Open-Source- und Governance-Leitplanken
 
@@ -425,10 +545,13 @@ Mittelfristig:
 - Wann reicht Brick-Mapping, wann braucht OSIP eigenes Raum-/Asset-Vokabular?
 - Wie wird Modellkonfidenz kalibriert oder modellweise normalisiert?
 - Wie verhindert man Label-Chaos bei Drittmodellen?
+- Welche Outcomes sind stark genug, um als Label fuer gelerntes Verhalten zu dienen?
+- Welche Teile der Fusionslogik duerfen gelernt werden, ohne Safety-Nachvollziehbarkeit zu verlieren?
 
 Spaeter:
 
 - Learned Fusion vs. regelbasierte Fusion.
+- Registry- und Promotion-Policy fuer gelernte OSIP-Modelle.
 - DDS/ROS 2 QoS-Mapping.
 - SensorThings/SSN/RDF Export.
 - OPA/Rego oder aehnliche Policy Engine fuer komplexere Action Contracts, sofern der Fast Path nicht blockiert.
@@ -444,7 +567,8 @@ Wenn eine Implementierungsaufgabe startet:
 5. Tests fuer Validierung und Semantik schreiben.
 6. Erst dann Runtime-Logik bauen.
 7. Falls ein externer Standard betroffen ist, Quelle im Doc oder Spec-Kommentar verlinken.
-8. Check ausfuehren und Ergebnis dokumentieren.
+8. Bei Learning-Themen zuerst Trace-, Dataset-, Model-Card-, Registry- und Benchmark-Gates definieren.
+9. Check ausfuehren und Ergebnis dokumentieren.
 
 ## Empfohlene erste Umsetzung
 

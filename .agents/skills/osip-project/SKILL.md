@@ -1,13 +1,13 @@
 ---
 name: osip-project
-description: Use when working on OmniSense Runtime or OSIP: repository foundation, OSIP Core, Application Profiles such as rooms / physical-ai / xxx, schemas, bus, context fusion, decision runtime, simulation, benchmarks, gateway APIs, robotics adapters, Sim2Real, safety bounds, open-standard alignment, scientific reproducibility, or open-source governance.
+description: Use when working on OmniSense Runtime or OSIP: repository foundation, OSIP Core, Application Profiles such as rooms / physical-ai / xxx, schemas, bus, context fusion, decision runtime, simulation, benchmarks, gateway APIs, robotics adapters, Sim2Real, safety bounds, Experience & Learning Layer, trace-to-dataset extraction, ML lifecycle, open-standard alignment, scientific reproducibility, or open-source governance.
 ---
 
 # OSIP Project
 
 ## Overview
 
-Use this skill to keep Codex aligned with the OSIP/OmniSense masterplan: OSIP Core first, Application Profiles second, open interfaces first, simulation before hardware, bounded autonomy, Physical-AI-ready Perception-to-Action boundaries, reproducible benchmarks, and open-source-ready project hygiene.
+Use this skill to keep Codex aligned with the OSIP/OmniSense masterplan: OSIP Core first, Application Profiles second, open interfaces first, simulation before hardware, bounded autonomy, Physical-AI-ready Perception-to-Action boundaries, controlled Experience-to-Learning loops, reproducible benchmarks, and open-source-ready project hygiene.
 
 ## Required Reading
 
@@ -16,17 +16,19 @@ Before architectural, schema, benchmark, or public-interface work:
 1. Read `Masterplan.md`.
 2. Read `AGENTS.md`.
 3. Read `docs/project-preparation.md` when standards, research method, governance, or public API shape matters.
+4. Read `docs/learning-layer.md` when traces, datasets, calibration, model lifecycle, registries, model promotion, or learning-related schemas matter.
 
 ## Work Loop
 
-1. Identify the Masterplan phase: foundation, OSIP schemas, bus, simulator, context engine, decision runtime, gateway, benchmark, Application Profile, robotics adapter, safety-case, or dashboard.
+1. Identify the Masterplan phase: foundation, OSIP schemas, bus, simulator, context engine, decision runtime, gateway, benchmark, Application Profile, Experience & Learning Layer, robotics adapter, safety-case, or dashboard.
 2. Identify the boundary first: OSIP Core or a specific Application Profile (`rooms`, `physical-ai`, or future `xxx`).
 3. Identify the public contract first: Pydantic model, JSON Schema, fixture, topic, endpoint, profile vocabulary, or Action Contract.
 4. Implement the smallest module-local change that advances the phase.
 5. Add positive and negative tests for public behavior.
 6. Keep simulation deterministic; do not require sensors, external model APIs, network brokers, or hardware in tests.
-7. Run relevant checks and report what passed or could not be run.
-8. Update docs or examples for every public interface change.
+7. For learning work, define trace provenance, dataset manifest, label/outcome semantics, benchmark gates, model card, registry state, shadow mode, and rollback before adding training code.
+8. Run relevant checks and report what passed or could not be run.
+9. Update docs or examples for every public interface change.
 
 ## Architecture Guardrails
 
@@ -37,7 +39,12 @@ Before architectural, schema, benchmark, or public-interface work:
 - Promote profile concepts to OSIP Core only when at least two profiles need the same concept.
 - Avoid hard-coded model implementation names in core logic. Model capabilities and claims should drive behavior.
 - Keep Reflex Layer free of blocking network, database, LLM, and slow filesystem calls.
+- Keep learning, training, registry access, and model promotion out of the Reflex/Fast Path.
+- Treat the chain `PerceptPacket -> ContextUpdate -> ActionProposal -> ActionCommand -> ActionResult -> Outcome` as the future Experience Trace boundary.
+- Treat closed-loop feedback as `State_t + ActionContract_t + PostActionPercepts_t+delta -> Outcome_t+delta -> RewardSignal_t+delta`; preserve action ids, feedback windows, delay, uncertainty, and confounders.
 - Do not execute or propose actions without Action Contracts.
+- Do not allow learned models to bypass Action Contracts, Preconditions, Bounds, Safe States, Cooldowns, Idempotency, or profile safety cases.
+- Do not promote a learned model without provenance, dataset datasheet, model card, benchmark pass, shadow-mode evaluation, rollback target, and explicit approval state.
 - Do not send direct physical actuator, motor, robot, vehicle, or manipulator commands without explicit bounds, rate limits, workspace limits, stop conditions, and a safe state.
 - Keep continuous or high-frequency control loops out of OSIP Core. OSIP should describe contracts, state, bounds, commands, results, and evidence; hard realtime control belongs in specialized controllers or adapters.
 - Preserve schema versioning and backwards-compatibility notes.
@@ -55,6 +62,10 @@ Before architectural, schema, benchmark, or public-interface work:
 - Physical AI / robotics: ROS 2/DDS adapter concepts, QoS as adapter configuration, URDF/SDF/OpenUSD-style robot/world descriptions, and simulator adapters such as MuJoCo, Gazebo, Isaac Sim, or PyBullet outside core dependencies.
 - Safety references: ISO 10218, ISO/TS 15066, ISO 26262, and IEC 61508 as design inputs for hazards, safe states, emergency stop, audit trails, functional-safety thinking, and certification readiness; do not imply certification.
 - Telemetry: OpenTelemetry concepts and Prometheus/OpenMetrics-compatible metrics.
+- Learning provenance and lineage: W3C PROV and OpenLineage concepts for trace, dataset, job, run, and derivation metadata.
+- ML lifecycle: model registry concepts such as MLflow Model Registry for versioning, aliases, tags, approval state, and rollback.
+- Model/dataset documentation: Model Cards and Datasheets for Datasets.
+- AI governance: NIST AI RMF as a design reference for trustworthy AI risk management; do not imply certification.
 - Open-source hygiene: OSI license, SPDX/REUSE, CI tests, pinned dependencies, SLSA provenance path, OpenSSF Scorecard readiness.
 
 ## Scientific Method
@@ -63,7 +74,12 @@ Before architectural, schema, benchmark, or public-interface work:
 - Use scenario replay, deterministic clocks, JSONL traces, and benchmark reports.
 - Record p50/p95/p99 latencies, false positives, false negatives, schema failures, action contract blocks, and sensor dropout survival.
 - For Physical AI, record Sim2Real assumptions, simulator version, robot/world description version, sensor noise model, domain-randomization seed, action-bound violations, collision/safe-stop events, and latency jitter.
+- For learning, record source trace IDs, schema versions, scenario IDs, profile IDs, split assignment, label definitions, feature extraction version, model capability metadata, calibration status, benchmark gates, and dataset/model hashes.
+- For distillation, record teacher version, student scope, teacher agreement, hard-negative behavior, latency budget, and allowed action-contract surface.
+- For world models, record prediction horizon, uncertainty calibration, rare-event recall, safety false negatives, and Sim2Real assumptions.
+- For inverse-reinforcement or reward models, record reward source, delay, confounders, human/profile-owner review, target profile, and reward-hacking counterexamples.
 - Treat calibration as a first-class question; do not interpret model confidence as probability unless capability metadata says confidence is calibrated.
+- Prefer shadow-mode and replay evaluation before any learned model affects live decisions.
 - Keep raw benchmark data machine-readable and results reproducible from scripts.
 
 ## Done Checklist

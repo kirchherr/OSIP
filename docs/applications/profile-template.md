@@ -50,9 +50,27 @@ profile and at least one existing profile need the same concept.
 - Deterministic scenarios:
 - Benchmark metrics:
 
+## Learning Signals
+
+- Outcome labels:
+- Feedback sources:
+- Post-action feedback windows:
+- Reward signal derivation:
+- Known confounders and delayed effects:
+- False-positive / false-negative definitions:
+- Action-success and action-block labels:
+- Distillation candidates:
+- Predictive world-model candidates:
+- Reward / IRL candidates:
+- Data retention, consent, privacy, and license rules:
+- Dataset split and provenance requirements:
+- Model-card and promotion gates:
+
 ## Acceptance Criteria
 
 - Valid profile payloads validate through OSIP schemas or profile extensions.
 - Invalid unsafe actions are rejected.
 - Core tests do not require hardware, cloud APIs, or vendor SDKs.
 - Profile documentation explains what stays in Core and what stays in profile.
+- Learning exports cannot bypass Action Contracts or promote models without
+  benchmark, model-card, registry, shadow-mode, and rollback evidence.

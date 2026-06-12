@@ -10,6 +10,9 @@ Smart Rooms are the first profile, Physical AI is a later profile, and future
 domains can attach as `xxx`-style profiles. The same Perception -> Context ->
 Bounded Action contract should support each profile through additional
 vocabulary, fixtures, scenarios, adapters, and safety-bounded action contracts.
+OSIP also prepares a controlled Experience & Learning Layer that can turn
+runtime traces into datasets and evaluated models without changing live behavior
+automatically.
 
 ## Versioning
 
@@ -36,6 +39,23 @@ vocabulary, fixtures, scenarios, adapters, and safety-bounded action contracts.
   idempotency key.
 - `action.result`: records the result status and execution timing.
 
+Future learning-related messages should stay out of v0.1 runtime-critical paths:
+
+- `experience.trace`: links percepts, context updates, proposals, commands,
+  results, and outcomes for replay and learning.
+- `decision.trace`: records one decision cycle, including active state,
+  selected or blocked Action Contract, decision source, latency, and safety
+  checks.
+- `outcome.evaluation`: interprets post-action percepts over a profile-defined
+  feedback window.
+- `reward.signal`: stores explicit learning signal metadata, including source,
+  delay, confidence, evaluator version, and known confounders.
+- `learning.dataset`: describes versioned datasets, source traces, labels,
+  splits, provenance, and hashes.
+- `learning.run`: records training, calibration, or evaluation runs.
+- `model.registry.entry`: records model version, approval state, benchmark gate,
+  aliases, rollback target, and deployment constraints.
+
 ## Open-Standard Posture
 
 - JSON Schema Draft 2020-12 is the first public contract format.
@@ -54,6 +74,11 @@ vocabulary, fixtures, scenarios, adapters, and safety-bounded action contracts.
   dependencies.
 - Physical actuators require explicit Action Contracts with bounds, rate limits,
   stop conditions, and safe states before any real hardware adapter is allowed.
+- Learning lineage should align with W3C PROV and OpenLineage concepts.
+- Learned models require dataset documentation, model cards, benchmark results,
+  shadow-mode evaluation, registry state, and rollback before runtime use.
+- Learned models must not bypass Action Contracts, safety bounds, preconditions,
+  or profile safety cases.
 
 ## Export
 

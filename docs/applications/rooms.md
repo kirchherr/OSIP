@@ -37,6 +37,27 @@ intelligent rooms and smart environments.
 4. Add gateway and SDK only after schemas, bus, simulator, context, and decision
    runtime are stable.
 
+## Learning Signals
+
+Room traces can later become learning examples for:
+
+- false alarms versus confirmed safety events,
+- missed events found by later feedback,
+- action blocks caused by missing preconditions or cooldown,
+- occupancy, air-quality, and comfort outcome patterns,
+- sensor conflicts, degraded sensors, and dropout recovery.
+- distilled low-latency detectors for narrow room-safety contexts,
+- predictive comfort/world models such as ventilation, temperature, VOC, and
+  occupant-response forecasts,
+- reward models for profile-owned objectives such as comfort, safety, air
+  quality, energy use, and disturbance minimization.
+
+The `rooms` profile owns privacy, retention, consent, and anonymization rules
+for real-world room traces. OSIP Core should only define generic trace and
+dataset contracts. Room reward signals should document feedback delay and
+ambiguity, for example whether a jacket, opened window, cough, or user override
+really reflects the action or an unrelated cause.
+
 ## Acceptance Criteria
 
 - Valid room percepts validate against OSIP schemas.
@@ -44,3 +65,4 @@ intelligent rooms and smart environments.
 - Context updates include evidence and contradictions.
 - No action is proposed without an Action Contract.
 - Low-confidence or missing-precondition actions are blocked.
+- Learning exports include provenance and cannot promote models automatically.

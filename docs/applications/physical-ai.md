@@ -52,6 +52,26 @@ the first reliable pipeline exists:
    and action-bound violations.
 5. Design ROS 2/DDS bridge semantics with QoS kept in adapter configuration.
 
+## Learning Signals
+
+Physical-AI traces can later become learning examples for:
+
+- Sim2Real gaps between simulator results and real measurements,
+- action-bound violations and safe-stop events,
+- grasp, navigation, or manipulation success and failure,
+- sensor noise, dropout, latency jitter, and calibration drift,
+- collision-risk contexts and recovery behavior.
+- distilled reflex detectors for narrow safety or contact events,
+- predictive world models for action rollout, collision-risk forecasting,
+  manipulation outcome prediction, and simulator improvement,
+- reward models for task success, safe recovery, energy, smoothness, or
+  workspace preferences, subject to explicit safety review.
+
+Learning for Physical AI must stay offline or shadow-mode until safety gates are
+passed. No learned model may directly change continuous control, motor commands,
+workspace limits, emergency-stop behavior, or action contracts without explicit
+review, benchmark evidence, uncertainty reporting, and rollback.
+
 ## Acceptance Criteria
 
 - A valid Physical-AI percept fixture validates through OSIP schemas.
@@ -59,3 +79,5 @@ the first reliable pipeline exists:
 - A JSONL trace can replay robot/sensor percepts through the in-memory bus.
 - Benchmark metadata captures simulator, seed, robot/world description, and
   safety outcomes.
+- Learning exports capture simulator version, robot/world description, seed,
+  outcome labels, and safety gate results before any model promotion.

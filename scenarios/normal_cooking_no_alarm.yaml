@@ -1,0 +1,51 @@
+id: normal_cooking_no_alarm
+name: Normal cooking no alarm scenario
+application_profile: rooms
+duration_ms: 3000
+room: kitchen
+expected_contexts: []
+expected_actions: []
+latency_budget_ms:
+  first_context_update: 250
+  first_action_proposal: 500
+percepts:
+  - at_ms: 0
+    source_model: object_state.device_status_v1
+    modality: object_state
+    location:
+      room: kitchen
+      zone: stove_area
+    claims:
+      - label: object.stove.power_on
+        confidence: 0.97
+        value: true
+  - at_ms: 140
+    source_model: thermal.hotspot_v1
+    modality: thermal
+    location:
+      room: kitchen
+      zone: stove_area
+    claims:
+      - label: thermal.stove.hotspot
+        confidence: 0.78
+        value: true
+  - at_ms: 260
+    source_model: chemical.voc_pattern_v1
+    modality: chemical
+    location:
+      room: kitchen
+      zone: stove_area
+    claims:
+      - label: chemical.air.steam_pattern
+        confidence: 0.88
+        value: true
+  - at_ms: 340
+    source_model: vision.smoke_v1
+    modality: vision
+    location:
+      room: kitchen
+      zone: stove_area
+    claims:
+      - label: vision.no_smoke_visible
+        confidence: 0.86
+        value: true

@@ -1,0 +1,51 @@
+"""Context engine orchestration."""
+
+from __future__ import annotations
+
+from omnisense_bus import AsyncMessageBus, context_update_topic
+from omnisense_osip import ContextUpdate, PerceptPacket
+
+from omnisense_context.rooms_fusion import RoomsFusion
+from omnisense_context.temporal_window import TemporalWindow
+
+
+class ContextEngine:
+    """Ingests OSIP percepts, fuses room context, and publishes updates."""
+
+    def __init__(
+        self,
+        bus: AsyncMessageBus,
+        *,
+        fusion: RoomsFusion | None = None,
+        window_ms: int = 1000,
+    ) -> None:
+        self._bus = bus
+        self._fusion = fusion or RoomsFusion()
+        self._window = TemporalWindow(window_ms)
+        self._counter = 0
+
+    @property
+    def window(self) -> TemporalWindow:
+        return self._window
+
+    async def ingest(self, percept: PerceptPacket) -> ContextUpdate:
+        self._window.add(percept)
+        timestamp = percept.received_at or percept.timestamp
+        room = self._room_for(percept)
+        active = self._window.active_at(timestamp, room=room)
+        self._counter += 1
+        update = self._fusion.fuse(
+            active,
+            context_id=f"ctx_{room}_{self._counter:06d}",
+            timestamp=timestamp,
+            room=room,
+            time_window_ms=self._window.window_ms,
+        )
+        await self._bus.publish(context_update_topic(update.room), update)
+        return update
+
+    @staticmethod
+    def _room_for(percept: PerceptPacket) -> str:
+        if percept.location is not None and percept.location.room is not None:
+            return percept.location.room
+        return "unknown_room"

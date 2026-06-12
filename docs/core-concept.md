@@ -5,10 +5,11 @@ Runtime.
 
 It is not a Smart-Room-only architecture and it is not a robotics framework by
 itself. It is the shared semantic layer that applications can use to connect
-specialized perception models, context/world modeling, and bounded actions.
+specialized perception models, context/world modeling, bounded actions, and
+controlled learning from runtime experience.
 
 ```text
-Perception -> Context / World Model -> Bounded Action
+Perception -> Context / World Model -> Bounded Action -> Result / Outcome -> Learning
 ```
 
 ## Core Responsibilities
@@ -20,7 +21,34 @@ Perception -> Context / World Model -> Bounded Action
 - Represent uncertainty, latency, validity windows, quality, evidence,
   contradictions, calibration, and action boundaries.
 - Provide deterministic replay and benchmark hooks.
+- Provide trace hooks for later experience datasets, model evaluation, and
+  controlled model promotion.
 - Keep tests simulation-first and hardware-free.
+
+## Experience & Learning Layer
+
+The Learning Layer turns OSIP runtime behavior into reviewable training and
+evaluation material. It links `PerceptPacket`, `ContextUpdate`,
+`ActionProposal`, `ActionCommand`, `ActionResult`, and later outcome or feedback
+signals into versioned traces.
+
+Learning is not part of the fast Reflex Layer. Learned models may improve future
+fusion, calibration, anomaly detection, or action-success prediction only after
+dataset documentation, provenance, benchmark replay, shadow-mode evaluation,
+model-card documentation, registry approval, and rollback are defined.
+
+Closed-loop sensory feedback is the key learning source. OSIP links the state
+before an action, the selected or blocked Action Contract, the post-action
+percepts, the evaluated outcome, and the derived reward signal into one
+experience tuple. That tuple can later feed three distinct model families:
+
+- distilled student models for faster bounded reflex decisions,
+- predictive world models for action dry-runs,
+- reward or inverse-reinforcement models for reviewable profile objectives.
+
+Reward signals remain explicit, uncertain artifacts. They are not treated as
+ground truth until their source, delay, evaluator version, and confounders are
+documented.
 
 ## Application Profiles
 
@@ -55,6 +83,8 @@ Good core additions:
 - transport-neutral topics,
 - action-contract primitives,
 - replay metadata hooks.
+- experience trace metadata,
+- dataset and model lifecycle primitives.
 
 Profile-only additions:
 
@@ -63,6 +93,7 @@ Profile-only additions:
 - simulator-specific scene formats,
 - vendor device APIs,
 - learned models,
+- profile-specific labels and outcomes for learning,
 - hardware drivers.
 
 When in doubt, put the detail in an application profile first. Promote it to
