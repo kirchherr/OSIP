@@ -5,24 +5,34 @@ from __future__ import annotations
 from omnisense_bus import AsyncMessageBus, context_update_topic
 from omnisense_osip import ContextUpdate, PerceptPacket
 
-from omnisense_context.rooms_fusion import RoomsFusion
+from omnisense_context.interfaces import ContextFusion
+from omnisense_context.registry import ContextFusionRegistry
 from omnisense_context.temporal_window import TemporalWindow
 
 
 class ContextEngine:
-    """Ingests OSIP percepts, fuses room context, and publishes updates."""
+    """Ingests OSIP percepts, fuses profile context, and publishes updates."""
 
     def __init__(
         self,
         bus: AsyncMessageBus,
         *,
-        fusion: RoomsFusion | None = None,
+        application_profile: str = "rooms",
+        fusion: ContextFusion | None = None,
+        registry: ContextFusionRegistry | None = None,
         window_ms: int = 1000,
     ) -> None:
         self._bus = bus
-        self._fusion = fusion or RoomsFusion()
+        self._fusion = fusion or (registry or ContextFusionRegistry.with_defaults()).get(
+            application_profile
+        )
+        self._application_profile = self._fusion.profile_id
         self._window = TemporalWindow(window_ms)
         self._counter = 0
+
+    @property
+    def application_profile(self) -> str:
+        return self._application_profile
 
     @property
     def window(self) -> TemporalWindow:

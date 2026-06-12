@@ -8,6 +8,8 @@ intelligent rooms and smart environments.
 - Ambient perception: audio, vision, radar, air quality, occupancy, tactile floor
   pressure, appliance state.
 - Context: room state, zones, people, events, comfort, safety, maintenance risk.
+- Context fusion: `omnisense_profiles.rooms.RoomsFusion` registered under
+  profile id `rooms`.
 - Actions: HVAC, lighting, speakers, notifications, blinds, appliance controls.
 - Safety: cooldowns, confirmations, preconditions, rollback, safe state, audit
   trail.
@@ -33,7 +35,8 @@ intelligent rooms and smart environments.
 1. Keep the Smart-Room MVP as the primary near-term pipeline.
 2. Build deterministic scenarios such as kitchen safety, fall candidate, stale
    air, sensor conflict, and sensor dropout.
-3. Implement context fusion and decision runtime against OSIP Core contracts.
+3. Keep context fusion in the profile package and register it with the
+   profile-aware Context Engine.
 4. Add gateway and SDK only after schemas, bus, simulator, context, and decision
    runtime are stable.
 

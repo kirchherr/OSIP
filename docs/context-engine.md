@@ -1,17 +1,35 @@
 # Context Engine v0.1
 
-Phase 4 adds the first deterministic context fusion layer for the `rooms`
-application profile. The implementation is intentionally transparent: it uses a
-temporal window, a claim index, and small weighted rules instead of learned
-fusion.
+Phase 4 adds the first deterministic context fusion layer and the runtime
+boundary for Application Profile fusion. The default profile is `rooms`, but the
+engine now selects fusion through a registry instead of importing room rules as
+core logic.
 
 ## Components
 
 - `TemporalWindow`: stores currently valid `PerceptPacket` objects.
 - `ClaimIndex`: indexes active claims by label and confidence.
-- `RoomsFusion`: profile-specific rules for the first rooms scenarios.
+- `ContextFusion`: profile-facing interface for fusing active percepts.
+- `ContextFusionRegistry`: maps application profile ids to fusion
+  implementations.
+- `RoomsFusion`: profile-specific rules for the first rooms scenarios, provided
+  by `omnisense_profiles.rooms`.
 - `ContextEngine`: ingests percepts, builds `ContextUpdate` payloads, and
   publishes them on the bus.
+
+## Profile Registry
+
+`ContextEngine(bus)` keeps `rooms` as the default profile for the MVP. A new
+profile attaches by implementing `ContextFusion`, assigning a stable
+`profile_id`, registering that implementation, and constructing the engine with
+`application_profile`.
+
+```python
+registry = ContextFusionRegistry([XxxFusion()])
+engine = ContextEngine(bus, application_profile="xxx", registry=registry)
+```
+
+Unknown profiles fail closed with `UnknownApplicationProfileError`.
 
 ## Initial Contexts
 
@@ -26,6 +44,6 @@ contradictory smoke evidence remains quiet.
 ## Boundary
 
 The engine is not a monolithic world model. The current rules belong to the
-`rooms` profile. Future Physical-AI or other profile rules should live in their
-own profile modules and only promote shared concepts to OSIP Core when multiple
-profiles need them.
+`rooms` profile package. Future Physical-AI or other profile rules should live
+in their own profile modules and only promote shared concepts to OSIP Core when
+multiple profiles need them.

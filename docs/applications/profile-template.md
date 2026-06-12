@@ -43,6 +43,14 @@ profile and at least one existing profile need the same concept.
 - Simulation adapters:
 - Optional external systems:
 
+## Runtime Extension Points
+
+- Context fusion implementation:
+- Context fusion `profile_id`:
+- Decision policy:
+- Default Action Contract bundle:
+- Gateway or SDK profile hooks:
+
 ## Fixtures And Scenarios
 
 - Positive fixtures:

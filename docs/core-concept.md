@@ -89,6 +89,8 @@ Each profile owns:
 - adapter recommendations,
 - safety and governance notes,
 - optional schema extensions,
+- context fusion implementations registered through profile registries,
+- profile decision policies and Action Contract bundles,
 - acceptance tests.
 
 ## Core Boundary
@@ -113,6 +115,8 @@ Profile-only additions:
 - robot joint naming conventions,
 - simulator-specific scene formats,
 - vendor device APIs,
+- context-fusion rules for one domain,
+- decision-policy heuristics for one domain,
 - learned models,
 - profile-specific labels and outcomes for learning,
 - profile-specific autonomy priorities and preference envelopes,

@@ -45,12 +45,14 @@ the first reliable pipeline exists:
    manipulation, navigation, and safety events.
 2. Add schema examples for 3D pose, joint state, wrench/tactile claims, workspace
    bounds, and continuous-action contracts.
-3. Build simulator adapter boundaries without pulling simulator dependencies into
+3. Provide a `physical-ai` context-fusion implementation through the profile
+   registry once vocabulary and fixtures exist.
+4. Build simulator adapter boundaries without pulling simulator dependencies into
    OSIP Core.
-4. Add Sim2Real benchmark metadata: simulator version, robot/world description,
+5. Add Sim2Real benchmark metadata: simulator version, robot/world description,
    seed, sensor noise, domain randomization, latency jitter, safe-stop events,
    and action-bound violations.
-5. Design ROS 2/DDS bridge semantics with QoS kept in adapter configuration.
+6. Design ROS 2/DDS bridge semantics with QoS kept in adapter configuration.
 
 ## Learning Signals
 
