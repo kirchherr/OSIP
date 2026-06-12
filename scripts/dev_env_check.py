@@ -24,6 +24,7 @@ REQUIRED_MODULES = [
     "pytest",
     "yaml",
     "omnisense_benchmarks",
+    "omnisense_adapters",
 ]
 
 

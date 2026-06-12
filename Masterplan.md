@@ -1410,8 +1410,9 @@ Ziel:
 
 Tasks:
 
-- Adapter-Interface definieren.
-- CSV/JSONL Adapter bauen.
+- Adapter-Interface definieren: `AdapterMetadata`, `AdapterRunResult` und
+  source-adapter Protocol.
+- JSONL Adapter bauen, der OSIP-Payloads validiert und auf den Bus publiziert.
 - MQTT Bridge bauen.
 - Beispiel für externes Modell als separater Prozess.
 - optional Webcam-/Mikrofon-Stubs, aber nicht als Testvoraussetzung.
