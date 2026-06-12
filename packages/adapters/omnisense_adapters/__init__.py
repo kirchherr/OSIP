@@ -1,5 +1,6 @@
 """Adapter contracts and hardware-free reference adapters for OSIP."""
 
+from omnisense_adapters.channels import CHANNEL_MESSAGE_TYPES, channel_id_for_bus_topic
 from omnisense_adapters.interfaces import (
     AdapterMetadata,
     AdapterRole,
@@ -8,7 +9,6 @@ from omnisense_adapters.interfaces import (
 )
 from omnisense_adapters.jsonl import DEFAULT_ALLOWED_MESSAGE_TYPES, JSONLOSIPSourceAdapter
 from omnisense_adapters.mqtt import (
-    CHANNEL_MESSAGE_TYPES,
     MqttBridgeCodec,
     MqttDecodedRecord,
     MqttInboundBridge,
@@ -18,8 +18,14 @@ from omnisense_adapters.mqtt import (
     MqttPublishRecord,
     MqttPublishTransport,
     MqttTopicMapper,
-    channel_id_for_bus_topic,
     ensure_mqtt_topic,
+)
+from omnisense_adapters.nats import (
+    NatsBridgeCodec,
+    NatsDecodedRecord,
+    NatsPublishRecord,
+    NatsSubjectMapper,
+    ensure_nats_subject,
 )
 
 __all__ = [
@@ -38,7 +44,12 @@ __all__ = [
     "MqttPublishRecord",
     "MqttPublishTransport",
     "MqttTopicMapper",
+    "NatsBridgeCodec",
+    "NatsDecodedRecord",
+    "NatsPublishRecord",
+    "NatsSubjectMapper",
     "OSIPSourceAdapter",
     "channel_id_for_bus_topic",
     "ensure_mqtt_topic",
+    "ensure_nats_subject",
 ]

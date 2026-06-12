@@ -47,6 +47,12 @@ adapter can later wrap `aiomqtt` or another broker client. The bridge returns an
 same codec, validates the OSIP message type against the topic, and publishes the
 typed payload to an `AsyncMessageBus`.
 
+The first NATS layer is `NatsBridgeCodec`. NATS subjects already use
+dot-separated tokens, so the default mapping keeps OSIP bus topics unchanged.
+Deployment prefixes such as `site_a.osip` are supported while decoded bus topics
+remain rooted at `omnisense`. Core NATS versus JetStream intent, explicit ack,
+retention, and max-age hints are derived from the shared QoS mapping.
+
 ## Rules
 
 - Tests must not require real sensors, brokers, robot middleware, or hardware.
@@ -81,4 +87,17 @@ omnisense/percepts/audio/audio/event_classifier_v1
 
 Custom MQTT prefixes are allowed for deployments, for example
 `site_a/osip/percepts/audio/#`, while decoded bus topics remain rooted at
+`omnisense`.
+
+## NATS Subject Mapping
+
+Default mapping:
+
+```text
+omnisense.percepts.audio.audio.event_classifier_v1
+omnisense.percepts.audio.audio.event_classifier_v1
+```
+
+Custom NATS prefixes are allowed for deployments, for example
+`site_a.osip.percepts.audio.>`, while decoded bus topics remain rooted at
 `omnisense`.

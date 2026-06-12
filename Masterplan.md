@@ -1583,7 +1583,8 @@ Diese Werte sind Forschungsziele, keine Garantien für beliebige Hardware.
 - B2: InMemoryBus implementieren
 - B3: Topic-Konventionen testen
 - B4: Replay aus JSONL implementieren
-- B5: NATS Adapter optional vorbereiten
+- B5: NATS Adapter optional vorbereiten: zunaechst brokerfreie Subject-,
+  Payload- und QoS-Codec-Schicht, danach Live-Adapter gegen Broker
 
 ### Epic C — Simulator
 
