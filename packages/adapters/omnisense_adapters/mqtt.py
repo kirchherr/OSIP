@@ -6,6 +6,7 @@ from collections.abc import Iterable, Mapping
 from typing import Any, Final, Protocol
 
 from omnisense_bus import (
+    AsyncMessageBus,
     action_command_filter,
     action_contracts_topic,
     action_proposals_topic,
@@ -117,6 +118,28 @@ class MqttPublishTransport(Protocol):
     """Minimal broker client wrapper used by the outbound MQTT bridge."""
 
     async def publish(self, record: MqttPublishRecord) -> None: ...
+
+
+class MqttInboundMessage(BaseModel):
+    """Broker-independent MQTT message received by an inbound bridge."""
+
+    model_config = ConfigDict(extra="forbid", validate_assignment=True)
+
+    mqtt_topic: str
+    payload: bytes
+    qos: int = Field(default=0, ge=0, le=2)
+    retain: bool = False
+
+    @field_validator("mqtt_topic")
+    @classmethod
+    def validate_mqtt_topic(cls, value: str) -> str:
+        return ensure_mqtt_topic(value)
+
+
+class MqttMessageSource(Protocol):
+    """Minimal MQTT subscriber wrapper used by the inbound bridge."""
+
+    async def receive(self) -> MqttInboundMessage | None: ...
 
 
 class MqttDecodedRecord(BaseModel):
@@ -240,6 +263,80 @@ class MqttOutboundBridge:
             topics=(record.bus_topic,),
             target_topics=(record.mqtt_topic,),
             message_types=(record.message_type,),
+        )
+
+
+class MqttInboundBridge:
+    """Adapter-facing MQTT subscriber that publishes decoded OSIP messages to a bus."""
+
+    def __init__(
+        self,
+        source: MqttMessageSource,
+        *,
+        adapter_id: str = "mqtt.inbound_bridge",
+        profile_id: str | None = None,
+        codec: MqttBridgeCodec | None = None,
+        supported_message_types: Iterable[str] = CHANNEL_MESSAGE_TYPES.values(),
+    ) -> None:
+        supported = tuple(dict.fromkeys(supported_message_types))
+        if not supported:
+            msg = "supported_message_types must not be empty"
+            raise ValueError(msg)
+        self._source = source
+        self._codec = codec or MqttBridgeCodec()
+        self._metadata = AdapterMetadata(
+            adapter_id=adapter_id,
+            role="source",
+            supported_message_types=supported,
+            profile_id=profile_id,
+            requires_hardware=False,
+            description="MQTT inbound bridge using broker-independent received messages.",
+        )
+
+    @property
+    def metadata(self) -> AdapterMetadata:
+        return self._metadata
+
+    @property
+    def codec(self) -> MqttBridgeCodec:
+        return self._codec
+
+    async def publish_to(
+        self,
+        bus: AsyncMessageBus,
+        *,
+        max_messages: int | None = None,
+    ) -> AdapterRunResult:
+        if max_messages is not None and max_messages < 0:
+            msg = "max_messages must be greater than or equal to zero"
+            raise ValueError(msg)
+
+        bus_topics: list[str] = []
+        mqtt_topics: list[str] = []
+        message_types: list[str] = []
+
+        while max_messages is None or len(bus_topics) < max_messages:
+            message = await self._source.receive()
+            if message is None:
+                break
+            decoded = self._codec.decode_message(message.mqtt_topic, message.payload)
+            if decoded.message_type not in self._metadata.supported_message_types:
+                msg = (
+                    f"message type '{decoded.message_type}' is not supported by adapter "
+                    f"'{self._metadata.adapter_id}'"
+                )
+                raise ValueError(msg)
+            await bus.publish(decoded.bus_topic, decoded.payload)
+            bus_topics.append(decoded.bus_topic)
+            mqtt_topics.append(decoded.mqtt_topic)
+            message_types.append(decoded.message_type)
+
+        return AdapterRunResult(
+            adapter_id=self._metadata.adapter_id,
+            published_count=len(bus_topics),
+            topics=tuple(bus_topics),
+            target_topics=tuple(mqtt_topics),
+            message_types=tuple(message_types),
         )
 
 

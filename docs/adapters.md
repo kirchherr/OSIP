@@ -42,6 +42,11 @@ adapter must preserve:
 adapter can later wrap `aiomqtt` or another broker client. The bridge returns an
 `AdapterRunResult` with both OSIP bus topics and MQTT target topics.
 
+`MqttInboundBridge` mirrors this for subscriptions. It accepts a small
+`MqttMessageSource` protocol, decodes `MqttInboundMessage` records through the
+same codec, validates the OSIP message type against the topic, and publishes the
+typed payload to an `AsyncMessageBus`.
+
 ## Rules
 
 - Tests must not require real sensors, brokers, robot middleware, or hardware.

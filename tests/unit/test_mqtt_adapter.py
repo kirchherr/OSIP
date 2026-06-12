@@ -7,12 +7,15 @@ from typing import cast
 import pytest
 from omnisense_adapters import (
     MqttBridgeCodec,
+    MqttInboundBridge,
+    MqttInboundMessage,
     MqttOutboundBridge,
     MqttPublishRecord,
     MqttTopicMapper,
     channel_id_for_bus_topic,
 )
 from omnisense_bus import (
+    InMemoryBus,
     model_capabilities_topic,
     percept_filter,
     percept_topic,
@@ -29,6 +32,16 @@ class RecordingMqttTransport:
 
     async def publish(self, record: MqttPublishRecord) -> None:
         self.records.append(record)
+
+
+class QueuedMqttSource:
+    def __init__(self, messages: list[MqttInboundMessage]) -> None:
+        self.messages = list(messages)
+
+    async def receive(self) -> MqttInboundMessage | None:
+        if not self.messages:
+            return None
+        return self.messages.pop(0)
 
 
 def _load_fixture(name: str) -> dict[str, object]:
@@ -172,3 +185,98 @@ async def test_mqtt_outbound_bridge_rejects_unsupported_message_type() -> None:
 def test_mqtt_outbound_bridge_requires_supported_message_types() -> None:
     with pytest.raises(ValueError, match="supported_message_types"):
         MqttOutboundBridge(RecordingMqttTransport(), supported_message_types=())
+
+
+@pytest.mark.asyncio
+async def test_mqtt_inbound_bridge_decodes_and_publishes_to_bus() -> None:
+    codec = MqttBridgeCodec()
+    outbound = codec.encode_publish(
+        percept_topic("audio", "audio.event_classifier_v1"),
+        _load_fixture("percept_packet.json"),
+    )
+    source = QueuedMqttSource(
+        [
+            MqttInboundMessage(
+                mqtt_topic=outbound.mqtt_topic,
+                payload=outbound.payload,
+                qos=outbound.qos,
+                retain=outbound.retain,
+            )
+        ]
+    )
+    bridge = MqttInboundBridge(source, profile_id="rooms", codec=codec)
+    bus = InMemoryBus()
+
+    async with bus.subscribe("omnisense.>") as subscription:
+        result = await bridge.publish_to(bus)
+        message = await subscription.receive()
+
+    assert bridge.metadata.adapter_id == "mqtt.inbound_bridge"
+    assert bridge.metadata.role == "source"
+    assert result.published_count == 1
+    assert result.topics == (percept_topic("audio", "audio.event_classifier_v1"),)
+    assert result.target_topics == ("omnisense/percepts/audio/audio/event_classifier_v1",)
+    assert result.message_types == ("percept.packet",)
+    assert isinstance(message.payload, PerceptPacket)
+
+
+@pytest.mark.asyncio
+async def test_mqtt_inbound_bridge_honors_max_messages() -> None:
+    codec = MqttBridgeCodec()
+    percept = codec.encode_publish(
+        percept_topic("audio", "audio.event_classifier_v1"),
+        _load_fixture("percept_packet.json"),
+    )
+    safety = codec.encode_publish(
+        profile_safety_case_topic("physical-ai"),
+        _load_fixture("profile_safety_case.json"),
+    )
+    source = QueuedMqttSource(
+        [
+            MqttInboundMessage(mqtt_topic=percept.mqtt_topic, payload=percept.payload),
+            MqttInboundMessage(mqtt_topic=safety.mqtt_topic, payload=safety.payload),
+        ]
+    )
+    bridge = MqttInboundBridge(source, codec=codec)
+
+    result = await bridge.publish_to(InMemoryBus(), max_messages=1)
+
+    assert result.published_count == 1
+    assert result.message_types == ("percept.packet",)
+    assert len(source.messages) == 1
+
+
+@pytest.mark.asyncio
+async def test_mqtt_inbound_bridge_rejects_unsupported_message_type() -> None:
+    codec = MqttBridgeCodec()
+    outbound = codec.encode_publish(
+        percept_topic("audio", "audio.event_classifier_v1"),
+        _load_fixture("percept_packet.json"),
+    )
+    source = QueuedMqttSource(
+        [MqttInboundMessage(mqtt_topic=outbound.mqtt_topic, payload=outbound.payload)]
+    )
+    bridge = MqttInboundBridge(
+        source,
+        codec=codec,
+        supported_message_types=("profile.safety_case",),
+    )
+    bus = InMemoryBus()
+
+    async with bus.subscribe("omnisense.>") as subscription:
+        with pytest.raises(ValueError, match="not supported"):
+            await bridge.publish_to(bus)
+        assert subscription.pending_count == 0
+
+
+@pytest.mark.asyncio
+async def test_mqtt_inbound_bridge_rejects_invalid_max_messages() -> None:
+    bridge = MqttInboundBridge(QueuedMqttSource([]))
+
+    with pytest.raises(ValueError, match="max_messages"):
+        await bridge.publish_to(InMemoryBus(), max_messages=-1)
+
+
+def test_mqtt_inbound_bridge_requires_supported_message_types() -> None:
+    with pytest.raises(ValueError, match="supported_message_types"):
+        MqttInboundBridge(QueuedMqttSource([]), supported_message_types=())
