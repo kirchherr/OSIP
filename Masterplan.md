@@ -263,9 +263,9 @@ omnisense/
 │   └── demo-scenarios.md
 ├── protocols/
 │   ├── openapi/
-│   │   └── omnisense-api.yaml
+│   │   └── openapi.json
 │   ├── asyncapi/
-│   │   └── omnisense-events.yaml
+│   │   └── asyncapi.json
 │   └── schemas/
 │       ├── model_capability.schema.json
 │       ├── percept_packet.schema.json
@@ -829,8 +829,8 @@ GET  /v1/scenarios/{run_id}
 
 Codex soll generieren oder pflegen:
 
-- `protocols/openapi/omnisense-api.yaml`
-- `protocols/asyncapi/omnisense-events.yaml`
+- `protocols/openapi/openapi.json`
+- `protocols/asyncapi/asyncapi.json`
 - `protocols/schemas/*.schema.json`
 
 OpenAPI soll HTTP-Endpunkte beschreiben. AsyncAPI soll Event-Channels und Message-Schemas beschreiben. CloudEvents kann optional als Event Envelope verwendet werden.
@@ -1365,6 +1365,7 @@ Tasks:
 - HTTP-Endpunkte implementieren.
 - WebSocket-Streams implementieren.
 - OpenAPI exportieren.
+- AsyncAPI fuer Event-Channels exportieren.
 - Basic SDK Client erstellen.
 
 Akzeptanzkriterien:
@@ -1455,8 +1456,8 @@ Deliverables:
 - `docs/architecture.md`
 - `docs/benchmark-plan.md`
 - `docs/results.md`
-- `protocols/openapi/omnisense-api.yaml`
-- `protocols/asyncapi/omnisense-events.yaml`
+- `protocols/openapi/openapi.json`
+- `protocols/asyncapi/asyncapi.json`
 - Demo-Videos oder Demo-Skripte
 - reproduzierbarer Benchmark
 
@@ -1778,6 +1779,8 @@ Build OmniSense Runtime: an open, modular, simulation-first Perception-to-Action
 - `make lint` — run ruff
 - `make format` — format code
 - `make typecheck` — run type checks when configured
+- `make openapi` — regenerate HTTP API contract
+- `make asyncapi` — regenerate event API contract
 - `make benchmark` — run scenario benchmarks when implemented
 
 ## Done Means

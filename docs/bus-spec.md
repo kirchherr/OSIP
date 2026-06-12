@@ -52,3 +52,16 @@ Bus replay fixtures use one JSON object per line:
 
 `replay_jsonl` can publish raw payload objects or accept a parser function such
 as `validate_osip_message` to validate and convert OSIP payloads before publish.
+
+## AsyncAPI Export
+
+The public event API is exported as AsyncAPI 3.1.0 at
+`protocols/asyncapi/asyncapi.json`. It documents the core OSIP channels above,
+their publish/subscribe operations, and message payload references into
+`protocols/schemas`.
+
+Regenerate it with:
+
+```bash
+docker compose run --rm dev make asyncapi
+```

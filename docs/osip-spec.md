@@ -91,8 +91,7 @@ Future learning-related messages should stay out of v0.1 runtime-critical paths:
   Core remains the smallest shared contract.
 - A concept should move from a profile into Core only when at least two profiles
   need it.
-- OpenAPI and AsyncAPI specs will consume these schemas in later gateway and bus
-  phases.
+- OpenAPI and AsyncAPI specs consume these schemas in gateway and bus phases.
 - CloudEvents can wrap OSIP messages at adapter boundaries, but OSIP payloads
   stay valid without a CloudEvents envelope.
 - WoT, SOSA/SSN, and Brick mappings should remain adapter or mapping layers, not
@@ -119,6 +118,13 @@ Regenerate public schemas with:
 
 ```bash
 docker compose run --rm dev uv run python scripts/export_osip_schemas.py
+```
+
+Regenerate public HTTP and event API descriptions with:
+
+```bash
+docker compose run --rm dev make openapi
+docker compose run --rm dev make asyncapi
 ```
 
 Then verify:

@@ -50,6 +50,11 @@ jobs:
           uv run python scripts/export_openapi.py
           git diff --exit-code protocols/openapi
 
+      - name: Verify AsyncAPI export
+        run: |
+          uv run python scripts/export_asyncapi.py
+          git diff --exit-code protocols/asyncapi
+
       - name: Run deterministic benchmark
         run: |
           uv run python scripts/run_benchmark.py \

@@ -86,6 +86,12 @@ Regenerate Gateway OpenAPI:
 docker compose run --rm dev make openapi
 ```
 
+Regenerate Event AsyncAPI:
+
+```bash
+docker compose run --rm dev make asyncapi
+```
+
 Run deterministic scenario benchmarks:
 
 ```bash
@@ -93,8 +99,8 @@ docker compose run --rm dev make benchmark
 ```
 
 CI runs the same core gates on GitHub Actions: environment check, tests, lint,
-typecheck, schema export reproducibility, OpenAPI export reproducibility, and a
-deterministic benchmark run.
+typecheck, schema export reproducibility, OpenAPI/AsyncAPI export
+reproducibility, and a deterministic benchmark run.
 
 Open a shell:
 

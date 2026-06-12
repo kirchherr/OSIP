@@ -30,7 +30,7 @@ Praktische Konsequenz:
 - `packages/osip` definiert Semantik und Validierung.
 - `protocols/schemas` exportiert maschinenlesbare JSON Schemas.
 - `protocols/openapi` beschreibt synchrone HTTP-APIs.
-- `protocols/asyncapi` beschreibt Event-Channels.
+- `protocols/asyncapi` beschreibt Event-Channels und Pub/Sub-Operationen.
 - Transportadapter duerfen austauschbar bleiben.
 - Physical-AI-Erweiterungen gehoeren zuerst in Vocabulary, Schemas, Simulatoren, Benchmarks und Adapter-Designs, nicht in direkte Hardwaresteuerung.
 - Learning-Erweiterungen gehoeren zuerst in Trace-, Dataset-, Model-Card-, Registry- und Benchmark-Vertraege, nicht in selbstveraendernde Runtime-Logik.

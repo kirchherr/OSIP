@@ -1,0 +1,369 @@
+{
+  "asyncapi": "3.1.0",
+  "channels": {
+    "actionCommands": {
+      "address": "omnisense.actions.commands.{target}",
+      "description": "Approved Action Commands for adapter-facing targets.",
+      "messages": {
+        "actionCommand": {
+          "$ref": "#/components/messages/actionCommand"
+        }
+      },
+      "parameters": {
+        "target": {
+          "description": "Action target such as hvac.room or speaker.room."
+        }
+      }
+    },
+    "actionContracts": {
+      "address": "omnisense.actions.contracts",
+      "description": "Available bounded Action Contracts.",
+      "messages": {
+        "actionContract": {
+          "$ref": "#/components/messages/actionContract"
+        }
+      }
+    },
+    "actionProposals": {
+      "address": "omnisense.actions.proposals",
+      "description": "Bounded action proposals emitted by the Decision Runtime.",
+      "messages": {
+        "actionProposal": {
+          "$ref": "#/components/messages/actionProposal"
+        }
+      }
+    },
+    "actionResults": {
+      "address": "omnisense.actions.results.{action_id}",
+      "description": "Action execution results by action id.",
+      "messages": {
+        "actionResult": {
+          "$ref": "#/components/messages/actionResult"
+        }
+      },
+      "parameters": {
+        "action_id": {
+          "description": "Action id from the originating contract."
+        }
+      }
+    },
+    "contextUpdates": {
+      "address": "omnisense.context.updates.{room}",
+      "description": "Fused context updates by room.",
+      "messages": {
+        "contextUpdate": {
+          "$ref": "#/components/messages/contextUpdate"
+        }
+      },
+      "parameters": {
+        "room": {
+          "description": "Room identifier."
+        }
+      }
+    },
+    "eventsDetected": {
+      "address": "omnisense.events.detected.{event_label}",
+      "description": "Detected event stream for low-latency subscribers.",
+      "messages": {
+        "eventDetected": {
+          "$ref": "#/components/messages/eventDetected"
+        }
+      },
+      "parameters": {
+        "event_label": {
+          "description": "Detected event label."
+        }
+      }
+    },
+    "modelCapabilities": {
+      "address": "omnisense.models.capabilities",
+      "description": "Registered sensory model capability descriptors.",
+      "messages": {
+        "modelCapability": {
+          "$ref": "#/components/messages/modelCapability"
+        }
+      }
+    },
+    "percepts": {
+      "address": "omnisense.percepts.{modality}.{source_model}",
+      "description": "Percept packets emitted by sensory models. Source model identifiers that contain dots expand into multiple topic segments on concrete transports.",
+      "messages": {
+        "perceptPacket": {
+          "$ref": "#/components/messages/perceptPacket"
+        }
+      },
+      "parameters": {
+        "modality": {
+          "description": "Percept modality such as audio, rgb, radar, or chemical."
+        },
+        "source_model": {
+          "description": "Registered source model id."
+        }
+      }
+    }
+  },
+  "components": {
+    "messages": {
+      "actionCommand": {
+        "contentType": "application/json",
+        "name": "action.command",
+        "payload": {
+          "$ref": "../schemas/action_command.schema.json"
+        },
+        "title": "action.command"
+      },
+      "actionContract": {
+        "contentType": "application/json",
+        "name": "action.contract",
+        "payload": {
+          "$ref": "../schemas/action_contract.schema.json"
+        },
+        "title": "action.contract"
+      },
+      "actionProposal": {
+        "contentType": "application/json",
+        "name": "action.proposal",
+        "payload": {
+          "$ref": "../schemas/action_proposal.schema.json"
+        },
+        "title": "action.proposal"
+      },
+      "actionResult": {
+        "contentType": "application/json",
+        "name": "action.result",
+        "payload": {
+          "$ref": "../schemas/action_result.schema.json"
+        },
+        "title": "action.result"
+      },
+      "contextUpdate": {
+        "contentType": "application/json",
+        "name": "context.update",
+        "payload": {
+          "$ref": "../schemas/context_update.schema.json"
+        },
+        "title": "context.update"
+      },
+      "eventDetected": {
+        "contentType": "application/json",
+        "name": "event.detected",
+        "payload": {
+          "$ref": "../schemas/event_detected.schema.json"
+        },
+        "title": "event.detected"
+      },
+      "modelCapability": {
+        "contentType": "application/json",
+        "name": "model.capability",
+        "payload": {
+          "$ref": "../schemas/model_capability.schema.json"
+        },
+        "title": "model.capability"
+      },
+      "perceptPacket": {
+        "contentType": "application/json",
+        "name": "percept.packet",
+        "payload": {
+          "$ref": "../schemas/percept_packet.schema.json"
+        },
+        "title": "percept.packet"
+      }
+    }
+  },
+  "defaultContentType": "application/json",
+  "id": "https://schemas.omnisense.dev/asyncapi/osip-0.1.0",
+  "info": {
+    "description": "Transport-agnostic event channels for OSIP v0.1. Concrete adapters such as in-memory bus, NATS, MQTT, or ROS 2/DDS map these channels to their native topic or subject syntax.",
+    "title": "OmniSense Runtime OSIP Event API",
+    "version": "0.1.0"
+  },
+  "operations": {
+    "publishActionCommands": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/actionCommands"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/actionCommands/messages/actionCommand"
+        }
+      ]
+    },
+    "publishActionContracts": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/actionContracts"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/actionContracts/messages/actionContract"
+        }
+      ]
+    },
+    "publishActionProposals": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/actionProposals"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/actionProposals/messages/actionProposal"
+        }
+      ]
+    },
+    "publishActionResults": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/actionResults"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/actionResults/messages/actionResult"
+        }
+      ]
+    },
+    "publishContextUpdates": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/contextUpdates"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/contextUpdates/messages/contextUpdate"
+        }
+      ]
+    },
+    "publishEventsDetected": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/eventsDetected"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/eventsDetected/messages/eventDetected"
+        }
+      ]
+    },
+    "publishModelCapabilities": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/modelCapabilities"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/modelCapabilities/messages/modelCapability"
+        }
+      ]
+    },
+    "publishPercepts": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/percepts"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/percepts/messages/perceptPacket"
+        }
+      ]
+    },
+    "subscribeActionCommands": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/actionCommands"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/actionCommands/messages/actionCommand"
+        }
+      ]
+    },
+    "subscribeActionContracts": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/actionContracts"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/actionContracts/messages/actionContract"
+        }
+      ]
+    },
+    "subscribeActionProposals": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/actionProposals"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/actionProposals/messages/actionProposal"
+        }
+      ]
+    },
+    "subscribeActionResults": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/actionResults"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/actionResults/messages/actionResult"
+        }
+      ]
+    },
+    "subscribeContextUpdates": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/contextUpdates"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/contextUpdates/messages/contextUpdate"
+        }
+      ]
+    },
+    "subscribeEventsDetected": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/eventsDetected"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/eventsDetected/messages/eventDetected"
+        }
+      ]
+    },
+    "subscribeModelCapabilities": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/modelCapabilities"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/modelCapabilities/messages/modelCapability"
+        }
+      ]
+    },
+    "subscribePercepts": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/percepts"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/percepts/messages/perceptPacket"
+        }
+      ]
+    }
+  },
+  "tags": [
+    {
+      "name": "osip"
+    },
+    {
+      "name": "simulation-first"
+    },
+    {
+      "name": "application-profiles"
+    }
+  ]
+}
