@@ -35,8 +35,10 @@ profile, simulator adapters, and later robotics bridges.
 
 ## Standards And Tooling Anchors
 
-- ROS 2 / DDS for future robotics transport adapters and QoS mapping, with
-  MQTT 5 and NATS mappings kept transport-neutral for simulation and demos.
+- ROS 2 / DDS for robotics transport adapters and QoS mapping, with the current
+  reference bridge kept middleware-independent and hardware-free.
+- MQTT 5 and NATS mappings remain transport-neutral for simulation, smart-room
+  demos, and broker-based testbeds.
 - URDF, SDFormat, and OpenUSD for robot/world/scene description references.
 - MuJoCo, Gazebo, Isaac Sim, and PyBullet as simulator adapter candidates.
 - W3C/OGC SOSA/SSN for sensor/actuator semantics.
@@ -66,8 +68,8 @@ the first reliable pipeline exists:
 8. Add Sim2Real benchmark metadata: simulator version, robot/world description,
    seed, sensor noise, domain randomization, latency jitter, safe-stop events,
    and action-bound violations.
-9. Design ROS 2/DDS bridge semantics with QoS kept in adapter configuration and
-   mapped from OSIP `x-osip-qos` intent.
+9. Keep the broker-free `Ros2BridgeCodec`, outbound bridge, and inbound bridge
+   as the reference ROS 2/DDS contract before adding any live `rclpy` adapter.
 10. Keep MQTT 5 and NATS QoS mappings available for simulation, smart-room
     demos, and broker-based testbeds without changing OSIP Core payloads.
 
@@ -136,3 +138,6 @@ supervisors.
   outcome labels, and safety gate results before any model promotion.
 - Generated goals require simulator or shadow-mode evidence before they can
   influence physical actions.
+- ROS 2/DDS adapter tests validate topic mapping, QoS mapping, inbound decode,
+  outbound publish records, and unsupported-message rejection without requiring
+  ROS 2 middleware.

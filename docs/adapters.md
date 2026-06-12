@@ -57,6 +57,18 @@ retention, and max-age hints are derived from the shared QoS mapping.
 They use small broker-independent transport/source protocols so unit tests stay
 broker-free while a live adapter can later wrap `nats-py`.
 
+The first ROS 2 / DDS layer is `Ros2BridgeCodec`. It does not import `rclpy` or
+require a robot middleware runtime. Instead, it maps OSIP bus topics to absolute
+ROS 2 topic names, serializes OSIP JSON through `std_msgs/msg/String`, and
+attaches DDS QoS hints derived from the shared bus `QoSProfile`. Because ROS 2
+topic tokens do not safely cover every OSIP bus segment, suffix tokens are
+encoded reversibly, for example `physical-ai` becomes `tphysical_dai`.
+
+`Ros2OutboundBridge` and `Ros2InboundBridge` mirror the MQTT/NATS bridge
+structure with middleware-independent transport/source protocols. A live adapter
+can later wrap `rclpy`, ROS 2 Actions, or a DDS vendor-specific bridge while the
+reference tests remain deterministic and hardware-free.
+
 ## Rules
 
 - Tests must not require real sensors, brokers, robot middleware, or hardware.
@@ -68,6 +80,8 @@ broker-free while a live adapter can later wrap `nats-py`.
   semantics.
 - Live broker adapters may use `aiomqtt`, but unit tests for adapter contracts
   must stay broker-free.
+- Live ROS 2 adapters may use `rclpy`, but OSIP Core and unit tests must not
+  require ROS 2, DDS vendors, robot descriptions, or hardware.
 
 ## JSONL Format
 
@@ -105,3 +119,16 @@ omnisense.percepts.audio.audio.event_classifier_v1
 Custom NATS prefixes are allowed for deployments, for example
 `site_a.osip.percepts.audio.>`, while decoded bus topics remain rooted at
 `omnisense`.
+
+## ROS 2 Topic Mapping
+
+Default mapping:
+
+```text
+omnisense.percepts.audio.audio.event_classifier_v1
+/omnisense/tpercepts/taudio/taudio/tevent_uclassifier_uv1
+```
+
+Custom ROS 2 namespaces are allowed for deployments, for example
+`/site_a/osip/tpercepts/taudio/taudio/tevent_uclassifier_uv1`, while decoded
+bus topics remain rooted at `omnisense`.

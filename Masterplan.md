@@ -1884,7 +1884,9 @@ Nach dem MVP:
 
 1. NATS Adapter produktionsreifer machen.
 2. MQTT Bridge für IoT-Geräte bauen.
-3. ROS 2 Adapter für Robotik/Echtzeit-Hardware bauen.
+3. ROS 2/DDS Adapter schrittweise ausbauen: die brokerfreie Topic-/Payload-/
+   QoS-Codec-Schicht ist der erste Referenzvertrag; Live-`rclpy`-Adapter und
+   harte Realtime-Anbindung bleiben nachgelagert.
 4. EmbeddingRef und Embedding Store integrieren.
 5. Context Graph persistierbar machen.
 6. Modell-Plug-in-System verbessern.
