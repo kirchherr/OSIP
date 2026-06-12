@@ -63,6 +63,12 @@ Run context engine tests:
 docker compose run --rm dev uv run pytest tests/integration/test_context_engine.py
 ```
 
+Run decision runtime tests:
+
+```bash
+docker compose run --rm dev uv run pytest tests/integration/test_decision_runtime_flow.py
+```
+
 Open a shell:
 
 ```bash

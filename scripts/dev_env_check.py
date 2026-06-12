@@ -12,6 +12,7 @@ REQUIRED_MODULES = [
     "orjson",
     "omnisense_bus",
     "omnisense_context",
+    "omnisense_decision",
     "omnisense_osip",
     "omnisense_sim",
     "prometheus_client",
