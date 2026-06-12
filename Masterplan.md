@@ -7,6 +7,12 @@
 
 ## 0. Kurzdefinition
 
+Architekturweite Einordnung:
+
+> OSIP besteht aus einem domain-neutralen Grundkonzept und andockbaren Application Profiles. Der Kern beschreibt Perception, Context/World Model und Bounded Action. Profile wie Rooms, Physical AI oder spaeter Application XXX liefern Domain-Vokabular, Szenarien, Adapter und Safety-Regeln.
+
+Smart Rooms bleiben der erste Referenzdemonstrator. Die Grundarchitektur muss jedoch so allgemein bleiben, dass spaetere Profile fuer Robotik, mobile Plattformen, Manipulatoren, Simulationen, Safety-Controller oder andere autonome Systeme dieselben OSIP-Prinzipien nutzen koennen.
+
 **OmniSense Runtime** ist ein offenes, modulares **Perception-to-Action-System** für intelligente Räume.
 
 Nicht das Ziel:
@@ -39,6 +45,42 @@ OmniSense beweist diese These durch einen lauffähigen Referenzprototypen mit:
 6. Action Contracts,
 7. Simulations- und Benchmark-Umgebung,
 8. reproduzierbaren Demonstratoren.
+
+---
+
+### 1.1 OSIP Core und Application Profiles
+
+OSIP wird in zwei Ebenen gedacht:
+
+1. **Grundkonzept / OSIP Core**: versionierte Pakete, Claims, Context Updates, Action Contracts, Bus Topics, Replay, Benchmarks, Validierung, Evidenz, Unsicherheit und Safety Boundaries.
+2. **Application Profiles**: domänenspezifische Erweiterungen, Vokabulare, Szenarien, Adapter, Benchmarks und Safety-Regeln.
+
+Startprofile:
+
+- **Application Profile: Rooms** - intelligente Raeume, Smart Buildings, Ambient Sensing, HVAC, Licht, Speaker, Komfort und Sicherheit.
+- **Application Profile: Physical AI** - Robotik, Embodied AI, autonome Systeme, 3D-Kinematik, Manipulation, Navigation, Sim2Real und physische Safety Bounds.
+- **Application Profile: XXX** - Platzhalter fuer neue andockbare Domaenen. Jede neue Anwendung startet als Profil, nicht als Core-Aufblaehung.
+
+Regel:
+
+> Neue Domain-Details gehoeren zuerst in ein Application Profile. Ein Konzept wird erst OSIP Core, wenn mindestens zwei Profile es wirklich gemeinsam brauchen.
+
+---
+
+### 1.2 Physical-AI-These
+
+Die OSIP-Trennung von Perception, Context und Action entspricht dem Kern jeder Physical AI:
+
+1. **Perception**: Kameras, Mikrofone, LiDAR, Radar, IMUs, Kraft-Momenten-Sensoren, Joint States, Tactile Arrays und propriozeptive Modelle liefern Percept Packets.
+2. **Context**: Sensorfusion erzeugt ein operatives Weltmodell mit Objekten, Menschen, Hindernissen, Greifbarkeit, Kinematik, Unsicherheit, Evidenz und Widerspruechen.
+3. **Action**: Nur Action Contracts erlauben physische Wirkung. Fuer Smart Rooms sind das diskrete Aktionen; fuer Robotik kommen kontinuierliche oder hochfrequente Commands hinzu, die immer durch Safety Bounds, Rate Limits, Workspace Limits und Precondition Checks begrenzt werden.
+
+Fuer die Roadmap bedeutet das:
+
+- Smart-Room-Szenarien bleiben MVP-Pfad.
+- Physical-AI-Erweiterungen werden als offene Adapter, zusaetzliche Schemas und Benchmarks geplant, nicht als monolithische Neuausrichtung.
+- Sim2Real wird als explizites Ziel gefuehrt: Szenarien, Sensoren, Weltmodelle und Action Contracts muessen zuerst reproduzierbar in Simulation pruefbar sein, bevor echte Hardware angeschlossen wird.
+- Kontinuierliche Steuerung bleibt von OSIP Core getrennt: OSIP beschreibt Vertrage, Kontext, Bounds, Kommandos und Ergebnisse; harte Echtzeit-Regelkreise gehoeren in spezialisierte Controller oder Safety-Layer.
 
 ---
 
@@ -1474,6 +1516,16 @@ Diese Werte sind Forschungsziele, keine Garantien für beliebige Hardware.
 - G4: Dropout Tests
 - G5: Model Swap Demo
 
+### Epic H - Application Profiles
+
+- H1: Profil-Architektur dokumentieren: OSIP Core vs. Application Profile, Erweiterungsregeln, Tests und Governance
+- H2: Application Profile `rooms` als ersten Referenzdemonstrator dokumentieren und gegen MVP-Roadmap spiegeln
+- H3: Application Profile `physical-ai` fuer Robotik, Manipulation, Navigation, Propriozeption, Sim2Real und Safety Bounds ausarbeiten
+- H4: Application Profile Template fuer zukuenftige Domaenen wie `xxx` anlegen
+- H5: Profil-spezifische Vokabulare, Fixtures, Szenarien, Benchmarks und Safety Cases voneinander trennen
+- H6: Adapter-Regel definieren: Simulatoren, ROS 2/DDS, MQTT, NATS, Robot-SDKs und Gebaeudetechnik bleiben ausserhalb von OSIP Core
+- H7: Core-Promotion-Regel einfuehren: Ein Profilkonzept wird erst Core, wenn mindestens zwei Profile es gemeinsam brauchen
+
 ---
 
 ## 20. Konkrete Codex-Prompts
@@ -1532,6 +1584,12 @@ Implementiere Phase 7: Benchmark Runner für Szenarien mit p50/p95/p99 Latenzen,
 
 ```text
 Reviewe die aktuelle Implementierung gegen Masterplan.md. Suche besonders nach: Monolithen, fehlenden Tests, hart verdrahteten Modellnamen im Core, Blocking Calls im Reflex/Fast Path, fehlender Schema-Versionierung, Actions ohne Contracts und schlecht dokumentierten öffentlichen Interfaces. Erstelle konkrete Fixes oder Issues.
+```
+
+### Prompt 10 - Application Profiles
+
+```text
+Teile OSIP sauber in Grundkonzept/Core und Application Profiles auf. Lege Profile fuer Rooms und Physical AI an und erzeuge ein Template fuer zukuenftige Profile wie XXX. Dokumentiere, welche Begriffe, Schemas, Szenarien, Adapter und Safety-Regeln im Profil bleiben und welche Konzepte in OSIP Core duerfen. Done when: docs/core-concept.md, docs/applications/rooms.md, docs/applications/physical-ai.md und ein Profil-Template existieren, Masterplan/AGENTS/Skill die Profile-Regel nennen und make test/lint/typecheck gruen sind.
 ```
 
 ---
@@ -1786,8 +1844,9 @@ Die nächsten Aufgaben sind in dieser Reihenfolge umzusetzen:
 6. Decision Runtime v0.1.
 7. Gateway API.
 8. Benchmark Runner.
+9. Application Profiles: Grundkonzept/Core von Anwendungen trennen, `rooms` als MVP-Profil fuehren, `physical-ai` als spaeteres Profil vorbereiten und `xxx` als andockbares Profil-Template vorsehen.
 
-Codex soll keine Hardwareadapter, kein Dashboard und keine komplexen ML-Modelle bauen, bevor diese acht Schritte funktionieren.
+Codex soll keine Hardwareadapter, kein Dashboard, keine komplexen ML-Modelle und keine direkte physische Aktorsteuerung bauen, bevor die MVP-Pipeline funktioniert. Neue Anwendungsdomaenen beginnen als Application Profile mit Docs, Vokabular, Fixtures, Simulation, Safety Bounds und Adapter-Design, nicht als Core-Umbau.
 
 ---
 
@@ -1802,6 +1861,13 @@ Diese Quellen sind als Hintergrund relevant, aber das Projekt soll unabhängig l
 - OpenAPI Specification: https://spec.openapis.org/oas/latest.html
 - AsyncAPI Specification: https://www.asyncapi.com/docs/reference/specification/latest
 - CloudEvents: https://cloudevents.io/
+- ROS 2 Middleware and QoS: https://docs.ros.org/en/rolling/Concepts/Intermediate/About-Different-Middleware-Vendors.html
+- ROS 2 QoS settings: https://docs.ros.org/en/rolling/Concepts/Intermediate/About-Quality-of-Service-Settings.html
+- SDFormat specification for robot/world descriptions: https://sdformat.org/spec
+- MuJoCo documentation: https://mujoco.readthedocs.io/en/stable/overview.html
+- NVIDIA Isaac Sim documentation: https://docs.isaacsim.omniverse.nvidia.com/latest/index.html
+- OpenUSD documentation: https://openusd.org/release/index.html
+- ISO robot safety standards overview: https://www.iso.org/ics/25.040.30/x/
 
 ---
 

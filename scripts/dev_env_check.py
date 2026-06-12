@@ -10,6 +10,8 @@ REQUIRED_MODULES = [
     "nats",
     "opentelemetry",
     "orjson",
+    "omnisense_bus",
+    "omnisense_osip",
     "prometheus_client",
     "pydantic",
     "pytest",

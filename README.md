@@ -1,6 +1,18 @@
 # OmniSense Runtime / OSIP
 
-OmniSense Runtime is an open, modular, simulation-first Perception-to-Action runtime for intelligent rooms. OSIP, the OmniSense Interchange Protocol, is the stable interface between sensory models, context fusion, and bounded actions.
+OmniSense Runtime is an open, modular, simulation-first Perception-to-Action runtime built around a domain-neutral OSIP Core and attachable Application Profiles.
+
+OSIP, the OmniSense Interchange Protocol, is the stable interface between
+sensory models, context/world fusion, and bounded actions.
+
+Application Profiles attach domain-specific vocabulary, scenarios, adapters, and
+safety rules:
+
+- `rooms`: intelligent rooms and smart environments; this is the first MVP
+  demonstrator.
+- `physical-ai`: robotics, embodied agents, autonomous systems, Sim2Real, and
+  physical safety bounds.
+- `xxx`: template slot for future attachable domains.
 
 ## Quickstart
 
@@ -26,6 +38,12 @@ Regenerate OSIP JSON Schemas:
 
 ```bash
 docker compose run --rm dev uv run python scripts/export_osip_schemas.py
+```
+
+Run the in-memory bus tests:
+
+```bash
+docker compose run --rm dev uv run pytest tests/integration/test_in_memory_bus.py
 ```
 
 Open a shell:

@@ -15,6 +15,10 @@ Dieses Dokument ist meine fachliche Vorbereitung fuer die Arbeit an OmniSense Ru
 
 OSIP sollte als offenes, versioniertes Interchange Protocol entstehen, nicht als Python-interne Datenklasse. Die Python-Implementierung ist Referenzruntime; die eigentliche Projektleistung ist die stabile Schnittstelle zwischen spezialisierten Sinnesmodellen, Kontextfusion und begrenzten Aktionen.
 
+Erweiterte Leitthese:
+
+OSIP ist ein generisches Perception-to-Action-Protokoll mit einem domain-neutralen Core und andockbaren Application Profiles. Der Smart-Room-MVP beweist die Pipeline im Profil `rooms`; dieselbe Architektur muss spaeter das Profil `physical-ai` und neue Profile wie `xxx` tragen koennen.
+
 Praktische Konsequenz:
 
 - `packages/osip` definiert Semantik und Validierung.
@@ -22,6 +26,21 @@ Praktische Konsequenz:
 - `protocols/openapi` beschreibt synchrone HTTP-APIs.
 - `protocols/asyncapi` beschreibt Event-Channels.
 - Transportadapter duerfen austauschbar bleiben.
+- Physical-AI-Erweiterungen gehoeren zuerst in Vocabulary, Schemas, Simulatoren, Benchmarks und Adapter-Designs, nicht in direkte Hardwaresteuerung.
+
+## Application-Profile-Modell
+
+OSIP wird in Core und Profile getrennt:
+
+- **OSIP Core**: versionierte Message-Typen, Validierung, Claims, Context Updates, Action Contracts, Topic-Regeln, Replay, Benchmarks, Unsicherheit, Evidenz und Safety-Boundary-Prinzipien.
+- **Application Profile `rooms`**: Smart Rooms, Gebaeude, Ambient Sensing, HVAC, Licht, Speaker, Komfort, Sicherheit und Brick/WoT/SOSA-Mapping.
+- **Application Profile `physical-ai`**: Robotik, Embodied AI, autonome Systeme, 3D-Weltmodelle, Propriozeption, Manipulation, Navigation, Simulatoren, Sim2Real und Safety Bounds.
+- **Application Profile `xxx`**: bewusstes Andockmuster fuer neue Domaenen. Neue Anwendungen starten als Profil mit eigener Doku, Fixtures, Szenarien und Tests.
+
+Promotion-Regel:
+
+- Ein Konzept bleibt im Profil, solange es nur einer Anwendung dient.
+- Ein Konzept darf erst in OSIP Core wandern, wenn mindestens zwei Profile es brauchen und es transport-/vendor-neutral formuliert werden kann.
 
 ## Standards-Stack
 
@@ -107,6 +126,58 @@ OSIP-Entscheidung:
 - ROS 2 Adapter erst nach MVP.
 - QoS-Profile als Adapterkonfiguration, nicht im OSIP Core.
 - OSIP-Temporalitaet (`timestamp`, `received_at`, `valid_for_ms`, `latency_ms`) muss fuer DDS-Adapter sauber bleiben.
+
+### 2.1 Physical AI, Simulation und Robotik
+
+**Physical AI / Embodied AI**
+
+Nutzen: OSIPs Perception -> Context -> Action Loop entspricht dem Grundmuster robotischer und autonomer Systeme. Sensoren und Modelle liefern Wahrnehmungen, eine Fusion-Schicht erzeugt ein Weltmodell, und Actions duerfen nur innerhalb harter Safety- und Contract-Grenzen wirken.
+
+OSIP-Entscheidung:
+
+- Smart Rooms bleiben der erste lauffaehige Demonstrator.
+- Physical AI wird als Erweiterungspfad gefuehrt: Robot State, 3D Pose, Transform Frames, Joint States, Wrench/Tactile Claims, Workspace Bounds, Manipulation, Navigation und Safety Events.
+- Kontinuierliche oder hochfrequente Regelkreise gehoeren nicht in OSIP Core. OSIP beschreibt Contracts, Bounds, Kommandos, Ergebnisse und Evidenz; harte Realtime-Control bleibt in spezialisierten Controllern oder Adaptern.
+
+**ROS 2 QoS / DDS**
+
+Nutzen: Physical-AI-Systeme muessen Latenz, Zuverlaessigkeit, Durability, History und Deadline-Verhalten bewusst konfigurieren. ROS 2 beschreibt QoS-Policies fuer Publisher/Subscriber, Services und Actions. Quelle: https://docs.ros.org/en/rolling/Concepts/Intermediate/About-Quality-of-Service-Settings.html
+
+OSIP-Entscheidung:
+
+- QoS ist Transport-/Adapterkonfiguration, nicht OSIP-Semantik.
+- OSIP-Payloads bleiben brokerunabhaengig validierbar.
+- Adapter muessen Topic-, Timing-, Deadline- und Dropout-Informationen in Benchmarks sichtbar machen.
+
+**URDF / SDF / OpenUSD**
+
+Nutzen: Robotik und Simulation brauchen maschinenlesbare Beschreibungen von Robotern, Sensoren, Gelenken, Links, Weltgeometrie, Materialien und Szenen. ROS 2 nutzt URDF fuer Robotermodelle; SDFormat beschreibt Roboter- und Simulationswelten; OpenUSD ist ein verbreitetes Szenenformat in modernen Simulationspipelines. Quellen: https://docs.ros.org/en/rolling/Tutorials/Intermediate/URDF/URDF-Main.html, https://sdformat.org/spec und https://openusd.org/release/index.html
+
+OSIP-Entscheidung:
+
+- OSIP referenziert Frames, Posen, Sensoren, Roboterteile und Weltobjekte ueber stabile IDs.
+- Robot-/World-Description-Dateien bleiben externe Artefakte mit Version/Hash in Szenarien oder Benchmarks.
+- Kein RDF-, USD-, URDF- oder SDF-Zwang im OSIP Core.
+
+**MuJoCo, Gazebo, Isaac Sim, PyBullet**
+
+Nutzen: Simulation ist der sichere Entwicklungsraum fuer Physical AI. MuJoCo ist ein Physik-Engine- und Modellformat fuer Robotik/Biomechanik/Graphics Research; Gazebo/SDF ist im ROS-Umfeld verbreitet; Isaac Sim nutzt NVIDIA Omniverse/OpenUSD fuer Robotiksimulation; PyBullet ist ein leichter Python-naher Simulator. Quellen: https://mujoco.readthedocs.io/en/stable/overview.html, https://gazebosim.org/docs/latest/getstarted/, https://docs.isaacsim.omniverse.nvidia.com/latest/index.html und https://pybullet.org/wordpress/
+
+OSIP-Entscheidung:
+
+- Simulatoren sind Adapter und Testumgebungen, keine Core-Abhaengigkeiten.
+- Szenarien muessen deterministische Seeds, Simulatorversion, Robot/World Description, Sensor Noise Model und Domain-Randomization-Parameter dokumentieren.
+- Sim2Real-Reports muessen zeigen, welche Annahmen nur in Simulation gelten und welche Contracts auf echter Hardware durch Safety Controller abgesichert werden.
+
+**Robot Safety / Functional Safety**
+
+Nutzen: Physical AI braucht Safety-by-Design. Relevante Designanker sind Robotersicherheit fuer industrielle Roboter, kollaborative Robotik, funktionale Sicherheit und Automotive-Safety-Denken. Quellen: https://www.iso.org/ics/25.040.30/x/, https://www.iso.org/standard/62996.html, https://www.iec.ch/functionalsafety/ und https://www.iso.org/standard/68383.html
+
+OSIP-Entscheidung:
+
+- OSIP darf keine Zertifizierung behaupten, aber Safety Cases vorbereiten.
+- Action Contracts fuer physische Aktoren brauchen Preconditions, Workspace Bounds, Velocity/Force/Rate Limits, Deadlines, Stop Conditions, Safe State, Rollback/Fallback und Audit Trail.
+- Benchmarks muessen Action-Contract-Blocks, Bound Violations, Emergency-Stop-Pfade und Latenz-Jitter erfassen.
 
 ### 3. Sensor-, Aktor- und Smart-Building-Semantik
 
@@ -194,6 +265,18 @@ OSIP-Zielbild:
 - MVP so bauen, dass ein externer Reviewer die Demo ohne Hardware ausfuehren kann.
 - Scripts fuer Setup, Szenario-Replay und Benchmark bereitstellen.
 - Erwartete Ergebnisse als toleranzbasierte Checks, nicht als fragile exakte Laufzeitwerte.
+
+### Sim2Real und Physical-AI-Benchmarking
+
+Physical-AI-Experimente muessen beweisen, dass Verhalten nicht nur in einer Demo plausibel aussieht, sondern unter Sensorrauschen, Latenz, Dropout, Kollisionen, Domain Randomization und Safety-Limits reproduzierbar bleibt.
+
+OSIP-Regeln:
+
+- Jede Physical-AI-Demo braucht ein versioniertes Szenario, Robot-/World-Description-Version, Simulatorversion, Seed und Sensor Noise Model.
+- Jede Aktion mit physischer Wirkung braucht einen pruefbaren Action Contract mit Bounds und Safe State.
+- Benchmarks erfassen neben p50/p95/p99 auch Jitter, Bound Violations, Contract Blocks, Collision/Safe-Stop Events, Recovery Time und False Positive/False Negative Rates.
+- Sim2Real-Reports trennen Simulationsergebnisse, Hardware-Annahmen und reale Messungen klar voneinander.
+- Hardwaretests duerfen niemals Voraussetzung fuer Core-CI sein.
 
 ### Sensor Fusion
 
