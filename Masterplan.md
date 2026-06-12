@@ -1615,6 +1615,8 @@ Diese Werte sind Forschungsziele, keine Garantien für beliebige Hardware.
 - F4: Context API
 - F5: WebSocket Event Stream
 - F6: Python SDK Publisher
+- F7: CapabilityGate im Gateway, damit Percepts nur registrierte Modalitaeten
+  und Claim-Labels ihrer ModelCapabilityDescriptoren nutzen
 
 ### Epic G — Benchmark
 

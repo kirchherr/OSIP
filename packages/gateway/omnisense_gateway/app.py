@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnec
 from omnisense_osip import ActionProposal, ContextUpdate, ModelCapabilityDescriptor, PerceptPacket
 from pydantic import BaseModel, ConfigDict
 
+from omnisense_gateway.capability_gate import CapabilityGateError
 from omnisense_gateway.state import GatewayState
 
 
@@ -44,7 +45,10 @@ def create_app(state: GatewayState | None = None) -> FastAPI:
 
     @app.post("/v1/percepts", response_model=PerceptIngestResponse)
     async def ingest_percept(percept: PerceptPacket) -> PerceptIngestResponse:
-        context, proposals = await gateway_state.ingest_percept(percept)
+        try:
+            context, proposals = await gateway_state.ingest_percept(percept)
+        except CapabilityGateError as exc:
+            raise HTTPException(status_code=403, detail=list(exc.violations)) from exc
         return PerceptIngestResponse(
             percept_id=percept.id,
             context=context,

@@ -9,8 +9,9 @@ inside one FastAPI application for local demos and tests.
 - `POST /v1/models/register`: validates and stores a
   `ModelCapabilityDescriptor`, publishes it on the model capability bus topic,
   and streams a WebSocket event.
-- `POST /v1/percepts`: validates a `PerceptPacket`, publishes it on the bus,
-  runs context fusion, runs bounded decision evaluation, and returns the current
+- `POST /v1/percepts`: validates a `PerceptPacket`, checks it against the
+  registered `ModelCapabilityDescriptor`, publishes it on the bus, runs context
+  fusion, runs bounded decision evaluation, and returns the current
   `ContextUpdate` plus any `ActionProposal` messages.
 - `GET /v1/context/current`: returns the latest context, optionally filtered by
   `?room=<room_id>`.
@@ -28,6 +29,14 @@ inside one FastAPI application for local demos and tests.
 
 It accepts an injected `httpx.AsyncClient`, which keeps tests network-free with
 `httpx.ASGITransport`.
+
+## Capability Gate
+
+The gateway rejects percepts from unregistered source models. It also rejects
+percepts whose modality or claim labels are not declared in the registered
+`ModelCapabilityDescriptor`. This keeps open model ingestion bounded by an
+explicit public capability contract before data reaches context fusion or action
+proposal logic.
 
 ## Safety Boundary
 

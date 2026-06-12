@@ -20,6 +20,8 @@ from omnisense_osip import (
 )
 from pydantic import BaseModel
 
+from omnisense_gateway.capability_gate import CapabilityGate
+
 DEFAULT_GATEWAY_FACTS: dict[str, ScalarFact] = {
     "hvac.available": True,
     "notification.available": True,
@@ -72,6 +74,7 @@ class GatewayState:
         )
         self.events = EventStream()
         self.models: dict[str, ModelCapabilityDescriptor] = {}
+        self.capability_gate = CapabilityGate(self.models)
         self.current_context_by_room: dict[str, ContextUpdate] = {}
         self.latest_context: ContextUpdate | None = None
 
@@ -88,6 +91,7 @@ class GatewayState:
         self,
         percept: PerceptPacket,
     ) -> tuple[ContextUpdate, tuple[ActionProposal, ...]]:
+        self.capability_gate.validate(percept)
         await self.bus.publish(percept_topic(percept.modality, percept.source_model), percept)
         context = await self.context_engine.ingest(percept)
         self.current_context_by_room[context.room] = context
