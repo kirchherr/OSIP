@@ -92,6 +92,10 @@ Run deterministic scenario benchmarks:
 docker compose run --rm dev make benchmark
 ```
 
+CI runs the same core gates on GitHub Actions: environment check, tests, lint,
+typecheck, schema export reproducibility, OpenAPI export reproducibility, and a
+deterministic benchmark run.
+
 Open a shell:
 
 ```bash
@@ -113,3 +117,9 @@ docker compose --profile broker down
 - Keep generated goals out of direct action paths; route them through policies, benchmarks, and Action Contracts.
 - Keep tests simulation-first; no real hardware or external broker should be required for core tests.
 - Public interfaces need typed models, validation, fixtures, negative tests, and docs.
+
+## Open Source
+
+- License: Apache-2.0, see `LICENSE`.
+- Contribution guide: `CONTRIBUTING.md`.
+- Vulnerability reporting: `SECURITY.md`.
