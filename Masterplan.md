@@ -1644,6 +1644,9 @@ Diese Werte sind Forschungsziele, keine Garantien für beliebige Hardware.
 - H11: Profilweite Safe States, Adapter-Heartbeats und Watchdog-Timeouts als OSIP-Safety-Vertraege fuehren
 - H12: QoS-Intent fuer Bus-Adapter definieren: Best-Effort fuer Sensorstreams, Reliable fuer Contracts/Commands, kritische Heartbeats fuer Watchdogs
 - H13: Sim2Real-Szenarien mit Domain Randomization, Seed, Sensor Noise, Latency Jitter und Robot-/World-Description-Metadaten benchmarkfaehig machen
+- H14: QoS-Intent in adapter-native Referenzmappings fuer ROS 2/DDS, MQTT 5
+  und NATS uebersetzen, inklusive Deadline-/Latency-Hinweisen fuer Watchdogs,
+  Telemetrie und Benchmark-Gates
 
 ### Epic I - Experience & Learning Layer
 

@@ -9,6 +9,17 @@ from omnisense_bus.memory_bus import (
 )
 from omnisense_bus.messages import BusMessage
 from omnisense_bus.qos import QOS_BY_CHANNEL, QoSProfile, qos_for_channel
+from omnisense_bus.qos_mapping import (
+    AdapterKind,
+    AdapterQoSMapping,
+    Mqtt5QoSMapping,
+    NatsQoSMapping,
+    Ros2DDSQoSMapping,
+    map_qos_profile,
+    map_to_mqtt5,
+    map_to_nats,
+    map_to_ros2_dds,
+)
 from omnisense_bus.replay import ReplayRecord, load_jsonl_trace, replay_jsonl
 from omnisense_bus.topics import (
     InvalidTopicError,
@@ -36,14 +47,19 @@ from omnisense_bus.topics import (
 
 __all__ = [
     "AsyncMessageBus",
+    "AdapterKind",
+    "AdapterQoSMapping",
     "BackpressureError",
     "BusMessage",
     "InMemoryBus",
     "InMemorySubscription",
     "InvalidTopicError",
+    "Mqtt5QoSMapping",
+    "NatsQoSMapping",
     "QOS_BY_CHANNEL",
     "QoSProfile",
     "ReplayRecord",
+    "Ros2DDSQoSMapping",
     "Subscription",
     "SubscriptionClosedError",
     "adapter_heartbeat_filter",
@@ -61,6 +77,10 @@ __all__ = [
     "event_detected_filter",
     "event_detected_topic",
     "load_jsonl_trace",
+    "map_qos_profile",
+    "map_to_mqtt5",
+    "map_to_nats",
+    "map_to_ros2_dds",
     "model_capabilities_topic",
     "percept_filter",
     "percept_topic",

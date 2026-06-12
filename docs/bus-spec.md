@@ -48,7 +48,8 @@ with a tail wildcard, for example `omnisense.percepts.audio.>`.
 
 The in-memory bus is deterministic but not a realtime transport. QoS is exposed
 as adapter intent through `packages/bus/omnisense_bus/qos.py` and the AsyncAPI
-`x-osip-qos` extension:
+`x-osip-qos` extension. Adapter-specific mappings live in
+`packages/bus/omnisense_bus/qos_mapping.py`:
 
 - Percepts, context updates, event detections, and heartbeats prefer
   `best_effort` with tight latency/deadline budgets.
@@ -61,6 +62,25 @@ NATS, MQTT, ROS 2/DDS, or other adapters should map this intent to their native
 QoS settings and report missed deadlines, jitter, and dropouts through
 benchmarks or telemetry. OSIP Core does not claim deterministic sub-10-ms
 delivery by itself.
+
+### Adapter Mapping
+
+The reference mapper converts a transport-neutral `QoSProfile` into strict
+adapter policy models:
+
+- ROS 2/DDS: `reliability`, `durability`, `history`, `depth`, `deadline_ms`, and
+  `lifespan_ms`. `max_latency_ms` remains a benchmark or telemetry target.
+- MQTT 5: `best_effort` maps to QoS 0, `reliable` maps to QoS 1,
+  `transient_local` maps to retained delivery, and `ttl_ms` maps to message
+  expiry. Deadlines require adapter watchdogs or telemetry.
+- NATS: best-effort volatile streams map to Core NATS, while reliable or durable
+  streams map to JetStream with explicit acknowledgement where needed. Depth and
+  TTL become retention hints where the adapter supports them.
+
+Mappings are intentionally conservative. If a transport cannot enforce a
+deadline, latency target, or history policy natively, the mapper keeps the
+intent visible in notes so the adapter can expose a watchdog, benchmark gate, or
+telemetry signal instead of silently dropping the requirement.
 
 ## JSONL Replay
 

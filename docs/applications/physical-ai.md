@@ -35,7 +35,8 @@ profile, simulator adapters, and later robotics bridges.
 
 ## Standards And Tooling Anchors
 
-- ROS 2 / DDS for future robotics transport adapters and QoS mapping.
+- ROS 2 / DDS for future robotics transport adapters and QoS mapping, with
+  MQTT 5 and NATS mappings kept transport-neutral for simulation and demos.
 - URDF, SDFormat, and OpenUSD for robot/world/scene description references.
 - MuJoCo, Gazebo, Isaac Sim, and PyBullet as simulator adapter candidates.
 - W3C/OGC SOSA/SSN for sensor/actuator semantics.
@@ -67,6 +68,8 @@ the first reliable pipeline exists:
    and action-bound violations.
 9. Design ROS 2/DDS bridge semantics with QoS kept in adapter configuration and
    mapped from OSIP `x-osip-qos` intent.
+10. Keep MQTT 5 and NATS QoS mappings available for simulation, smart-room
+    demos, and broker-based testbeds without changing OSIP Core payloads.
 
 ## Learning Signals
 

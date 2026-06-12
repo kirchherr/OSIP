@@ -200,6 +200,10 @@ OSIP-Entscheidung:
 - Adapter muessen Topic-, Timing-, Deadline- und Dropout-Informationen in Benchmarks sichtbar machen.
 - AsyncAPI exportiert QoS-Intent als `x-osip-qos`, damit DDS, ROS 2, MQTT oder
   NATS spaeter konsistent gemappt werden koennen.
+- `omnisense_bus.qos_mapping` liefert das erste Referenzmapping: ROS 2/DDS
+  nutzt Reliability/Durability/History/Deadline/Lifespan, MQTT 5 nutzt QoS
+  Level/Retain/Message Expiry, NATS nutzt Core oder JetStream mit Ack- und
+  Retention-Hinweisen.
 
 **URDF / SDF / OpenUSD**
 
@@ -620,7 +624,7 @@ Spaeter:
 - Learned Fusion vs. regelbasierte Fusion.
 - Registry- und Promotion-Policy fuer gelernte OSIP-Modelle.
 - Goal Generation Engine und `goal.packet`.
-- DDS/ROS 2 QoS-Mapping.
+- DDS/ROS 2, MQTT 5 und NATS QoS-Mapping.
 - SensorThings/SSN/RDF Export.
 - OPA/Rego oder aehnliche Policy Engine fuer komplexere Action Contracts, sofern der Fast Path nicht blockiert.
 
