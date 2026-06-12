@@ -25,6 +25,13 @@ profile, simulator adapters, and later robotics bridges.
 - OSIP carries contracts, bounds, commands, events, evidence, and audit trails.
 - Represent uncertainty, latency, quality, evidence, contradictions, and
   calibration explicitly.
+- Express pose, object, joint-state, force, tactile, and localization
+  uncertainty with structured covariance when available.
+- Treat QoS as adapter intent: low-latency best-effort for sensor streams,
+  reliable delivery for contracts/commands, and critical heartbeats for
+  watchdogs.
+- Define profile-level safe states and watchdog thresholds before connecting
+  physical actuators.
 
 ## Standards And Tooling Anchors
 
@@ -45,16 +52,21 @@ the first reliable pipeline exists:
    manipulation, navigation, and safety events.
 2. Add schema examples for 3D pose, joint state, wrench/tactile claims, workspace
    bounds, and continuous-action contracts.
-3. Provide a `physical-ai` context-fusion implementation through the profile
+3. Add covariance-backed uncertainty examples for pose, object, force, and joint
+   state claims.
+4. Publish `profile.safety_case` and `adapter.heartbeat` fixtures for robot and
+   simulator adapters.
+5. Provide a `physical-ai` context-fusion implementation through the profile
    registry once vocabulary and fixtures exist.
-4. Provide a `physical-ai` decision profile with contract-bounded manipulation,
+6. Provide a `physical-ai` decision profile with contract-bounded manipulation,
    navigation, safe-stop, and observation policies before any runtime proposals.
-5. Build simulator adapter boundaries without pulling simulator dependencies into
+7. Build simulator adapter boundaries without pulling simulator dependencies into
    OSIP Core.
-6. Add Sim2Real benchmark metadata: simulator version, robot/world description,
+8. Add Sim2Real benchmark metadata: simulator version, robot/world description,
    seed, sensor noise, domain randomization, latency jitter, safe-stop events,
    and action-bound violations.
-7. Design ROS 2/DDS bridge semantics with QoS kept in adapter configuration.
+9. Design ROS 2/DDS bridge semantics with QoS kept in adapter configuration and
+   mapped from OSIP `x-osip-qos` intent.
 
 ## Learning Signals
 
@@ -96,6 +108,11 @@ workspace limits, emergency-stop behavior, or safety-rated monitored stops.
 
 - A valid Physical-AI percept fixture validates through OSIP schemas.
 - An invalid continuous-action contract without bounds is rejected.
+- A covariance-backed uncertainty fixture validates through OSIP schemas.
+- A `profile.safety_case` fixture declares default safe states for heartbeat
+  timeout, stale context, bus disconnect, manual stop, and sensor dropout.
+- An `adapter.heartbeat` fixture validates and rejects stale or naive
+  timestamps.
 - A JSONL trace can replay robot/sensor percepts through the in-memory bus.
 - Benchmark metadata captures simulator, seed, robot/world description, and
   safety outcomes.

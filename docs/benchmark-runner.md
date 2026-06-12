@@ -21,6 +21,8 @@ It produces machine-readable JSON and human-readable Markdown reports under
 - false-positive and false-negative context/action counts,
 - action-contract block count,
 - registered Application Profile metadata,
+- optional Sim2Real metadata such as simulator, seed, robot/world descriptions,
+  sensor noise model, latency jitter, and domain-randomization settings,
 - per-scenario benchmark gate results.
 
 The first implementation uses deterministic scenario timestamps, not wall-clock

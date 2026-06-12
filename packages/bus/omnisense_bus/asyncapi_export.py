@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from omnisense_bus.qos import qos_for_channel
 from omnisense_bus.topics import (
     action_contracts_topic,
     action_proposals_topic,
@@ -70,7 +71,21 @@ def build_asyncapi_spec() -> dict[str, Any]:
             description="Action execution results by action id.",
             parameters={"action_id": "Action id from the originating contract."},
         ),
+        "profileSafetyCases": _channel(
+            address="omnisense.safety.profiles.{profile_id}.safe_states",
+            message_ref="profileSafetyCase",
+            description="Profile-level default safe-state and watchdog requirements.",
+            parameters={"profile_id": "Application Profile id such as rooms or physical-ai."},
+        ),
+        "adapterHeartbeats": _channel(
+            address="omnisense.safety.heartbeats.{adapter_id}",
+            message_ref="adapterHeartbeat",
+            description="Adapter heartbeat stream used by watchdogs and safe-state monitors.",
+            parameters={"adapter_id": "Adapter id such as room_hvac_bridge or robot_arm_bridge."},
+        ),
     }
+    for channel_id, channel in channels.items():
+        channel["x-osip-qos"] = qos_for_channel(channel_id).as_asyncapi_extension()
 
     return {
         "asyncapi": "3.1.0",
@@ -120,6 +135,14 @@ def build_asyncapi_spec() -> dict[str, Any]:
                 "actionResult": _message(
                     "action.result",
                     "action_result.schema.json",
+                ),
+                "profileSafetyCase": _message(
+                    "profile.safety_case",
+                    "profile_safety_case.schema.json",
+                ),
+                "adapterHeartbeat": _message(
+                    "adapter.heartbeat",
+                    "adapter_heartbeat.schema.json",
                 ),
             }
         },

@@ -37,10 +37,30 @@ in `packages/osip`.
 - `omnisense.actions.proposals`
 - `omnisense.actions.commands.<target>`
 - `omnisense.actions.results.<action_id>`
+- `omnisense.safety.profiles.<profile_id>.safe_states`
+- `omnisense.safety.heartbeats.<adapter_id>`
 
 Labels such as `audio.event_classifier_v1` or `event.fall_candidate` may expand
 into multiple dot segments. Consumers that need a whole branch should subscribe
 with a tail wildcard, for example `omnisense.percepts.audio.>`.
+
+## QoS Intent
+
+The in-memory bus is deterministic but not a realtime transport. QoS is exposed
+as adapter intent through `packages/bus/omnisense_bus/qos.py` and the AsyncAPI
+`x-osip-qos` extension:
+
+- Percepts, context updates, event detections, and heartbeats prefer
+  `best_effort` with tight latency/deadline budgets.
+- Action contracts, action proposals, action commands, action results, and
+  profile safety cases require `reliable` delivery.
+- Profile safety cases use `transient_local` durability intent so adapters can
+  load safe states before accepting commands.
+
+NATS, MQTT, ROS 2/DDS, or other adapters should map this intent to their native
+QoS settings and report missed deadlines, jitter, and dropouts through
+benchmarks or telemetry. OSIP Core does not claim deterministic sub-10-ms
+delivery by itself.
 
 ## JSONL Replay
 

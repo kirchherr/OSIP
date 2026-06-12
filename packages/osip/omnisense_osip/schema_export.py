@@ -12,10 +12,12 @@ from omnisense_osip.schemas import (
     ActionContract,
     ActionProposal,
     ActionResult,
+    AdapterHeartbeat,
     ContextUpdate,
     EventDetected,
     ModelCapabilityDescriptor,
     PerceptPacket,
+    ProfileSafetyCase,
 )
 
 SCHEMA_MODELS: dict[str, type[BaseModel]] = {
@@ -27,6 +29,8 @@ SCHEMA_MODELS: dict[str, type[BaseModel]] = {
     "action_proposal.schema.json": ActionProposal,
     "action_command.schema.json": ActionCommand,
     "action_result.schema.json": ActionResult,
+    "profile_safety_case.schema.json": ProfileSafetyCase,
+    "adapter_heartbeat.schema.json": AdapterHeartbeat,
 }
 
 

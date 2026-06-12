@@ -1,0 +1,145 @@
+{
+  "$defs": {
+    "HeartbeatStatus": {
+      "enum": [
+        "alive",
+        "degraded",
+        "safe_state_active",
+        "stopping",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Identifier": {
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)*(_v[0-9]+)?$",
+      "type": "string"
+    },
+    "Label": {
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$",
+      "type": "string"
+    },
+    "NonNegativeInt": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "PositiveInt": {
+      "exclusiveMinimum": 0,
+      "type": "integer"
+    },
+    "ProfileIdentifier": {
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_-]*(\\.[a-z0-9_-]+)*$",
+      "type": "string"
+    },
+    "TraceIdentifier": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$id": "https://schemas.omnisense.dev/osip/0.1/adapter_heartbeat.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "adapter_id": {
+      "$ref": "#/$defs/Identifier"
+    },
+    "correlation_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TraceIdentifier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "current_safe_state": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Label"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "details": {
+      "additionalProperties": true,
+      "title": "Details",
+      "type": "object"
+    },
+    "heartbeat_id": {
+      "minLength": 1,
+      "title": "Heartbeat Id",
+      "type": "string"
+    },
+    "last_context_id": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Last Context Id"
+    },
+    "missed_count": {
+      "$ref": "#/$defs/NonNegativeInt",
+      "default": 0
+    },
+    "profile_id": {
+      "$ref": "#/$defs/ProfileIdentifier"
+    },
+    "schema_version": {
+      "const": "osip/0.1",
+      "default": "osip/0.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/HeartbeatStatus"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "title": "Timestamp",
+      "type": "string"
+    },
+    "trace_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TraceIdentifier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "ttl_ms": {
+      "$ref": "#/$defs/PositiveInt"
+    },
+    "type": {
+      "const": "adapter.heartbeat",
+      "default": "adapter.heartbeat",
+      "title": "Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "heartbeat_id",
+    "adapter_id",
+    "profile_id",
+    "timestamp",
+    "status",
+    "ttl_ms"
+  ],
+  "title": "AdapterHeartbeat",
+  "type": "object"
+}

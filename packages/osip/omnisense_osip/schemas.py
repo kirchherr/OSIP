@@ -17,6 +17,10 @@ type NonNegativeInt = Annotated[int, Field(ge=0)]
 type PositiveInt = Annotated[int, Field(gt=0)]
 type Label = Annotated[str, Field(min_length=1, pattern=LABEL_PATTERN)]
 type Identifier = Annotated[str, Field(min_length=1, pattern=IDENTIFIER_PATTERN)]
+type ProfileIdentifier = Annotated[
+    str,
+    Field(min_length=1, pattern=r"^[a-z][a-z0-9_-]*(\.[a-z0-9_-]+)*$"),
+]
 type TraceIdentifier = Annotated[str, Field(min_length=1)]
 
 type QualityStatus = Literal["usable", "degraded", "unusable"]
@@ -36,6 +40,22 @@ type ActionResultStatus = Literal[
     "blocked",
     "timed_out",
     "rolled_back",
+]
+type SafeStateTrigger = Literal[
+    "heartbeat_timeout",
+    "context_stale",
+    "bus_disconnect",
+    "adapter_error",
+    "manual_estop",
+    "contract_violation",
+    "sensor_dropout",
+]
+type HeartbeatStatus = Literal[
+    "alive",
+    "degraded",
+    "safe_state_active",
+    "stopping",
+    "failed",
 ]
 
 
@@ -101,17 +121,46 @@ class ModelCapabilityDescriptor(OSIPModel):
     embedding: EmbeddingCapability | None = None
 
 
+class CovarianceMatrix(OSIPModel):
+    variables: list[Identifier] = Field(min_length=1)
+    values: list[list[float]] = Field(min_length=1)
+    unit: str | None = Field(default=None, min_length=1)
+
+    @model_validator(mode="after")
+    def validate_square_matrix(self) -> Self:
+        dimension = len(self.variables)
+        if len(self.values) != dimension or any(len(row) != dimension for row in self.values):
+            msg = "covariance values must be a square matrix matching variables"
+            raise ValueError(msg)
+        return self
+
+
+class Uncertainty(OSIPModel):
+    confidence: Confidence | None = None
+    covariance: CovarianceMatrix | None = None
+    distribution: Identifier | None = None
+
+    @model_validator(mode="after")
+    def validate_uncertainty_representation(self) -> Self:
+        if self.confidence is None and self.covariance is None and self.distribution is None:
+            msg = "uncertainty requires confidence, covariance, or distribution"
+            raise ValueError(msg)
+        return self
+
+
 class Location(OSIPModel):
     room: Identifier | None = None
     zone: Identifier | None = None
     azimuth_deg: float | None = Field(default=None, ge=-180.0, le=180.0)
     coordinates: dict[str, float] | None = None
+    uncertainty: Uncertainty | None = None
 
 
 class Claim(OSIPModel):
     label: Label
     confidence: Confidence
     value: bool | int | float | str | dict[str, Any] | list[Any] | None = None
+    uncertainty: Uncertainty | None = None
 
 
 class EmbeddingRef(OSIPModel):
@@ -160,6 +209,7 @@ class ContextEntity(OSIPModel):
     zone: Identifier | None = None
     state: Identifier | None = None
     confidence: Confidence
+    uncertainty: Uncertainty | None = None
 
 
 class EvidenceRef(OSIPModel):
@@ -187,6 +237,7 @@ class ContextEvent(OSIPModel):
     contradictions: list[Label] = Field(default_factory=list)
     evidence_refs: list[EvidenceRef] = Field(default_factory=list)
     contradiction_refs: list[EvidenceRef] = Field(default_factory=list)
+    uncertainty: Uncertainty | None = None
 
 
 class GlobalRisk(OSIPModel):
@@ -328,3 +379,46 @@ class ActionResult(OSIPModel):
             msg = "completed_at must be greater than or equal to started_at"
             raise ValueError(msg)
         return self
+
+
+class DefaultSafeState(OSIPModel):
+    target: Label
+    safe_state: Label
+    triggers: list[SafeStateTrigger] = Field(min_length=1)
+    max_transition_ms: PositiveInt | None = None
+    requires_hardware_interlock: bool = False
+
+
+class ProfileSafetyCase(OSIPModel):
+    schema_version: Literal["osip/0.1"] = OSIP_SCHEMA_VERSION
+    type: Literal["profile.safety_case"] = "profile.safety_case"
+    trace_id: TraceIdentifier | None = None
+    correlation_id: TraceIdentifier | None = None
+    safety_case_id: str = Field(min_length=1)
+    profile_id: ProfileIdentifier
+    heartbeat_timeout_ms: PositiveInt
+    stale_context_ms: PositiveInt
+    default_safe_states: list[DefaultSafeState] = Field(min_length=1)
+    notes: list[str] = Field(default_factory=list)
+
+
+class AdapterHeartbeat(OSIPModel):
+    schema_version: Literal["osip/0.1"] = OSIP_SCHEMA_VERSION
+    type: Literal["adapter.heartbeat"] = "adapter.heartbeat"
+    trace_id: TraceIdentifier | None = None
+    correlation_id: TraceIdentifier | None = None
+    heartbeat_id: str = Field(min_length=1)
+    adapter_id: Identifier
+    profile_id: ProfileIdentifier
+    timestamp: datetime
+    status: HeartbeatStatus
+    ttl_ms: PositiveInt
+    last_context_id: str | None = Field(default=None, min_length=1)
+    current_safe_state: Label | None = None
+    missed_count: NonNegativeInt = 0
+    details: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("timestamp")
+    @classmethod
+    def timestamp_has_timezone(cls, value: datetime) -> datetime:
+        return require_timezone(value)

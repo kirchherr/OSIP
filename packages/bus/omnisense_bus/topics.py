@@ -124,3 +124,23 @@ def action_result_filter(action_id: str | None = None) -> str:
     if action_id is None:
         return build_topic(TOPIC_PREFIX, "actions", "results", ">", allow_wildcards=True)
     return action_result_topic(action_id)
+
+
+def profile_safety_case_topic(profile_id: str) -> str:
+    return build_topic(TOPIC_PREFIX, "safety", "profiles", profile_id, "safe_states")
+
+
+def profile_safety_case_filter(profile_id: str | None = None) -> str:
+    if profile_id is None:
+        return build_topic(TOPIC_PREFIX, "safety", "profiles", ">", allow_wildcards=True)
+    return profile_safety_case_topic(profile_id)
+
+
+def adapter_heartbeat_topic(adapter_id: str) -> str:
+    return build_topic(TOPIC_PREFIX, "safety", "heartbeats", adapter_id)
+
+
+def adapter_heartbeat_filter(adapter_id: str | None = None) -> str:
+    if adapter_id is None:
+        return build_topic(TOPIC_PREFIX, "safety", "heartbeats", ">", allow_wildcards=True)
+    return adapter_heartbeat_topic(adapter_id)

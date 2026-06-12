@@ -1,0 +1,34 @@
+{
+  "schema_version": "osip/0.1",
+  "type": "profile.safety_case",
+  "safety_case_id": "safety_physical_ai_001",
+  "profile_id": "physical-ai",
+  "heartbeat_timeout_ms": 50,
+  "stale_context_ms": 100,
+  "default_safe_states": [
+    {
+      "target": "robot.arm",
+      "safe_state": "robot.safe_stop",
+      "triggers": [
+        "heartbeat_timeout",
+        "context_stale",
+        "manual_estop"
+      ],
+      "max_transition_ms": 20,
+      "requires_hardware_interlock": true
+    },
+    {
+      "target": "hvac.living_room",
+      "safe_state": "hvac.off",
+      "triggers": [
+        "bus_disconnect",
+        "adapter_error"
+      ],
+      "max_transition_ms": 250,
+      "requires_hardware_interlock": false
+    }
+  ],
+  "notes": [
+    "Hardware-rated stop behavior is implemented by adapters or safety controllers."
+  ]
+}

@@ -20,6 +20,8 @@ SCHEMA_BY_FIXTURE = {
     "action_proposal.json": "action_proposal.schema.json",
     "action_command.json": "action_command.schema.json",
     "action_result.json": "action_result.schema.json",
+    "profile_safety_case.json": "profile_safety_case.schema.json",
+    "adapter_heartbeat.json": "adapter_heartbeat.schema.json",
 }
 
 

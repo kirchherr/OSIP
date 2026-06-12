@@ -10,11 +10,15 @@ from omnisense_osip import (
     ActionContract,
     ActionProposal,
     ActionResult,
+    AdapterHeartbeat,
     ContextUpdate,
+    CovarianceMatrix,
     EventDetected,
     EvidenceRef,
     ModelCapabilityDescriptor,
     PerceptPacket,
+    ProfileSafetyCase,
+    Uncertainty,
     from_json,
     to_json,
     validate_osip_message,
@@ -41,6 +45,8 @@ def load_fixture(filename: str) -> dict[str, Any]:
         ("action_proposal.json", ActionProposal),
         ("action_command.json", ActionCommand),
         ("action_result.json", ActionResult),
+        ("profile_safety_case.json", ProfileSafetyCase),
+        ("adapter_heartbeat.json", AdapterHeartbeat),
     ],
 )
 def test_valid_fixtures_round_trip(filename: str, model_cls: type[BaseModel]) -> None:
@@ -118,6 +124,43 @@ def test_context_event_accepts_structured_evidence_refs() -> None:
     assert update.events[0].evidence_refs[0].claim_label == "chemical.air.smoke_like_pattern"
 
 
+def test_percept_claim_accepts_structured_uncertainty() -> None:
+    data = load_fixture("percept_packet.json")
+    data["claims"][0]["uncertainty"] = {
+        "confidence": 0.82,
+        "covariance": {
+            "variables": ["x", "y", "z"],
+            "values": [
+                [0.04, 0.0, 0.0],
+                [0.0, 0.04, 0.0],
+                [0.0, 0.0, 0.09],
+            ],
+            "unit": "m^2",
+        },
+    }
+
+    packet = PerceptPacket.model_validate(data)
+
+    assert packet.claims[0].uncertainty is not None
+    assert packet.claims[0].uncertainty.covariance is not None
+    assert packet.claims[0].uncertainty.covariance.variables == ["x", "y", "z"]
+
+
+def test_uncertainty_requires_representation() -> None:
+    with pytest.raises(ValidationError, match="confidence, covariance, or distribution"):
+        Uncertainty.model_validate({})
+
+
+def test_covariance_matrix_must_match_variables() -> None:
+    with pytest.raises(ValidationError, match="square matrix"):
+        CovarianceMatrix.model_validate(
+            {
+                "variables": ["x", "y"],
+                "values": [[0.1, 0.0, 0.0], [0.0, 0.1, 0.0]],
+            }
+        )
+
+
 def test_evidence_ref_rejects_naive_timestamp() -> None:
     with pytest.raises(ValidationError, match="timezone"):
         EvidenceRef.model_validate(
@@ -127,6 +170,22 @@ def test_evidence_ref_rejects_naive_timestamp() -> None:
                 "timestamp": "2026-06-12T12:00:00",
             }
         )
+
+
+def test_adapter_heartbeat_rejects_naive_timestamp() -> None:
+    data = load_fixture("adapter_heartbeat.json")
+    data["timestamp"] = "2026-06-12T12:00:00"
+
+    with pytest.raises(ValidationError, match="timezone"):
+        AdapterHeartbeat.model_validate(data)
+
+
+def test_profile_safety_case_requires_safe_state() -> None:
+    data = load_fixture("profile_safety_case.json")
+    data["default_safe_states"] = []
+
+    with pytest.raises(ValidationError, match="default_safe_states"):
+        ProfileSafetyCase.model_validate(data)
 
 
 def test_high_risk_contract_requires_rollback_or_safe_state() -> None:

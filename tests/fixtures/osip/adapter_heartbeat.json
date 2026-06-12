@@ -1,0 +1,16 @@
+{
+  "schema_version": "osip/0.1",
+  "type": "adapter.heartbeat",
+  "heartbeat_id": "hb_robot_arm_001",
+  "adapter_id": "robot_arm_bridge",
+  "profile_id": "physical-ai",
+  "timestamp": "2026-06-12T14:31:09.300Z",
+  "status": "alive",
+  "ttl_ms": 50,
+  "last_context_id": "ctx_20260612_143109_001",
+  "current_safe_state": null,
+  "missed_count": 0,
+  "details": {
+    "controller_mode": "bounded"
+  }
+}

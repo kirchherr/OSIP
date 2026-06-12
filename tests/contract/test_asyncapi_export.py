@@ -18,6 +18,8 @@ EXPECTED_CHANNELS = {
     "actionProposals": "omnisense.actions.proposals",
     "actionCommands": "omnisense.actions.commands.{target}",
     "actionResults": "omnisense.actions.results.{action_id}",
+    "profileSafetyCases": "omnisense.safety.profiles.{profile_id}.safe_states",
+    "adapterHeartbeats": "omnisense.safety.heartbeats.{adapter_id}",
 }
 
 EXPECTED_SCHEMA_REFS = {
@@ -29,6 +31,8 @@ EXPECTED_SCHEMA_REFS = {
     "../schemas/action_proposal.schema.json",
     "../schemas/action_command.schema.json",
     "../schemas/action_result.schema.json",
+    "../schemas/profile_safety_case.schema.json",
+    "../schemas/adapter_heartbeat.schema.json",
 }
 
 
@@ -57,6 +61,15 @@ def test_asyncapi_references_public_osip_schemas() -> None:
     }
 
     assert schema_refs == EXPECTED_SCHEMA_REFS
+
+
+def test_asyncapi_channels_export_qos_intent() -> None:
+    spec = build_asyncapi_spec()
+
+    assert spec["channels"]["percepts"]["x-osip-qos"]["delivery"] == "best_effort"
+    assert spec["channels"]["percepts"]["x-osip-qos"]["max_latency_ms"] == 10
+    assert spec["channels"]["actionCommands"]["x-osip-qos"]["delivery"] == "reliable"
+    assert spec["channels"]["adapterHeartbeats"]["x-osip-qos"]["deadline_ms"] == 20
 
 
 def test_asyncapi_export_is_reproducible(tmp_path: Path) -> None:

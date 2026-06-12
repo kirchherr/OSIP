@@ -27,6 +27,21 @@ expected_actions:
 latency_budget_ms:
   first_context_update: 250
   first_action_proposal: 500
+sim2real:
+  simulator: gazebo
+  simulator_version: "11.13"
+  seed: 42
+  robot_description_ref: robots/mobile_manipulator.urdf
+  world_description_ref: worlds/kitchen.sdf
+  sensor_noise_model: gaussian_pose_noise_v1
+  latency_jitter_ms: 4
+  domain_randomization:
+    - parameter: friction.table
+      distribution: uniform
+      range:
+        min: 0.4
+        max: 0.9
+        unit: coefficient
 percepts:
   - at_ms: 0
     source_model: object_state.device_status_v1
@@ -39,6 +54,11 @@ percepts:
         confidence: 0.99
         value: true
 ```
+
+`sim2real` is optional and mainly intended for Physical-AI scenarios. It records
+the simulator, seed, robot/world descriptions, sensor noise model, latency
+jitter, and domain-randomization settings needed to reproduce imperfect
+simulation conditions.
 
 ## Required Rooms Scenarios
 

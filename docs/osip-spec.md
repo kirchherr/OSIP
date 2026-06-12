@@ -44,6 +44,25 @@ Emergent autonomy is treated as future goal-hypothesis generation through
 - `action.command`: dispatches an approved action with parameters, deadline, and
   idempotency key.
 - `action.result`: records the result status and execution timing.
+- `profile.safety_case`: declares profile-level watchdog thresholds and default
+  safe states for adapter fallback behavior.
+- `adapter.heartbeat`: reports adapter liveness, TTL, status, and current safe
+  state so watchdogs can fail closed.
+
+## Uncertainty
+
+OSIP keeps scalar `confidence` mandatory where decisions depend on model claims,
+entities, or events. Producers that can express richer uncertainty can also add
+structured `uncertainty` metadata with confidence, covariance, or distribution
+references.
+
+Physical-AI producers should use covariance for pose, object, joint-state,
+force, tactile, or localization estimates when that information is available.
+Decision logic should treat high uncertainty as a reason to lower action bounds,
+request more evidence, require confirmation, or block an action.
+
+`confidence` remains a model claim, not a certified probability unless the
+source model declares calibrated confidence in `model.capability`.
 
 ## Evidence And Traceability
 
@@ -62,6 +81,19 @@ behavior currently carries `trace_id` and `correlation_id` from
 `PerceptPacket -> ContextUpdate -> ActionProposal -> ActionCommand`. Future
 `action.result`, `experience.trace`, and `outcome.evaluation` producers should
 continue the same identifiers.
+
+## Safety And Watchdogs
+
+`ActionContract.safe_state` remains the per-action fallback. `profile.safety_case`
+adds profile-wide defaults for failures such as heartbeat timeout, stale context,
+bus disconnect, adapter error, manual emergency stop, contract violation, or
+sensor dropout.
+
+Adapters should load profile safe states before accepting action commands. When
+heartbeats or context updates expire, adapters and safety controllers must apply
+the profile-specific safe state rather than inventing a generic fallback.
+OSIP describes and audits that behavior; hardware-rated emergency stops and hard
+realtime control remain adapter or controller responsibilities.
 
 Future learning-related messages should stay out of v0.1 runtime-critical paths:
 

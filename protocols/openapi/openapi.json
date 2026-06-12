@@ -99,6 +99,16 @@
           "label": {
             "$ref": "#/components/schemas/Label"
           },
+          "uncertainty": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Uncertainty"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "value": {
             "anyOf": [
               {
@@ -164,6 +174,16 @@
           "type": {
             "$ref": "#/components/schemas/Identifier"
           },
+          "uncertainty": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Uncertainty"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "zone": {
             "anyOf": [
               {
@@ -220,6 +240,16 @@
           },
           "label": {
             "$ref": "#/components/schemas/Label"
+          },
+          "uncertainty": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Uncertainty"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "urgency": {
             "$ref": "#/components/schemas/Confidence"
@@ -311,6 +341,48 @@
           "global_risk"
         ],
         "title": "ContextUpdate",
+        "type": "object"
+      },
+      "CovarianceMatrix": {
+        "additionalProperties": false,
+        "properties": {
+          "unit": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "values": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "minItems": 1,
+            "title": "Values",
+            "type": "array"
+          },
+          "variables": {
+            "items": {
+              "$ref": "#/components/schemas/Identifier"
+            },
+            "minItems": 1,
+            "title": "Variables",
+            "type": "array"
+          }
+        },
+        "required": [
+          "variables",
+          "values"
+        ],
+        "title": "CovarianceMatrix",
         "type": "object"
       },
       "EmbeddingCapability": {
@@ -551,6 +623,16 @@
             "anyOf": [
               {
                 "$ref": "#/components/schemas/Identifier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "uncertainty": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Uncertainty"
               },
               {
                 "type": "null"
@@ -886,6 +968,43 @@
       "TraceIdentifier": {
         "minLength": 1,
         "type": "string"
+      },
+      "Uncertainty": {
+        "additionalProperties": false,
+        "properties": {
+          "confidence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Confidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "covariance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CovarianceMatrix"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "distribution": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Identifier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "Uncertainty",
+        "type": "object"
       },
       "ValidationError": {
         "properties": {

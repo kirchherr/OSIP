@@ -8,6 +8,7 @@ from omnisense_bus.memory_bus import (
     SubscriptionClosedError,
 )
 from omnisense_bus.messages import BusMessage
+from omnisense_bus.qos import QOS_BY_CHANNEL, QoSProfile, qos_for_channel
 from omnisense_bus.replay import ReplayRecord, load_jsonl_trace, replay_jsonl
 from omnisense_bus.topics import (
     InvalidTopicError,
@@ -17,6 +18,8 @@ from omnisense_bus.topics import (
     action_proposals_topic,
     action_result_filter,
     action_result_topic,
+    adapter_heartbeat_filter,
+    adapter_heartbeat_topic,
     build_topic,
     context_update_filter,
     context_update_topic,
@@ -26,6 +29,8 @@ from omnisense_bus.topics import (
     model_capabilities_topic,
     percept_filter,
     percept_topic,
+    profile_safety_case_filter,
+    profile_safety_case_topic,
     topic_matches,
 )
 
@@ -36,9 +41,13 @@ __all__ = [
     "InMemoryBus",
     "InMemorySubscription",
     "InvalidTopicError",
+    "QOS_BY_CHANNEL",
+    "QoSProfile",
     "ReplayRecord",
     "Subscription",
     "SubscriptionClosedError",
+    "adapter_heartbeat_filter",
+    "adapter_heartbeat_topic",
     "action_command_filter",
     "action_command_topic",
     "action_contracts_topic",
@@ -55,6 +64,9 @@ __all__ = [
     "model_capabilities_topic",
     "percept_filter",
     "percept_topic",
+    "profile_safety_case_filter",
+    "profile_safety_case_topic",
+    "qos_for_channel",
     "replay_jsonl",
     "topic_matches",
 ]

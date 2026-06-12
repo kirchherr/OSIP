@@ -13,10 +13,12 @@ from omnisense_osip.schemas import (
     ActionContract,
     ActionProposal,
     ActionResult,
+    AdapterHeartbeat,
     ContextUpdate,
     EventDetected,
     ModelCapabilityDescriptor,
     PerceptPacket,
+    ProfileSafetyCase,
 )
 
 type OSIPMessage = (
@@ -28,6 +30,8 @@ type OSIPMessage = (
     | ActionProposal
     | ActionCommand
     | ActionResult
+    | ProfileSafetyCase
+    | AdapterHeartbeat
 )
 
 MESSAGE_MODELS: dict[str, type[BaseModel]] = {
@@ -39,6 +43,8 @@ MESSAGE_MODELS: dict[str, type[BaseModel]] = {
     "action.proposal": ActionProposal,
     "action.command": ActionCommand,
     "action.result": ActionResult,
+    "profile.safety_case": ProfileSafetyCase,
+    "adapter.heartbeat": AdapterHeartbeat,
 }
 
 

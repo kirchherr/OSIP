@@ -198,6 +198,8 @@ OSIP-Entscheidung:
 - QoS ist Transport-/Adapterkonfiguration, nicht OSIP-Semantik.
 - OSIP-Payloads bleiben brokerunabhaengig validierbar.
 - Adapter muessen Topic-, Timing-, Deadline- und Dropout-Informationen in Benchmarks sichtbar machen.
+- AsyncAPI exportiert QoS-Intent als `x-osip-qos`, damit DDS, ROS 2, MQTT oder
+  NATS spaeter konsistent gemappt werden koennen.
 
 **URDF / SDF / OpenUSD**
 
@@ -431,6 +433,8 @@ Physical-AI-Experimente muessen beweisen, dass Verhalten nicht nur in einer Demo
 OSIP-Regeln:
 
 - Jede Physical-AI-Demo braucht ein versioniertes Szenario, Robot-/World-Description-Version, Simulatorversion, Seed und Sensor Noise Model.
+- Physical-AI-Szenarien sollen Domain-Randomization-Metadaten fuer Sensorrauschen,
+  Reibung, Masse, Traegheit, Latenz-Jitter oder Dropout enthalten.
 - Jede Aktion mit physischer Wirkung braucht einen pruefbaren Action Contract mit Bounds und Safe State.
 - Benchmarks erfassen neben p50/p95/p99 auch Jitter, Bound Violations, Contract Blocks, Collision/Safe-Stop Events, Recovery Time und False Positive/False Negative Rates.
 - Sim2Real-Reports trennen Simulationsergebnisse, Hardware-Annahmen und reale Messungen klar voneinander.

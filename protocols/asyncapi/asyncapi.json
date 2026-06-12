@@ -13,6 +13,16 @@
         "target": {
           "description": "Action target such as hvac.room or speaker.room."
         }
+      },
+      "x-osip-qos": {
+        "adapter_notes": [],
+        "deadline_ms": 20,
+        "delivery": "reliable",
+        "depth": 16,
+        "durability": "volatile",
+        "history": "keep_last",
+        "max_latency_ms": 10,
+        "priority": "critical"
       }
     },
     "actionContracts": {
@@ -22,6 +32,14 @@
         "actionContract": {
           "$ref": "#/components/messages/actionContract"
         }
+      },
+      "x-osip-qos": {
+        "adapter_notes": [],
+        "delivery": "reliable",
+        "depth": 32,
+        "durability": "transient_local",
+        "history": "keep_last",
+        "priority": "high"
       }
     },
     "actionProposals": {
@@ -31,6 +49,16 @@
         "actionProposal": {
           "$ref": "#/components/messages/actionProposal"
         }
+      },
+      "x-osip-qos": {
+        "adapter_notes": [],
+        "deadline_ms": 100,
+        "delivery": "reliable",
+        "depth": 16,
+        "durability": "volatile",
+        "history": "keep_last",
+        "max_latency_ms": 50,
+        "priority": "high"
       }
     },
     "actionResults": {
@@ -45,6 +73,41 @@
         "action_id": {
           "description": "Action id from the originating contract."
         }
+      },
+      "x-osip-qos": {
+        "adapter_notes": [],
+        "deadline_ms": 100,
+        "delivery": "reliable",
+        "depth": 32,
+        "durability": "volatile",
+        "history": "keep_last",
+        "max_latency_ms": 50,
+        "priority": "high"
+      }
+    },
+    "adapterHeartbeats": {
+      "address": "omnisense.safety.heartbeats.{adapter_id}",
+      "description": "Adapter heartbeat stream used by watchdogs and safe-state monitors.",
+      "messages": {
+        "adapterHeartbeat": {
+          "$ref": "#/components/messages/adapterHeartbeat"
+        }
+      },
+      "parameters": {
+        "adapter_id": {
+          "description": "Adapter id such as room_hvac_bridge or robot_arm_bridge."
+        }
+      },
+      "x-osip-qos": {
+        "adapter_notes": [],
+        "deadline_ms": 20,
+        "delivery": "best_effort",
+        "depth": 1,
+        "durability": "volatile",
+        "history": "keep_last",
+        "max_latency_ms": 10,
+        "priority": "critical",
+        "ttl_ms": 50
       }
     },
     "contextUpdates": {
@@ -59,6 +122,17 @@
         "room": {
           "description": "Room identifier."
         }
+      },
+      "x-osip-qos": {
+        "adapter_notes": [],
+        "deadline_ms": 50,
+        "delivery": "best_effort",
+        "depth": 1,
+        "durability": "volatile",
+        "history": "keep_last",
+        "max_latency_ms": 25,
+        "priority": "high",
+        "ttl_ms": 100
       }
     },
     "eventsDetected": {
@@ -73,6 +147,17 @@
         "event_label": {
           "description": "Detected event label."
         }
+      },
+      "x-osip-qos": {
+        "adapter_notes": [],
+        "deadline_ms": 20,
+        "delivery": "best_effort",
+        "depth": 1,
+        "durability": "volatile",
+        "history": "keep_last",
+        "max_latency_ms": 10,
+        "priority": "critical",
+        "ttl_ms": 100
       }
     },
     "modelCapabilities": {
@@ -82,6 +167,16 @@
         "modelCapability": {
           "$ref": "#/components/messages/modelCapability"
         }
+      },
+      "x-osip-qos": {
+        "adapter_notes": [
+          "Adapters may retain the latest capability set for late joiners."
+        ],
+        "delivery": "reliable",
+        "depth": 16,
+        "durability": "transient_local",
+        "history": "keep_last",
+        "priority": "normal"
       }
     },
     "percepts": {
@@ -99,6 +194,43 @@
         "source_model": {
           "description": "Registered source model id."
         }
+      },
+      "x-osip-qos": {
+        "adapter_notes": [
+          "Physical-AI adapters should map this to low-latency sensor-data QoS."
+        ],
+        "deadline_ms": 10,
+        "delivery": "best_effort",
+        "depth": 1,
+        "durability": "volatile",
+        "history": "keep_last",
+        "max_latency_ms": 10,
+        "priority": "high",
+        "ttl_ms": 50
+      }
+    },
+    "profileSafetyCases": {
+      "address": "omnisense.safety.profiles.{profile_id}.safe_states",
+      "description": "Profile-level default safe-state and watchdog requirements.",
+      "messages": {
+        "profileSafetyCase": {
+          "$ref": "#/components/messages/profileSafetyCase"
+        }
+      },
+      "parameters": {
+        "profile_id": {
+          "description": "Application Profile id such as rooms or physical-ai."
+        }
+      },
+      "x-osip-qos": {
+        "adapter_notes": [
+          "Adapters should load safe states before accepting action commands."
+        ],
+        "delivery": "reliable",
+        "depth": 8,
+        "durability": "transient_local",
+        "history": "keep_last",
+        "priority": "critical"
       }
     }
   },
@@ -136,6 +268,14 @@
         },
         "title": "action.result"
       },
+      "adapterHeartbeat": {
+        "contentType": "application/json",
+        "name": "adapter.heartbeat",
+        "payload": {
+          "$ref": "../schemas/adapter_heartbeat.schema.json"
+        },
+        "title": "adapter.heartbeat"
+      },
       "contextUpdate": {
         "contentType": "application/json",
         "name": "context.update",
@@ -167,6 +307,14 @@
           "$ref": "../schemas/percept_packet.schema.json"
         },
         "title": "percept.packet"
+      },
+      "profileSafetyCase": {
+        "contentType": "application/json",
+        "name": "profile.safety_case",
+        "payload": {
+          "$ref": "../schemas/profile_safety_case.schema.json"
+        },
+        "title": "profile.safety_case"
       }
     }
   },
@@ -222,6 +370,17 @@
         }
       ]
     },
+    "publishAdapterHeartbeats": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/adapterHeartbeats"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/adapterHeartbeats/messages/adapterHeartbeat"
+        }
+      ]
+    },
     "publishContextUpdates": {
       "action": "send",
       "channel": {
@@ -263,6 +422,17 @@
       "messages": [
         {
           "$ref": "#/channels/percepts/messages/perceptPacket"
+        }
+      ]
+    },
+    "publishProfileSafetyCases": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/profileSafetyCases"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/profileSafetyCases/messages/profileSafetyCase"
         }
       ]
     },
@@ -310,6 +480,17 @@
         }
       ]
     },
+    "subscribeAdapterHeartbeats": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/adapterHeartbeats"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/adapterHeartbeats/messages/adapterHeartbeat"
+        }
+      ]
+    },
     "subscribeContextUpdates": {
       "action": "receive",
       "channel": {
@@ -351,6 +532,17 @@
       "messages": [
         {
           "$ref": "#/channels/percepts/messages/perceptPacket"
+        }
+      ]
+    },
+    "subscribeProfileSafetyCases": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/profileSafetyCases"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/profileSafetyCases/messages/profileSafetyCase"
         }
       ]
     }

@@ -30,6 +30,17 @@
         "type": {
           "$ref": "#/$defs/Identifier"
         },
+        "uncertainty": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Uncertainty"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "zone": {
           "anyOf": [
             {
@@ -88,6 +99,17 @@
         "label": {
           "$ref": "#/$defs/Label"
         },
+        "uncertainty": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Uncertainty"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "urgency": {
           "$ref": "#/$defs/Confidence"
         }
@@ -99,6 +121,49 @@
         "evidence"
       ],
       "title": "ContextEvent",
+      "type": "object"
+    },
+    "CovarianceMatrix": {
+      "additionalProperties": false,
+      "properties": {
+        "unit": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "values": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "minItems": 1,
+          "title": "Values",
+          "type": "array"
+        },
+        "variables": {
+          "items": {
+            "$ref": "#/$defs/Identifier"
+          },
+          "minItems": 1,
+          "title": "Variables",
+          "type": "array"
+        }
+      },
+      "required": [
+        "variables",
+        "values"
+      ],
+      "title": "CovarianceMatrix",
       "type": "object"
     },
     "EvidenceRef": {
@@ -226,6 +291,46 @@
     "TraceIdentifier": {
       "minLength": 1,
       "type": "string"
+    },
+    "Uncertainty": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Confidence"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "covariance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CovarianceMatrix"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "distribution": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Identifier"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "Uncertainty",
+      "type": "object"
     }
   },
   "$id": "https://schemas.omnisense.dev/osip/0.1/context_update.schema.json",

@@ -833,7 +833,7 @@ Codex soll generieren oder pflegen:
 - `protocols/asyncapi/asyncapi.json`
 - `protocols/schemas/*.schema.json`
 
-OpenAPI soll HTTP-Endpunkte beschreiben. AsyncAPI soll Event-Channels und Message-Schemas beschreiben. CloudEvents kann optional als Event Envelope verwendet werden.
+OpenAPI soll HTTP-Endpunkte beschreiben. AsyncAPI soll Event-Channels, Message-Schemas und OSIP-QoS-Intent fuer Adapter beschreiben. CloudEvents kann optional als Event Envelope verwendet werden.
 
 ---
 
@@ -1640,6 +1640,10 @@ Diese Werte sind Forschungsziele, keine Garantien für beliebige Hardware.
 - H7: Core-Promotion-Regel einfuehren: Ein Profilkonzept wird erst Core, wenn mindestens zwei Profile es gemeinsam brauchen
 - H8: Runtime-Registries fuer Profil-Fusion und Profil-Policies einfuehren, damit `rooms`, `physical-ai` und `xxx` ohne Core-Umbau andocken koennen
 - H9: `ApplicationProfile` Protocol einfuehren, das Profil-Metadaten, Context-Fusion und Decision-Profil als andockbares Runtime-Bundle beschreibt
+- H10: Physical-AI Unsicherheit mit Confidence, Kovarianz und Verteilungsmetadaten in Percept/Context-Vertraegen abbilden
+- H11: Profilweite Safe States, Adapter-Heartbeats und Watchdog-Timeouts als OSIP-Safety-Vertraege fuehren
+- H12: QoS-Intent fuer Bus-Adapter definieren: Best-Effort fuer Sensorstreams, Reliable fuer Contracts/Commands, kritische Heartbeats fuer Watchdogs
+- H13: Sim2Real-Szenarien mit Domain Randomization, Seed, Sensor Noise, Latency Jitter und Robot-/World-Description-Metadaten benchmarkfaehig machen
 
 ### Epic I - Experience & Learning Layer
 
