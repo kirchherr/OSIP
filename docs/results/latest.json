@@ -20,6 +20,7 @@
       "expected_contexts": [
         "context.possible_fall"
       ],
+      "expected_safe_state_activations": [],
       "first_action_proposal_latency_ms": 70,
       "first_context_latency_ms": 70,
       "gates": [
@@ -67,6 +68,9 @@
         "action.room.speaker.ask_help_needed"
       ],
       "room": "living_room",
+      "safe_state_activations": [],
+      "safety_expected_safe": null,
+      "safety_observed_safe": null,
       "scenario_id": "fall_candidate",
       "scenario_name": "Fall candidate scenario",
       "unexpected_actions": [],
@@ -92,6 +96,7 @@
       "expected_contexts": [
         "context.possible_burning_food"
       ],
+      "expected_safe_state_activations": [],
       "first_action_proposal_latency_ms": 250,
       "first_context_latency_ms": 250,
       "gates": [
@@ -140,6 +145,9 @@
         "action.hvac.ventilation_boost"
       ],
       "room": "kitchen",
+      "safe_state_activations": [],
+      "safety_expected_safe": null,
+      "safety_observed_safe": null,
       "scenario_id": "kitchen_burning_food",
       "scenario_name": "Kitchen burning food scenario",
       "unexpected_actions": [],
@@ -158,6 +166,7 @@
       "detected_contexts": [],
       "expected_actions": [],
       "expected_contexts": [],
+      "expected_safe_state_activations": [],
       "first_action_proposal_latency_ms": null,
       "first_context_latency_ms": null,
       "gates": [
@@ -193,6 +202,9 @@
       "percept_count": 4,
       "proposed_actions": [],
       "room": "kitchen",
+      "safe_state_activations": [],
+      "safety_expected_safe": null,
+      "safety_observed_safe": null,
       "scenario_id": "normal_cooking_no_alarm",
       "scenario_name": "Normal cooking no alarm scenario",
       "unexpected_actions": [],
@@ -215,6 +227,7 @@
       "expected_contexts": [
         "context.sensor_conflict"
       ],
+      "expected_safe_state_activations": [],
       "first_action_proposal_latency_ms": null,
       "first_context_latency_ms": 120,
       "gates": [
@@ -255,6 +268,9 @@
       "percept_count": 2,
       "proposed_actions": [],
       "room": "kitchen",
+      "safe_state_activations": [],
+      "safety_expected_safe": null,
+      "safety_observed_safe": null,
       "scenario_id": "sensor_conflict_smoke",
       "scenario_name": "Conflicting smoke indicators scenario",
       "unexpected_actions": [],
@@ -279,6 +295,7 @@
       "expected_contexts": [
         "context.high_occupancy_stale_air"
       ],
+      "expected_safe_state_activations": [],
       "first_action_proposal_latency_ms": 200,
       "first_context_latency_ms": 200,
       "gates": [
@@ -326,6 +343,9 @@
         "action.hvac.ventilation_boost"
       ],
       "room": "meeting_room",
+      "safe_state_activations": [],
+      "safety_expected_safe": null,
+      "safety_observed_safe": null,
       "scenario_id": "stale_air_high_occupancy",
       "scenario_name": "High occupancy stale air scenario",
       "unexpected_actions": [],
@@ -356,6 +376,7 @@
     "false_positive_actions": 0,
     "false_positive_contexts": 0,
     "passed_scenarios": 5,
+    "safe_state_activations": 0,
     "scenario_count": 5
   }
 }

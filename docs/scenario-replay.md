@@ -42,6 +42,31 @@ sim2real:
         min: 0.4
         max: 0.9
         unit: coefficient
+safety:
+  safety_case:
+    schema_version: osip/0.1
+    type: profile.safety_case
+    safety_case_id: safety_rooms_demo
+    profile_id: rooms
+    heartbeat_timeout_ms: 50
+    stale_context_ms: 120
+    default_safe_states:
+      - target: room.speaker
+        safe_state: speaker.silent
+        triggers:
+          - heartbeat_timeout
+  evaluate_at_ms: 230
+  heartbeats:
+    - at_ms: 0
+      adapter_id: room_speaker_bridge
+      profile_id: rooms
+      status: alive
+      ttl_ms: 50
+  expect_safe: false
+  expected_safe_states:
+    - target: room.speaker
+      safe_state: speaker.silent
+      trigger: heartbeat_timeout
 percepts:
   - at_ms: 0
     source_model: object_state.device_status_v1
@@ -59,6 +84,11 @@ percepts:
 the simulator, seed, robot/world descriptions, sensor noise model, latency
 jitter, and domain-randomization settings needed to reproduce imperfect
 simulation conditions.
+
+`safety` is optional. When present, the benchmark runner evaluates the embedded
+`profile.safety_case` with simulated heartbeats and runtime fault flags. A
+scenario can pass with a safe-state activation when that activation is declared
+in `expected_safe_states`.
 
 ## Required Rooms Scenarios
 

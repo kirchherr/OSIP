@@ -98,3 +98,49 @@ def test_randomization_range_must_be_ordered() -> None:
 
     with pytest.raises(ValidationError, match="min must be less than or equal to max"):
         ScenarioDefinition.model_validate(data)
+
+
+def test_scenario_accepts_safety_watchdog_metadata() -> None:
+    data = load_scenario_data(SCENARIO_DIR / "fall_candidate.yaml")
+    data["safety"] = {
+        "safety_case": {
+            "schema_version": "osip/0.1",
+            "type": "profile.safety_case",
+            "safety_case_id": "safety_rooms_unit",
+            "profile_id": "rooms",
+            "heartbeat_timeout_ms": 50,
+            "stale_context_ms": 120,
+            "default_safe_states": [
+                {
+                    "target": "room.speaker",
+                    "safe_state": "speaker.silent",
+                    "triggers": ["heartbeat_timeout"],
+                }
+            ],
+        },
+        "evaluate_at_ms": 230,
+        "heartbeats": [
+            {
+                "at_ms": 0,
+                "adapter_id": "room_speaker_bridge",
+                "profile_id": "rooms",
+                "status": "alive",
+                "ttl_ms": 50,
+            }
+        ],
+        "expect_safe": False,
+        "expected_safe_states": [
+            {
+                "target": "room.speaker",
+                "safe_state": "speaker.silent",
+                "trigger": "heartbeat_timeout",
+            }
+        ],
+    }
+
+    scenario = ScenarioDefinition.model_validate(data)
+
+    assert scenario.safety is not None
+    assert scenario.safety.expected_safe_states[0].key() == (
+        "room.speaker->speaker.silent:heartbeat_timeout"
+    )

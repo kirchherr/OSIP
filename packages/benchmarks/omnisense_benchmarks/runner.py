@@ -8,9 +8,10 @@ from pathlib import Path
 from omnisense_bus import InMemoryBus
 from omnisense_context import ContextEngine, ContextFusionRegistry
 from omnisense_decision import DecisionProfileRegistry, DecisionRuntime
-from omnisense_osip import ContextUpdate
+from omnisense_osip import AdapterHeartbeat, ContextUpdate
 from omnisense_profiles import ApplicationProfileRegistry, UnknownApplicationProfileIdError
 from omnisense_profiles.interfaces import ApplicationProfileMetadata
+from omnisense_safety import SafeStateActivation, SafetyWatchdog
 from omnisense_sim import ReplayRunner, ScenarioDefinition, ScenarioLoader
 
 from omnisense_benchmarks.metrics import PercentileSummary, percentile_summary
@@ -34,6 +35,14 @@ class BenchmarkGateResult:
             "passed": self.passed,
             "detail": self.detail,
         }
+
+
+@dataclass(frozen=True, slots=True)
+class SafetyBenchmarkResult:
+    expected_safe: bool
+    observed_safe: bool
+    expected_activations: tuple[str, ...]
+    observed_activations: tuple[str, ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -61,6 +70,10 @@ class ScenarioBenchmarkResult:
     context_latency_budget_passed: bool | None
     action_latency_budget_passed: bool | None
     action_contract_blocks: int
+    safety_expected_safe: bool | None
+    safety_observed_safe: bool | None
+    expected_safe_state_activations: tuple[str, ...]
+    safe_state_activations: tuple[str, ...]
     gates: tuple[BenchmarkGateResult, ...]
 
     @property
@@ -92,6 +105,10 @@ class ScenarioBenchmarkResult:
             "context_latency_budget_passed": self.context_latency_budget_passed,
             "action_latency_budget_passed": self.action_latency_budget_passed,
             "action_contract_blocks": self.action_contract_blocks,
+            "safety_expected_safe": self.safety_expected_safe,
+            "safety_observed_safe": self.safety_observed_safe,
+            "expected_safe_state_activations": list(self.expected_safe_state_activations),
+            "safe_state_activations": list(self.safe_state_activations),
             "gates": [gate.as_dict() for gate in self.gates],
             "passed": self.passed,
         }
@@ -111,6 +128,7 @@ class BenchmarkSummary:
     false_positive_actions: int
     false_negative_actions: int
     action_contract_blocks: int
+    safe_state_activations: int
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -126,6 +144,7 @@ class BenchmarkSummary:
             "false_positive_actions": self.false_positive_actions,
             "false_negative_actions": self.false_negative_actions,
             "action_contract_blocks": self.action_contract_blocks,
+            "safe_state_activations": self.safe_state_activations,
         }
 
 
@@ -185,16 +204,19 @@ class ScenarioBenchmarkRunner:
             profile_registry=DecisionProfileRegistry(self._profile_registry.decision_profiles()),
             facts=DEFAULT_BENCHMARK_FACTS,
         )
-        replay = await ReplayRunner(bus).run(scenario)
+        replay_runner = ReplayRunner(bus)
+        replay = await replay_runner.run(scenario)
 
         detected_contexts: list[str] = []
         proposed_actions: list[str] = []
         first_context_latency_ms: int | None = None
         first_action_proposal_latency_ms: int | None = None
         action_contract_blocks = 0
+        latest_context: ContextUpdate | None = None
 
         for published in replay.published_percepts:
             context = await context_engine.ingest(published.message.payload)
+            latest_context = context
             detected_contexts.extend(_event_labels(context))
             if first_context_latency_ms is None and _has_expected_context(context, scenario):
                 first_context_latency_ms = published.at_ms
@@ -227,6 +249,12 @@ class ScenarioBenchmarkRunner:
         unexpected_contexts = _unexpected(unique_contexts, expected_contexts)
         missing_actions = _missing(expected_actions, unique_actions)
         unexpected_actions = _unexpected(unique_actions, expected_actions)
+        safety_result = _evaluate_safety(
+            scenario,
+            replay_runner=replay_runner,
+            final_time_ms=replay.final_time_ms,
+            latest_context=latest_context,
+        )
 
         return ScenarioBenchmarkResult(
             scenario_id=scenario.id,
@@ -252,6 +280,14 @@ class ScenarioBenchmarkRunner:
             context_latency_budget_passed=context_latency_budget_passed,
             action_latency_budget_passed=action_latency_budget_passed,
             action_contract_blocks=action_contract_blocks,
+            safety_expected_safe=safety_result.expected_safe if safety_result is not None else None,
+            safety_observed_safe=safety_result.observed_safe if safety_result is not None else None,
+            expected_safe_state_activations=(
+                safety_result.expected_activations if safety_result is not None else ()
+            ),
+            safe_state_activations=(
+                safety_result.observed_activations if safety_result is not None else ()
+            ),
             gates=_scenario_gates(
                 profile_registered=True,
                 missing_contexts=missing_contexts,
@@ -260,6 +296,7 @@ class ScenarioBenchmarkRunner:
                 unexpected_actions=unexpected_actions,
                 context_latency_budget_passed=context_latency_budget_passed,
                 action_latency_budget_passed=action_latency_budget_passed,
+                safety_result=safety_result,
             ),
         )
 
@@ -299,6 +336,10 @@ class ScenarioBenchmarkRunner:
             context_latency_budget_passed=False if expected_contexts else None,
             action_latency_budget_passed=False if expected_actions else None,
             action_contract_blocks=0,
+            safety_expected_safe=None,
+            safety_observed_safe=None,
+            expected_safe_state_activations=(),
+            safe_state_activations=(),
             gates=_scenario_gates(
                 profile_registered=False,
                 missing_contexts=missing_contexts,
@@ -307,6 +348,7 @@ class ScenarioBenchmarkRunner:
                 unexpected_actions=(),
                 context_latency_budget_passed=False if expected_contexts else None,
                 action_latency_budget_passed=False if expected_actions else None,
+                safety_result=None,
             ),
         )
 
@@ -341,6 +383,9 @@ class ScenarioBenchmarkRunner:
             false_positive_actions=sum(len(scenario.unexpected_actions) for scenario in scenarios),
             false_negative_actions=sum(len(scenario.missing_actions) for scenario in scenarios),
             action_contract_blocks=sum(scenario.action_contract_blocks for scenario in scenarios),
+            safe_state_activations=sum(
+                len(scenario.safe_state_activations) for scenario in scenarios
+            ),
         )
 
 
@@ -372,6 +417,7 @@ def _scenario_gates(
     unexpected_actions: tuple[str, ...],
     context_latency_budget_passed: bool | None,
     action_latency_budget_passed: bool | None,
+    safety_result: SafetyBenchmarkResult | None,
 ) -> tuple[BenchmarkGateResult, ...]:
     gates = [
         BenchmarkGateResult(
@@ -422,6 +468,32 @@ def _scenario_gates(
                 else "action proposal latency budget missed",
             )
         )
+    if safety_result is not None:
+        missing_safe_states = _missing(
+            safety_result.expected_activations,
+            safety_result.observed_activations,
+        )
+        unexpected_safe_states = _unexpected(
+            safety_result.observed_activations,
+            safety_result.expected_activations,
+        )
+        safety_passed = (
+            safety_result.observed_safe == safety_result.expected_safe
+            and not missing_safe_states
+            and not unexpected_safe_states
+        )
+        gates.append(
+            BenchmarkGateResult(
+                name="safety_watchdog",
+                passed=safety_passed,
+                detail=_safety_gate_detail(
+                    expected_safe=safety_result.expected_safe,
+                    observed_safe=safety_result.observed_safe,
+                    missing=missing_safe_states,
+                    unexpected=unexpected_safe_states,
+                ),
+            )
+        )
     return tuple(gates)
 
 
@@ -441,3 +513,75 @@ def _budget_passed(
     if observed_latency_ms is None:
         return False
     return observed_latency_ms <= budget_ms
+
+
+def _evaluate_safety(
+    scenario: ScenarioDefinition,
+    *,
+    replay_runner: ReplayRunner,
+    final_time_ms: int,
+    latest_context: ContextUpdate | None,
+) -> SafetyBenchmarkResult | None:
+    if scenario.safety is None:
+        return None
+
+    safety = scenario.safety
+    evaluate_at_ms = safety.evaluate_at_ms if safety.evaluate_at_ms is not None else final_time_ms
+    now = replay_runner.clock.datetime_at(evaluate_at_ms)
+    heartbeats = tuple(
+        AdapterHeartbeat.model_validate(
+            {
+                "heartbeat_id": heartbeat.heartbeat_id
+                or f"{scenario.id}:heartbeat:{index:04d}",
+                "adapter_id": heartbeat.adapter_id,
+                "profile_id": heartbeat.profile_id,
+                "timestamp": replay_runner.clock.datetime_at(heartbeat.at_ms),
+                "status": heartbeat.status,
+                "ttl_ms": heartbeat.ttl_ms,
+                "last_context_id": heartbeat.last_context_id,
+                "current_safe_state": heartbeat.current_safe_state,
+                "missed_count": heartbeat.missed_count,
+                "details": heartbeat.details,
+            }
+        )
+        for index, heartbeat in enumerate(safety.heartbeats, start=1)
+    )
+    evaluation = SafetyWatchdog(safety.safety_case).evaluate(
+        now=now,
+        context=latest_context,
+        heartbeats=heartbeats,
+        bus_connected=safety.bus_connected,
+        manual_estop=safety.manual_estop,
+        contract_violation=safety.contract_violation,
+        sensor_dropout=safety.sensor_dropout,
+    )
+    return SafetyBenchmarkResult(
+        expected_safe=safety.expect_safe,
+        observed_safe=evaluation.safe,
+        expected_activations=tuple(item.key() for item in safety.expected_safe_states),
+        observed_activations=tuple(_safe_state_key(item) for item in evaluation.activations),
+    )
+
+
+def _safe_state_key(activation: SafeStateActivation) -> str:
+    return f"{activation.target}->{activation.safe_state}:{activation.trigger}"
+
+
+def _safety_gate_detail(
+    *,
+    expected_safe: bool,
+    observed_safe: bool,
+    missing: tuple[str, ...],
+    unexpected: tuple[str, ...],
+) -> str:
+    if expected_safe == observed_safe and not missing and not unexpected:
+        return "passed"
+    details = [
+        f"expected_safe={expected_safe}",
+        f"observed_safe={observed_safe}",
+    ]
+    if missing:
+        details.append("missing safe states: " + ", ".join(missing))
+    if unexpected:
+        details.append("unexpected safe states: " + ", ".join(unexpected))
+    return "; ".join(details)

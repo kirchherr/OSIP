@@ -48,14 +48,15 @@ def render_markdown_report(result: SuiteBenchmarkResult) -> str:
         f"- False-positive actions: {summary.false_positive_actions}",
         f"- False-negative actions: {summary.false_negative_actions}",
         f"- Action contract blocks: {summary.action_contract_blocks}",
+        f"- Safe-state activations: {summary.safe_state_activations}",
         "",
         "## Scenarios",
         "",
         (
-            "| Scenario | Profile | Result | Gates | Contexts | Actions | "
+            "| Scenario | Profile | Result | Gates | Contexts | Actions | Safety | "
             "Context Latency | Action Latency |"
         ),
-        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for scenario in result.scenarios:
         context_latency = _format_budget(
@@ -74,6 +75,7 @@ def render_markdown_report(result: SuiteBenchmarkResult) -> str:
             f"{_format_gates(scenario.gates)} | "
             f"{_format_expected_actual(scenario.expected_contexts, scenario.detected_contexts)} | "
             f"{_format_expected_actual(scenario.expected_actions, scenario.proposed_actions)} | "
+            f"{_format_safety(scenario.safe_state_activations, scenario.safety_observed_safe)} | "
             f"{context_latency} | "
             f"{action_latency} |"
         )
@@ -105,3 +107,12 @@ def _format_budget(observed: int | None, budget: int | None) -> str:
     if budget is None:
         return observed_text
     return f"{observed_text} / budget {budget} ms"
+
+
+def _format_safety(activations: tuple[str, ...], observed_safe: bool | None) -> str:
+    if observed_safe is None:
+        return "not evaluated"
+    if observed_safe:
+        return "safe"
+    activation_text = ", ".join(activations) if activations else "none"
+    return f"safe states: {activation_text}"

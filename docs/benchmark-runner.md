@@ -20,10 +20,12 @@ It produces machine-readable JSON and human-readable Markdown reports under
 - p50/p95/p99 summaries,
 - false-positive and false-negative context/action counts,
 - action-contract block count,
+- safe-state activation count,
 - registered Application Profile metadata,
 - optional Sim2Real metadata such as simulator, seed, robot/world descriptions,
   sensor noise model, latency jitter, and domain-randomization settings,
-- per-scenario benchmark gate results.
+- per-scenario benchmark gate results, including optional `safety_watchdog`
+  gates when a scenario declares safety expectations.
 
 The first implementation uses deterministic scenario timestamps, not wall-clock
 performance timing. That keeps CI stable and makes the report reproducible.
@@ -44,7 +46,9 @@ Outputs:
 
 The command exits non-zero if any scenario misses expected contexts/actions,
 emits unexpected contexts/actions, or violates a configured scenario latency
-budget.
+budget. If a scenario declares a `safety` section, the command also fails when
+the observed watchdog result or safe-state activations differ from the expected
+safe-state behavior.
 
 The runner also fails closed when a scenario references an unregistered
 Application Profile. Reports expose the failing gate instead of crashing, which

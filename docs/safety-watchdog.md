@@ -22,6 +22,10 @@ The reference implementation is pure Python in
 `packages/safety/omnisense_safety`. It uses deterministic timestamps and has no
 broker, network, hardware, or wall-clock dependency.
 
+Benchmarks can embed a `safety` section in scenario YAML. The benchmark runner
+then evaluates the watchdog after replay and reports `safe_state_activations`
+plus a `safety_watchdog` gate in JSON and Markdown output.
+
 Example:
 
 ```python

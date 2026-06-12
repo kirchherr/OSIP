@@ -16,13 +16,14 @@ Overall: PASS
 - False-positive actions: 0
 - False-negative actions: 0
 - Action contract blocks: 4
+- Safe-state activations: 0
 
 ## Scenarios
 
-| Scenario | Profile | Result | Gates | Contexts | Actions | Context Latency | Action Latency |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| fall_candidate | rooms | PASS | all passed | expected: context.possible_fall<br>actual: context.possible_fall | expected: action.room.speaker.ask_help_needed<br>actual: action.room.speaker.ask_help_needed | 70 ms / budget 250 ms | 70 ms / budget 500 ms |
-| kitchen_burning_food | rooms | PASS | all passed | expected: context.possible_burning_food<br>actual: context.possible_burning_food | expected: action.notify.local, action.hvac.ventilation_boost<br>actual: action.notify.local, action.hvac.ventilation_boost | 250 ms / budget 250 ms | 250 ms / budget 500 ms |
-| normal_cooking_no_alarm | rooms | PASS | all passed | expected: none<br>actual: none | expected: none<br>actual: none | n/a / budget 250 ms | n/a / budget 500 ms |
-| sensor_conflict_smoke | rooms | PASS | all passed | expected: context.sensor_conflict<br>actual: context.sensor_conflict | expected: none<br>actual: none | 120 ms / budget 250 ms | n/a / budget 500 ms |
-| stale_air_high_occupancy | rooms | PASS | all passed | expected: context.high_occupancy_stale_air<br>actual: context.high_occupancy_stale_air | expected: action.hvac.ventilation_boost<br>actual: action.hvac.ventilation_boost | 200 ms / budget 500 ms | 200 ms / budget 800 ms |
+| Scenario | Profile | Result | Gates | Contexts | Actions | Safety | Context Latency | Action Latency |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| fall_candidate | rooms | PASS | all passed | expected: context.possible_fall<br>actual: context.possible_fall | expected: action.room.speaker.ask_help_needed<br>actual: action.room.speaker.ask_help_needed | not evaluated | 70 ms / budget 250 ms | 70 ms / budget 500 ms |
+| kitchen_burning_food | rooms | PASS | all passed | expected: context.possible_burning_food<br>actual: context.possible_burning_food | expected: action.notify.local, action.hvac.ventilation_boost<br>actual: action.notify.local, action.hvac.ventilation_boost | not evaluated | 250 ms / budget 250 ms | 250 ms / budget 500 ms |
+| normal_cooking_no_alarm | rooms | PASS | all passed | expected: none<br>actual: none | expected: none<br>actual: none | not evaluated | n/a / budget 250 ms | n/a / budget 500 ms |
+| sensor_conflict_smoke | rooms | PASS | all passed | expected: context.sensor_conflict<br>actual: context.sensor_conflict | expected: none<br>actual: none | not evaluated | 120 ms / budget 250 ms | n/a / budget 500 ms |
+| stale_air_high_occupancy | rooms | PASS | all passed | expected: context.high_occupancy_stale_air<br>actual: context.high_occupancy_stale_air | expected: action.hvac.ventilation_boost<br>actual: action.hvac.ventilation_boost | not evaluated | 200 ms / budget 500 ms | 200 ms / budget 800 ms |

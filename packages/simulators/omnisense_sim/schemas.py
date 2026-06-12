@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal, Self
 
-from omnisense_osip.schemas import Claim, Location, SensorQuality
+from omnisense_osip.schemas import Claim, Location, ProfileSafetyCase, SensorQuality
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
@@ -15,6 +15,40 @@ class ScenarioModel(BaseModel):
 class LatencyBudget(ScenarioModel):
     first_context_update: int | None = Field(default=None, gt=0)
     first_action_proposal: int | None = Field(default=None, gt=0)
+
+
+class ExpectedSafeStateActivation(ScenarioModel):
+    target: str = Field(min_length=1)
+    safe_state: str = Field(min_length=1)
+    trigger: str = Field(min_length=1)
+
+    def key(self) -> str:
+        return f"{self.target}->{self.safe_state}:{self.trigger}"
+
+
+class ScenarioAdapterHeartbeat(ScenarioModel):
+    at_ms: int = Field(ge=0)
+    adapter_id: str = Field(min_length=1)
+    profile_id: str = Field(min_length=1)
+    status: Literal["alive", "degraded", "safe_state_active", "stopping", "failed"] = "alive"
+    ttl_ms: int = Field(gt=0)
+    heartbeat_id: str | None = Field(default=None, min_length=1)
+    last_context_id: str | None = Field(default=None, min_length=1)
+    current_safe_state: str | None = Field(default=None, min_length=1)
+    missed_count: int = Field(default=0, ge=0)
+    details: dict[str, Any] = Field(default_factory=dict)
+
+
+class ScenarioSafetyEvaluation(ScenarioModel):
+    safety_case: ProfileSafetyCase
+    evaluate_at_ms: int | None = Field(default=None, ge=0)
+    heartbeats: list[ScenarioAdapterHeartbeat] = Field(default_factory=list)
+    bus_connected: bool = True
+    manual_estop: bool = False
+    contract_violation: bool = False
+    sensor_dropout: bool = False
+    expect_safe: bool = True
+    expected_safe_states: list[ExpectedSafeStateActivation] = Field(default_factory=list)
 
 
 class RandomizationRange(ScenarioModel):
@@ -95,6 +129,7 @@ class ScenarioDefinition(ScenarioModel):
     expected_actions: list[str] = Field(default_factory=list)
     latency_budget_ms: LatencyBudget = Field(default_factory=LatencyBudget)
     sim2real: Sim2RealMetadata | None = None
+    safety: ScenarioSafetyEvaluation | None = None
     percepts: list[ScenarioPercept] = Field(min_length=1)
 
     @field_validator("id", "application_profile", "room")
@@ -111,4 +146,15 @@ class ScenarioDefinition(ScenarioModel):
             if percept.at_ms > self.duration_ms:
                 msg = "percept at_ms must not exceed scenario duration_ms"
                 raise ValueError(msg)
+        if self.safety is not None:
+            if (
+                self.safety.evaluate_at_ms is not None
+                and self.safety.evaluate_at_ms > self.duration_ms
+            ):
+                msg = "safety evaluate_at_ms must not exceed scenario duration_ms"
+                raise ValueError(msg)
+            for heartbeat in self.safety.heartbeats:
+                if heartbeat.at_ms > self.duration_ms:
+                    msg = "heartbeat at_ms must not exceed scenario duration_ms"
+                    raise ValueError(msg)
         return self
