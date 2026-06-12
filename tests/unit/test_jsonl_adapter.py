@@ -62,6 +62,7 @@ async def test_jsonl_source_adapter_validates_and_publishes_osip_messages(
         model_capabilities_topic(),
         percept_topic("audio", "audio.event_classifier_v1"),
     )
+    assert result.target_topics == ()
     assert result.message_types == ("model.capability", "percept.packet")
     assert isinstance(capability_message.payload, ModelCapabilityDescriptor)
     assert isinstance(percept_message.payload, PerceptPacket)

@@ -37,6 +37,11 @@ adapter must preserve:
 - The codec rejects topic/message mismatches, for example a safety case on a
   percept topic.
 
+`MqttOutboundBridge` adds the first sink-adapter shape. It accepts a small
+`MqttPublishTransport` protocol, so tests can use an in-memory fake while a live
+adapter can later wrap `aiomqtt` or another broker client. The bridge returns an
+`AdapterRunResult` with both OSIP bus topics and MQTT target topics.
+
 ## Rules
 
 - Tests must not require real sensors, brokers, robot middleware, or hardware.

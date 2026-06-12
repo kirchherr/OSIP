@@ -5,7 +5,13 @@ from pathlib import Path
 from typing import cast
 
 import pytest
-from omnisense_adapters import MqttBridgeCodec, MqttTopicMapper, channel_id_for_bus_topic
+from omnisense_adapters import (
+    MqttBridgeCodec,
+    MqttOutboundBridge,
+    MqttPublishRecord,
+    MqttTopicMapper,
+    channel_id_for_bus_topic,
+)
 from omnisense_bus import (
     model_capabilities_topic,
     percept_filter,
@@ -15,6 +21,14 @@ from omnisense_bus import (
 from omnisense_osip import PerceptPacket, ProfileSafetyCase
 
 FIXTURE_DIR = Path(__file__).parents[1] / "fixtures" / "osip"
+
+
+class RecordingMqttTransport:
+    def __init__(self) -> None:
+        self.records: list[MqttPublishRecord] = []
+
+    async def publish(self, record: MqttPublishRecord) -> None:
+        self.records.append(record)
 
 
 def _load_fixture(name: str) -> dict[str, object]:
@@ -120,3 +134,41 @@ def test_mqtt_decoded_record_validates_payload_shape() -> None:
     )
 
     assert isinstance(record.payload, ProfileSafetyCase)
+
+
+@pytest.mark.asyncio
+async def test_mqtt_outbound_bridge_publishes_through_transport() -> None:
+    transport = RecordingMqttTransport()
+    bridge = MqttOutboundBridge(transport, profile_id="rooms")
+    bus_topic = percept_topic("audio", "audio.event_classifier_v1")
+
+    result = await bridge.publish_message(bus_topic, _load_fixture("percept_packet.json"))
+
+    assert bridge.metadata.adapter_id == "mqtt.outbound_bridge"
+    assert bridge.metadata.role == "sink"
+    assert bridge.metadata.requires_hardware is False
+    assert result.published_count == 1
+    assert result.topics == (bus_topic,)
+    assert result.target_topics == ("omnisense/percepts/audio/audio/event_classifier_v1",)
+    assert result.message_types == ("percept.packet",)
+    assert len(transport.records) == 1
+    assert transport.records[0].qos == 0
+
+
+@pytest.mark.asyncio
+async def test_mqtt_outbound_bridge_rejects_unsupported_message_type() -> None:
+    transport = RecordingMqttTransport()
+    bridge = MqttOutboundBridge(transport, supported_message_types=("profile.safety_case",))
+
+    with pytest.raises(ValueError, match="not supported"):
+        await bridge.publish_message(
+            percept_topic("audio", "audio.event_classifier_v1"),
+            _load_fixture("percept_packet.json"),
+        )
+
+    assert transport.records == []
+
+
+def test_mqtt_outbound_bridge_requires_supported_message_types() -> None:
+    with pytest.raises(ValueError, match="supported_message_types"):
+        MqttOutboundBridge(RecordingMqttTransport(), supported_message_types=())

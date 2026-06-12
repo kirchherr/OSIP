@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
-from typing import Any, Final
+from collections.abc import Iterable, Mapping
+from typing import Any, Final, Protocol
 
 from omnisense_bus import (
     action_command_filter,
@@ -23,6 +23,8 @@ from omnisense_bus import (
 )
 from omnisense_osip import OSIPMessage, from_json, validate_osip_message
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from omnisense_adapters.interfaces import AdapterMetadata, AdapterRunResult
 
 BUS_TOPIC_PREFIX: Final = "omnisense"
 
@@ -111,6 +113,12 @@ class MqttPublishRecord(BaseModel):
         return ensure_valid_topic(value)
 
 
+class MqttPublishTransport(Protocol):
+    """Minimal broker client wrapper used by the outbound MQTT bridge."""
+
+    async def publish(self, record: MqttPublishRecord) -> None: ...
+
+
 class MqttDecodedRecord(BaseModel):
     """Decoded MQTT message ready to be published on an OSIP bus."""
 
@@ -175,6 +183,63 @@ class MqttBridgeCodec:
             bus_topic=bus_topic,
             payload=message,
             message_type=message.type,
+        )
+
+
+class MqttOutboundBridge:
+    """Adapter-facing MQTT publisher built on a broker-independent transport."""
+
+    def __init__(
+        self,
+        transport: MqttPublishTransport,
+        *,
+        adapter_id: str = "mqtt.outbound_bridge",
+        profile_id: str | None = None,
+        codec: MqttBridgeCodec | None = None,
+        supported_message_types: Iterable[str] = CHANNEL_MESSAGE_TYPES.values(),
+    ) -> None:
+        supported = tuple(dict.fromkeys(supported_message_types))
+        if not supported:
+            msg = "supported_message_types must not be empty"
+            raise ValueError(msg)
+        self._transport = transport
+        self._codec = codec or MqttBridgeCodec()
+        self._metadata = AdapterMetadata(
+            adapter_id=adapter_id,
+            role="sink",
+            supported_message_types=supported,
+            profile_id=profile_id,
+            requires_hardware=False,
+            description="MQTT outbound bridge using broker-independent publish records.",
+        )
+
+    @property
+    def metadata(self) -> AdapterMetadata:
+        return self._metadata
+
+    @property
+    def codec(self) -> MqttBridgeCodec:
+        return self._codec
+
+    async def publish_message(
+        self,
+        bus_topic: str,
+        payload: OSIPMessage | Mapping[str, Any],
+    ) -> AdapterRunResult:
+        record = self._codec.encode_publish(bus_topic, payload)
+        if record.message_type not in self._metadata.supported_message_types:
+            msg = (
+                f"message type '{record.message_type}' is not supported by adapter "
+                f"'{self._metadata.adapter_id}'"
+            )
+            raise ValueError(msg)
+        await self._transport.publish(record)
+        return AdapterRunResult(
+            adapter_id=self._metadata.adapter_id,
+            published_count=1,
+            topics=(record.bus_topic,),
+            target_topics=(record.mqtt_topic,),
+            message_types=(record.message_type,),
         )
 
 

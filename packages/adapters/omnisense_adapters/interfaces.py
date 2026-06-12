@@ -31,6 +31,7 @@ class AdapterRunResult(BaseModel):
     adapter_id: str = Field(min_length=1, pattern=r"^[a-z][a-z0-9_.-]*$")
     published_count: int = Field(ge=0)
     topics: tuple[str, ...] = ()
+    target_topics: tuple[str, ...] = ()
     message_types: tuple[str, ...] = ()
 
 
