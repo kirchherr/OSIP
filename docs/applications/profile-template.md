@@ -45,6 +45,8 @@ profile and at least one existing profile need the same concept.
 
 ## Runtime Extension Points
 
+- ApplicationProfile implementation:
+- Profile metadata:
 - Context fusion implementation:
 - Context fusion `profile_id`:
 - Decision policy:

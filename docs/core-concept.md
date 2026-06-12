@@ -83,6 +83,7 @@ Applications attach to OSIP Core as profiles:
 
 Each profile owns:
 
+- an `ApplicationProfile` implementation with metadata and profile id,
 - domain vocabulary,
 - example fixtures,
 - scenarios and benchmarks,

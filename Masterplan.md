@@ -1634,6 +1634,7 @@ Diese Werte sind Forschungsziele, keine Garantien für beliebige Hardware.
 - H6: Adapter-Regel definieren: Simulatoren, ROS 2/DDS, MQTT, NATS, Robot-SDKs und Gebaeudetechnik bleiben ausserhalb von OSIP Core
 - H7: Core-Promotion-Regel einfuehren: Ein Profilkonzept wird erst Core, wenn mindestens zwei Profile es gemeinsam brauchen
 - H8: Runtime-Registries fuer Profil-Fusion und Profil-Policies einfuehren, damit `rooms`, `physical-ai` und `xxx` ohne Core-Umbau andocken koennen
+- H9: `ApplicationProfile` Protocol einfuehren, das Profil-Metadaten, Context-Fusion und Decision-Profil als andockbares Runtime-Bundle beschreibt
 
 ### Epic I - Experience & Learning Layer
 

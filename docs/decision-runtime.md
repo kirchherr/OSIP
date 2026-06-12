@@ -45,6 +45,10 @@ runtime = DecisionRuntime(
 
 Unknown profiles fail closed with `UnknownDecisionProfileError`.
 
+An `ApplicationProfile` can also provide the `DecisionProfile` so larger
+runtimes can load profile bundles and feed the Decision Runtime registry without
+importing domain logic into OSIP Core.
+
 ## Default Rooms Contracts
 
 - `action.notify.local` for `context.possible_burning_food`

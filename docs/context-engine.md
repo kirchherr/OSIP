@@ -31,6 +31,10 @@ engine = ContextEngine(bus, application_profile="xxx", registry=registry)
 
 Unknown profiles fail closed with `UnknownApplicationProfileError`.
 
+An `ApplicationProfile` can also provide the `ContextFusion` implementation so
+larger runtimes can load profile bundles and feed the Context Engine registry
+without importing domain logic into OSIP Core.
+
 ## Initial Contexts
 
 - `context.possible_burning_food`

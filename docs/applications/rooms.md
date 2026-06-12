@@ -3,6 +3,10 @@
 The `rooms` profile is the first OSIP demonstrator. It applies OSIP Core to
 intelligent rooms and smart environments.
 
+Runtime entry point: `omnisense_profiles.rooms.profile.RoomsApplicationProfile`.
+It bundles rooms metadata, `RoomsFusion`, `RoomsDecisionPolicy`, and the default
+room Action Contracts under profile id `rooms`.
+
 ## Scope
 
 - Ambient perception: audio, vision, radar, air quality, occupancy, tactile floor
