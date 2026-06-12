@@ -1,0 +1,44 @@
+id: fall_candidate
+name: Fall candidate scenario
+application_profile: rooms
+duration_ms: 2500
+room: living_room
+expected_contexts:
+  - context.possible_fall
+expected_actions:
+  - action.room.speaker.ask_help_needed
+latency_budget_ms:
+  first_context_update: 250
+  first_action_proposal: 500
+percepts:
+  - at_ms: 0
+    source_model: tactile.floor_pressure_v1
+    modality: tactile
+    location:
+      room: living_room
+      zone: sofa_area
+    claims:
+      - label: tactile.floor_pressure_spike
+        confidence: 0.88
+        value: true
+  - at_ms: 70
+    source_model: audio.event_classifier_v1
+    modality: audio
+    location:
+      room: living_room
+      zone: sofa_area
+      azimuth_deg: 42
+    claims:
+      - label: audio.impact_sound
+        confidence: 0.82
+        value: true
+  - at_ms: 140
+    source_model: radar.motion_v1
+    modality: radar
+    location:
+      room: living_room
+      zone: sofa_area
+    claims:
+      - label: radar.motion_drop
+        confidence: 0.79
+        value: true

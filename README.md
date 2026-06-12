@@ -46,6 +46,12 @@ Run the in-memory bus tests:
 docker compose run --rm dev uv run pytest tests/integration/test_in_memory_bus.py
 ```
 
+Run scenario replay tests:
+
+```bash
+docker compose run --rm dev uv run pytest tests/integration/test_scenario_replay.py
+```
+
 Open a shell:
 
 ```bash

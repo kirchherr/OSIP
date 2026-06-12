@@ -1,0 +1,40 @@
+id: stale_air_high_occupancy
+name: High occupancy stale air scenario
+application_profile: rooms
+duration_ms: 4000
+room: meeting_room
+expected_contexts:
+  - context.high_occupancy_stale_air
+expected_actions:
+  - action.hvac.ventilation_boost
+latency_budget_ms:
+  first_context_update: 500
+  first_action_proposal: 800
+percepts:
+  - at_ms: 0
+    source_model: occupancy.counter_v1
+    modality: occupancy
+    location:
+      room: meeting_room
+    claims:
+      - label: occupancy.people_count
+        confidence: 0.93
+        value: 8
+  - at_ms: 200
+    source_model: environment.co2_v1
+    modality: environment
+    location:
+      room: meeting_room
+    claims:
+      - label: environment.air.co2_high
+        confidence: 0.89
+        value: true
+  - at_ms: 450
+    source_model: environment.voc_v1
+    modality: environment
+    location:
+      room: meeting_room
+    claims:
+      - label: environment.air.voc_elevated
+        confidence: 0.7
+        value: true

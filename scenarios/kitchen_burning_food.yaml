@@ -1,0 +1,54 @@
+id: kitchen_burning_food
+name: Kitchen burning food scenario
+application_profile: rooms
+duration_ms: 3000
+room: kitchen
+expected_contexts:
+  - context.possible_burning_food
+expected_actions:
+  - action.notify.local
+  - action.hvac.ventilation_boost
+latency_budget_ms:
+  first_context_update: 250
+  first_action_proposal: 500
+percepts:
+  - at_ms: 0
+    source_model: object_state.device_status_v1
+    modality: object_state
+    location:
+      room: kitchen
+      zone: stove_area
+    claims:
+      - label: object.stove.power_on
+        confidence: 0.99
+        value: true
+  - at_ms: 120
+    source_model: thermal.hotspot_v1
+    modality: thermal
+    location:
+      room: kitchen
+      zone: stove_area
+    claims:
+      - label: thermal.stove.hotspot
+        confidence: 0.91
+        value: true
+  - at_ms: 250
+    source_model: chemical.voc_pattern_v1
+    modality: chemical
+    location:
+      room: kitchen
+      zone: stove_area
+    claims:
+      - label: chemical.air.smoke_like_pattern
+        confidence: 0.86
+        value: true
+  - at_ms: 320
+    source_model: vision.smoke_v1
+    modality: vision
+    location:
+      room: kitchen
+      zone: stove_area
+    claims:
+      - label: vision.smoke.visible_near_stove
+        confidence: 0.72
+        value: true
