@@ -12,6 +12,11 @@ from omnisense_bus import (
 )
 from omnisense_context import ContextEngine
 from omnisense_decision import DecisionRuntime, ScalarFact
+from omnisense_model_plugins import (
+    ModelPluginManifest,
+    ModelPluginRegistration,
+    ModelPluginRegistry,
+)
 from omnisense_osip import (
     ActionProposal,
     ContextUpdate,
@@ -74,6 +79,7 @@ class GatewayState:
         )
         self.events = EventStream()
         self.models: dict[str, ModelCapabilityDescriptor] = {}
+        self.model_plugins = ModelPluginRegistry()
         self.capability_gate = CapabilityGate(self.models)
         self.current_context_by_room: dict[str, ContextUpdate] = {}
         self.latest_context: ContextUpdate | None = None
@@ -86,6 +92,15 @@ class GatewayState:
         await self.bus.publish(model_capabilities_topic(), capability)
         await self.events.broadcast("model.capability_registered", capability)
         return capability
+
+    async def register_model_plugin(
+        self,
+        manifest: ModelPluginManifest,
+    ) -> ModelPluginRegistration:
+        registration = self.model_plugins.register(manifest)
+        await self.register_model(registration.manifest.capability)
+        await self.events.broadcast("model.plugin_registered", registration)
+        return registration
 
     async def ingest_percept(
         self,

@@ -1893,7 +1893,9 @@ Nach dem MVP:
 5. Context Graph persistierbar machen: zuerst portable `ContextGraphSnapshot`
    JSON-Struktur aus `ContextUpdate`-Historie, spaeter optionale File-,
    SQLite- oder Graph-DB-Adapter.
-6. Modell-Plug-in-System verbessern.
+6. Modell-Plug-in-System verbessern: zuerst deklarative
+   `ModelPluginManifest`-Registry mit Capability-Gate-Anbindung, spaeter
+   sichere Runtime-Loader fuer Python, Prozesse, HTTP oder Hardwareadapter.
 7. Dashboard erweitern.
 8. reale Sensoradapter ergänzen.
 9. Learned Fusion Modelle experimentell ergänzen.

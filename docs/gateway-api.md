@@ -9,6 +9,9 @@ inside one FastAPI application for local demos and tests.
 - `POST /v1/models/register`: validates and stores a
   `ModelCapabilityDescriptor`, publishes it on the model capability bus topic,
   and streams a WebSocket event.
+- `POST /v1/model-plugins/register`: validates and stores a declarative
+  `ModelPluginManifest`, then registers its contained
+  `ModelCapabilityDescriptor` with the same capability gate.
 - `POST /v1/percepts`: validates a `PerceptPacket`, checks it against the
   registered `ModelCapabilityDescriptor`, publishes it on the bus, runs context
   fusion, runs bounded decision evaluation, and returns the current
@@ -37,6 +40,10 @@ percepts whose modality or claim labels are not declared in the registered
 `ModelCapabilityDescriptor`. This keeps open model ingestion bounded by an
 explicit public capability contract before data reaches context fusion or action
 proposal logic.
+
+Model plug-in registration is a convenience boundary over the same gate. The
+gateway stores the manifest but does not import code, start processes, call
+HTTP endpoints, or access hardware.
 
 ## Safety Boundary
 

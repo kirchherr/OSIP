@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Annotated
 
 from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
+from omnisense_model_plugins import ModelPluginManifest
 from omnisense_osip import ActionProposal, ContextUpdate, ModelCapabilityDescriptor, PerceptPacket
 from pydantic import BaseModel, ConfigDict
 
@@ -16,6 +17,15 @@ class ModelRegistrationResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     model_id: str
+    registered: bool
+
+
+class ModelPluginRegistrationResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    plugin_id: str
+    model_id: str
+    status: str
     registered: bool
 
 
@@ -42,6 +52,18 @@ def create_app(state: GatewayState | None = None) -> FastAPI:
     ) -> ModelRegistrationResponse:
         registered = await gateway_state.register_model(capability)
         return ModelRegistrationResponse(model_id=registered.model_id, registered=True)
+
+    @app.post("/v1/model-plugins/register", response_model=ModelPluginRegistrationResponse)
+    async def register_model_plugin(
+        manifest: ModelPluginManifest,
+    ) -> ModelPluginRegistrationResponse:
+        registration = await gateway_state.register_model_plugin(manifest)
+        return ModelPluginRegistrationResponse(
+            plugin_id=registration.manifest.plugin_id,
+            model_id=registration.manifest.capability.model_id,
+            status=registration.status,
+            registered=True,
+        )
 
     @app.post("/v1/percepts", response_model=PerceptIngestResponse)
     async def ingest_percept(percept: PerceptPacket) -> PerceptIngestResponse:

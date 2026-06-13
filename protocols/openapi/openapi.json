@@ -757,6 +757,140 @@
         "title": "ModelCapabilityDescriptor",
         "type": "object"
       },
+      "ModelPluginManifest": {
+        "additionalProperties": false,
+        "description": "Declarative contract for one model plug-in and its OSIP capability.",
+        "properties": {
+          "application_profiles": {
+            "items": {
+              "$ref": "#/components/schemas/ProfileIdentifier"
+            },
+            "title": "Application Profiles",
+            "type": "array"
+          },
+          "capability": {
+            "$ref": "#/components/schemas/ModelCapabilityDescriptor"
+          },
+          "display_name": {
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "entrypoint": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entrypoint"
+          },
+          "license": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "License"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "plugin_id": {
+            "$ref": "#/components/schemas/Identifier"
+          },
+          "requires_hardware": {
+            "default": false,
+            "title": "Requires Hardware",
+            "type": "boolean"
+          },
+          "runtime": {
+            "$ref": "#/components/schemas/PluginRuntime",
+            "default": "simulation_stub"
+          },
+          "sandbox_required": {
+            "default": true,
+            "title": "Sandbox Required",
+            "type": "boolean"
+          },
+          "schema_version": {
+            "const": "model_plugin/0.1",
+            "default": "model_plugin/0.1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_uri": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Uri"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          },
+          "version": {
+            "minLength": 1,
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "plugin_id",
+          "display_name",
+          "version",
+          "capability"
+        ],
+        "title": "ModelPluginManifest",
+        "type": "object"
+      },
+      "ModelPluginRegistrationResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "model_id": {
+            "title": "Model Id",
+            "type": "string"
+          },
+          "plugin_id": {
+            "title": "Plugin Id",
+            "type": "string"
+          },
+          "registered": {
+            "title": "Registered",
+            "type": "boolean"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "plugin_id",
+          "model_id",
+          "status",
+          "registered"
+        ],
+        "title": "ModelPluginRegistrationResponse",
+        "type": "object"
+      },
       "ModelRegistrationResponse": {
         "additionalProperties": false,
         "properties": {
@@ -920,9 +1054,23 @@
         "title": "PerceptPacket",
         "type": "object"
       },
+      "PluginRuntime": {
+        "enum": [
+          "simulation_stub",
+          "python_callable",
+          "external_process",
+          "http_endpoint"
+        ],
+        "type": "string"
+      },
       "PositiveInt": {
         "exclusiveMinimum": 0.0,
         "type": "integer"
+      },
+      "ProfileIdentifier": {
+        "minLength": 1,
+        "pattern": "^[a-z][a-z0-9_-]*(\\.[a-z0-9_-]+)*$",
+        "type": "string"
       },
       "QualityStatus": {
         "enum": [
@@ -1100,6 +1248,44 @@
           }
         },
         "summary": "Current Context"
+      }
+    },
+    "/v1/model-plugins/register": {
+      "post": {
+        "operationId": "register_model_plugin_v1_model_plugins_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelPluginManifest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelPluginRegistrationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Register Model Plugin"
       }
     },
     "/v1/models/register": {

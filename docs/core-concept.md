@@ -23,6 +23,8 @@ Perception -> Context / World Model -> Goal Hypothesis -> Bounded Action -> Resu
 - Provide deterministic replay and benchmark hooks.
 - Provide persistable context/world-model snapshots without making a database
   part of OSIP Core.
+- Provide declarative model plug-in manifests before any model code is loaded
+  or executed.
 - Provide hooks for goal hypotheses derived from surprise, epistemic value, and
   system health without turning them into direct action authority.
 - Provide trace hooks for later experience datasets, model evaluation, and
@@ -105,6 +107,7 @@ Good core additions:
 - generic message fields,
 - versioning rules,
 - validation helpers,
+- model capability and plug-in manifest metadata,
 - transport-neutral topics,
 - action-contract primitives,
 - goal packet primitives,
@@ -122,6 +125,7 @@ Profile-only additions:
 - context-fusion rules for one domain,
 - decision-policy heuristics for one domain,
 - learned models,
+- model runtime loaders and plugin execution,
 - profile-specific labels and outcomes for learning,
 - profile-specific autonomy priorities and preference envelopes,
 - hardware drivers.

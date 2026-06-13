@@ -7,6 +7,7 @@ from typing import Any
 import httpx
 from fastapi.testclient import TestClient
 from omnisense_gateway import create_app
+from omnisense_model_plugins import ModelPluginManifest
 from omnisense_osip import LatencyProfile, ModelCapabilityDescriptor, PerceptPacket
 from omnisense_sdk import OmniSensePublisher
 from omnisense_sim import ScenarioLoader
@@ -96,6 +97,34 @@ def test_gateway_registers_models_ingests_percepts_and_serves_context() -> None:
     context_response = client.get("/v1/context/current", params={"room": "kitchen"})
     assert context_response.status_code == 200
     assert context_response.json()["context_id"] == last_context_id
+
+
+def test_gateway_registers_model_plugin_and_accepts_declared_percepts() -> None:
+    client = TestClient(create_app())
+    payload = kitchen_percept_payloads()[0]
+    capability = capabilities_for_payloads([payload])[0]
+    manifest = ModelPluginManifest(
+        plugin_id=capability.model_id,
+        display_name=f"{capability.model_id} plug-in",
+        version="0.1.0",
+        capability=capability,
+        application_profiles=("rooms",),
+    )
+
+    register_response = client.post(
+        "/v1/model-plugins/register",
+        json=manifest.model_dump(mode="json", exclude_none=True),
+    )
+    ingest_response = client.post("/v1/percepts", json=payload)
+
+    assert register_response.status_code == 200
+    assert register_response.json() == {
+        "plugin_id": capability.model_id,
+        "model_id": capability.model_id,
+        "status": "registered",
+        "registered": True,
+    }
+    assert ingest_response.status_code == 200
 
 
 def test_gateway_rejects_percepts_from_unregistered_model() -> None:

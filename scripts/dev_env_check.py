@@ -15,6 +15,7 @@ REQUIRED_MODULES = [
     "omnisense_decision",
     "omnisense_embedding",
     "omnisense_gateway",
+    "omnisense_model_plugins",
     "omnisense_osip",
     "omnisense_profiles",
     "omnisense_safety",
