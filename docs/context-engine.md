@@ -9,6 +9,8 @@ core logic.
 
 - `TemporalWindow`: stores currently valid `PerceptPacket` objects.
 - `ClaimIndex`: indexes active claims by label and confidence.
+- `ContextGraph`: append-only in-memory world-state graph that can serialize
+  and restore deterministic `ContextGraphSnapshot` JSON.
 - `ContextFusion`: profile-facing interface for fusing active percepts.
 - `ContextFusionRegistry`: maps application profile ids to fusion
   implementations.
@@ -48,6 +50,26 @@ contradictory smoke evidence remains quiet.
 Rooms fusion now emits both compatible label evidence and structured
 `EvidenceRef` entries so later replay, audit, and learning tools can trace a
 context event back to the source percept claims.
+
+## Persistable Context Graph
+
+`ContextGraph` turns emitted `ContextUpdate` messages into a portable graph
+snapshot without introducing a database dependency. The graph stores updates by
+`context_id`, tracks the latest context per room, and exposes entity/event
+records with context provenance.
+
+Snapshots are intentionally simple:
+
+- `schema_version`: `context_graph/0.1`,
+- `graph_id`: stable graph or replay id,
+- `generated_at`: timezone-aware snapshot time,
+- `updates`: ordered `ContextUpdate` payloads,
+- `latest_context_by_room`: deterministic room-to-context index.
+
+The reference graph rejects duplicate context ids, naive timestamps, missing
+latest-context references, and latest-context entries that point to the wrong
+room. Future file, SQLite, object-store, Neo4j, or graph-database adapters
+should preserve this snapshot contract instead of changing OSIP payloads.
 
 ## Boundary
 

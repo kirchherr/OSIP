@@ -21,6 +21,8 @@ Perception -> Context / World Model -> Goal Hypothesis -> Bounded Action -> Resu
 - Represent uncertainty, latency, validity windows, quality, evidence,
   contradictions, calibration, and action boundaries.
 - Provide deterministic replay and benchmark hooks.
+- Provide persistable context/world-model snapshots without making a database
+  part of OSIP Core.
 - Provide hooks for goal hypotheses derived from surprise, epistemic value, and
   system health without turning them into direct action authority.
 - Provide trace hooks for later experience datasets, model evaluation, and
@@ -107,6 +109,7 @@ Good core additions:
 - action-contract primitives,
 - goal packet primitives,
 - replay metadata hooks.
+- context graph snapshot metadata,
 - experience trace metadata,
 - dataset and model lifecycle primitives.
 

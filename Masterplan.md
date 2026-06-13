@@ -1890,7 +1890,9 @@ Nach dem MVP:
 4. EmbeddingRef und Embedding Store integrieren: zuerst deterministischer
    In-memory-Store mit Dimension-, Space- und Provenance-Validierung; spaeter
    optionale Vektor-DB-Adapter.
-5. Context Graph persistierbar machen.
+5. Context Graph persistierbar machen: zuerst portable `ContextGraphSnapshot`
+   JSON-Struktur aus `ContextUpdate`-Historie, spaeter optionale File-,
+   SQLite- oder Graph-DB-Adapter.
 6. Modell-Plug-in-System verbessern.
 7. Dashboard erweitern.
 8. reale Sensoradapter ergänzen.
