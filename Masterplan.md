@@ -1896,7 +1896,9 @@ Nach dem MVP:
 6. Modell-Plug-in-System verbessern: zuerst deklarative
    `ModelPluginManifest`-Registry mit Capability-Gate-Anbindung, spaeter
    sichere Runtime-Loader fuer Python, Prozesse, HTTP oder Hardwareadapter.
-7. Dashboard erweitern.
+7. Dashboard erweitern: zuerst Gateway-API fuer maschinenlesbare
+   `DashboardSnapshot`s mit Modellen, Plug-ins, Kontextgraph, Percepts, Actions
+   und Latenzen; spaeter Web-UI oder CLI-TUI.
 8. reale Sensoradapter ergänzen.
 9. Learned Fusion Modelle experimentell ergänzen.
 10. wissenschaftlichen Benchmark veröffentlichen.

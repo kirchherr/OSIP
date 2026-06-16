@@ -264,6 +264,41 @@
         "title": "ContextEvent",
         "type": "object"
       },
+      "ContextGraphStats": {
+        "additionalProperties": false,
+        "description": "Small graph summary for diagnostics and benchmark reports.",
+        "properties": {
+          "rooms": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Rooms",
+            "type": "array"
+          },
+          "total_entities": {
+            "minimum": 0.0,
+            "title": "Total Entities",
+            "type": "integer"
+          },
+          "total_events": {
+            "minimum": 0.0,
+            "title": "Total Events",
+            "type": "integer"
+          },
+          "total_updates": {
+            "minimum": 0.0,
+            "title": "Total Updates",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total_updates",
+          "total_entities",
+          "total_events"
+        ],
+        "title": "ContextGraphStats",
+        "type": "object"
+      },
       "ContextUpdate": {
         "additionalProperties": false,
         "properties": {
@@ -383,6 +418,112 @@
           "values"
         ],
         "title": "CovarianceMatrix",
+        "type": "object"
+      },
+      "DashboardCounters": {
+        "additionalProperties": false,
+        "description": "Runtime counters exposed to dashboards and demos.",
+        "properties": {
+          "action_proposals_emitted": {
+            "minimum": 0.0,
+            "title": "Action Proposals Emitted",
+            "type": "integer"
+          },
+          "contexts_emitted": {
+            "minimum": 0.0,
+            "title": "Contexts Emitted",
+            "type": "integer"
+          },
+          "model_plugins_registered": {
+            "minimum": 0.0,
+            "title": "Model Plugins Registered",
+            "type": "integer"
+          },
+          "models_registered": {
+            "minimum": 0.0,
+            "title": "Models Registered",
+            "type": "integer"
+          },
+          "percepts_ingested": {
+            "minimum": 0.0,
+            "title": "Percepts Ingested",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "models_registered",
+          "model_plugins_registered",
+          "percepts_ingested",
+          "contexts_emitted",
+          "action_proposals_emitted"
+        ],
+        "title": "DashboardCounters",
+        "type": "object"
+      },
+      "DashboardSnapshot": {
+        "additionalProperties": false,
+        "description": "Machine-readable dashboard state for local demos and tests.",
+        "properties": {
+          "context_graph": {
+            "$ref": "#/components/schemas/ContextGraphStats"
+          },
+          "counters": {
+            "$ref": "#/components/schemas/DashboardCounters"
+          },
+          "current_context": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ContextUpdate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "recent_action_proposals": {
+            "items": {
+              "$ref": "#/components/schemas/ActionProposal"
+            },
+            "title": "Recent Action Proposals",
+            "type": "array"
+          },
+          "recent_percept_latency_ms": {
+            "$ref": "#/components/schemas/LatencySummary"
+          },
+          "recent_percepts": {
+            "items": {
+              "$ref": "#/components/schemas/PerceptPacket"
+            },
+            "title": "Recent Percepts",
+            "type": "array"
+          },
+          "registered_models": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Registered Models",
+            "type": "array"
+          },
+          "registered_plugins": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Registered Plugins",
+            "type": "array"
+          }
+        },
+        "required": [
+          "generated_at",
+          "counters",
+          "context_graph",
+          "recent_percept_latency_ms"
+        ],
+        "title": "DashboardSnapshot",
         "type": "object"
       },
       "EmbeddingCapability": {
@@ -587,6 +728,58 @@
           "max_budget_ms"
         ],
         "title": "LatencyProfile",
+        "type": "object"
+      },
+      "LatencySummary": {
+        "additionalProperties": false,
+        "description": "Latency summary for recent percept ingestion.",
+        "properties": {
+          "avg_ms": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Ms"
+          },
+          "count": {
+            "minimum": 0.0,
+            "title": "Count",
+            "type": "integer"
+          },
+          "max_ms": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Ms"
+          },
+          "min_ms": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Ms"
+          }
+        },
+        "required": [
+          "count"
+        ],
+        "title": "LatencySummary",
         "type": "object"
       },
       "Location": {
@@ -1248,6 +1441,53 @@
           }
         },
         "summary": "Current Context"
+      }
+    },
+    "/v1/dashboard/snapshot": {
+      "get": {
+        "operationId": "dashboard_snapshot_v1_dashboard_snapshot_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "room",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Room"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardSnapshot"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Dashboard Snapshot"
       }
     },
     "/v1/model-plugins/register": {

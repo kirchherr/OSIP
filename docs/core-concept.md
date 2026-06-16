@@ -25,6 +25,8 @@ Perception -> Context / World Model -> Goal Hypothesis -> Bounded Action -> Resu
   part of OSIP Core.
 - Provide declarative model plug-in manifests before any model code is loaded
   or executed.
+- Provide dashboard-ready runtime snapshots without coupling OSIP Core to a
+  frontend framework.
 - Provide hooks for goal hypotheses derived from surprise, epistemic value, and
   system health without turning them into direct action authority.
 - Provide trace hooks for later experience datasets, model evaluation, and
@@ -108,6 +110,7 @@ Good core additions:
 - versioning rules,
 - validation helpers,
 - model capability and plug-in manifest metadata,
+- dashboard snapshot metadata,
 - transport-neutral topics,
 - action-contract primitives,
 - goal packet primitives,

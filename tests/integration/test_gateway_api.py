@@ -99,6 +99,43 @@ def test_gateway_registers_models_ingests_percepts_and_serves_context() -> None:
     assert context_response.json()["context_id"] == last_context_id
 
 
+def test_gateway_dashboard_snapshot_reports_runtime_state() -> None:
+    client = TestClient(create_app())
+    percept_payloads = kitchen_percept_payloads()
+    register_capabilities(client, percept_payloads)
+
+    empty_snapshot = client.get("/v1/dashboard/snapshot")
+    assert empty_snapshot.status_code == 200
+    assert empty_snapshot.json()["counters"]["models_registered"] == len(
+        capabilities_for_payloads(percept_payloads)
+    )
+    assert empty_snapshot.json()["counters"]["percepts_ingested"] == 0
+    assert empty_snapshot.json()["context_graph"]["total_updates"] == 0
+
+    for payload in percept_payloads:
+        response = client.post("/v1/percepts", json=payload)
+        assert response.status_code == 200
+
+    snapshot_response = client.get("/v1/dashboard/snapshot", params={"room": "kitchen"})
+    snapshot = snapshot_response.json()
+
+    assert snapshot_response.status_code == 200
+    assert snapshot["counters"]["percepts_ingested"] == len(percept_payloads)
+    assert snapshot["counters"]["contexts_emitted"] == len(percept_payloads)
+    assert snapshot["counters"]["action_proposals_emitted"] == 2
+    assert snapshot["context_graph"]["total_updates"] == len(percept_payloads)
+    assert snapshot["current_context"]["room"] == "kitchen"
+    assert len(snapshot["recent_percepts"]) == len(percept_payloads)
+    assert snapshot["recent_percept_latency_ms"]["count"] == len(percept_payloads)
+    assert snapshot["recent_percept_latency_ms"]["max_ms"] >= (
+        snapshot["recent_percept_latency_ms"]["min_ms"]
+    )
+    assert [proposal["action_id"] for proposal in snapshot["recent_action_proposals"]] == [
+        "action.notify.local",
+        "action.hvac.ventilation_boost",
+    ]
+
+
 def test_gateway_registers_model_plugin_and_accepts_declared_percepts() -> None:
     client = TestClient(create_app())
     payload = kitchen_percept_payloads()[0]
@@ -125,6 +162,12 @@ def test_gateway_registers_model_plugin_and_accepts_declared_percepts() -> None:
         "registered": True,
     }
     assert ingest_response.status_code == 200
+
+    snapshot_response = client.get("/v1/dashboard/snapshot")
+
+    assert snapshot_response.status_code == 200
+    assert snapshot_response.json()["counters"]["model_plugins_registered"] == 1
+    assert snapshot_response.json()["registered_plugins"] == [capability.model_id]
 
 
 def test_gateway_rejects_percepts_from_unregistered_model() -> None:

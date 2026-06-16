@@ -10,6 +10,7 @@ from omnisense_osip import ActionProposal, ContextUpdate, ModelCapabilityDescrip
 from pydantic import BaseModel, ConfigDict
 
 from omnisense_gateway.capability_gate import CapabilityGateError
+from omnisense_gateway.dashboard import DashboardSnapshot
 from omnisense_gateway.state import GatewayState
 
 
@@ -86,6 +87,12 @@ def create_app(state: GatewayState | None = None) -> FastAPI:
             detail = f"no current context for room '{room}'" if room else "no current context"
             raise HTTPException(status_code=404, detail=detail)
         return context
+
+    @app.get("/v1/dashboard/snapshot", response_model=DashboardSnapshot)
+    async def dashboard_snapshot(
+        room: Annotated[str | None, Query(min_length=1)] = None,
+    ) -> DashboardSnapshot:
+        return gateway_state.dashboard_snapshot(room=room)
 
     @app.websocket("/ws/events")
     async def event_stream(websocket: WebSocket) -> None:

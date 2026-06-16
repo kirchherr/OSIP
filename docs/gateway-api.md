@@ -18,6 +18,9 @@ inside one FastAPI application for local demos and tests.
   `ContextUpdate` plus any `ActionProposal` messages.
 - `GET /v1/context/current`: returns the latest context, optionally filtered by
   `?room=<room_id>`.
+- `GET /v1/dashboard/snapshot`: returns a machine-readable dashboard snapshot
+  with registered models, plug-ins, current context, context graph stats,
+  recent percepts, recent action proposals, counters, and latency summary.
 - `GET /openapi.json`: FastAPI-generated OpenAPI contract.
 - `WS /ws/events`: streams gateway events such as model registrations, ingested
   percepts, context updates, and action proposals.
@@ -44,6 +47,18 @@ proposal logic.
 Model plug-in registration is a convenience boundary over the same gate. The
 gateway stores the manifest but does not import code, start processes, call
 HTTP endpoints, or access hardware.
+
+## Dashboard Snapshot
+
+The initial dashboard surface is an API contract, not a separate frontend build.
+`/v1/dashboard/snapshot` is designed for a later web dashboard or CLI-TUI and
+keeps tests hardware-free. It exposes:
+
+- registered model and model plug-in ids,
+- current context, optionally filtered by room,
+- context graph update/entity/event counts,
+- recent percepts and recent action proposals,
+- runtime counters and recent percept latency summary.
 
 ## Safety Boundary
 
