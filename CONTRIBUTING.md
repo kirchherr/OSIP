@@ -19,7 +19,14 @@ Run:
 docker compose run --rm dev uv run pytest
 docker compose run --rm dev uv run ruff check .
 docker compose run --rm dev uv run mypy
-docker compose run --rm dev uv run python scripts/run_benchmark.py --json-output /tmp/osip-benchmark.json --markdown-output /tmp/osip-benchmark.md
+docker compose run --rm dev uv run python scripts/run_benchmark.py \
+  --json-output .pytest_cache/osip-benchmark.json \
+  --markdown-output .pytest_cache/osip-benchmark.md \
+  --manifest-output .pytest_cache/osip-benchmark.manifest.json \
+  --git-commit local \
+  --no-git-dirty
+docker compose run --rm dev uv run python scripts/check_benchmark_publication.py \
+  .pytest_cache/osip-benchmark.manifest.json
 ```
 
 If OSIP schemas or Gateway endpoints change, regenerate and commit the public

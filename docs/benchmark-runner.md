@@ -68,6 +68,11 @@ Use the standalone checker for CI or release preparation:
 uv run python scripts/check_benchmark_publication.py docs/results/latest.manifest.json
 ```
 
+The GitHub Actions CI runs the deterministic benchmark with a CI-supplied git
+commit, writes `/tmp/osip-benchmark.manifest.json`, and then runs the same
+readiness checker. A pull request therefore fails when the scenario suite passes
+but the publication manifest is not reviewable.
+
 For local exploratory runs, reviewers can relax metadata-only checks without
 weakening scenario gates:
 
