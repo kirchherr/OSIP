@@ -95,6 +95,24 @@ Outputs:
 - `docs/results/latest.md`
 - `docs/results/latest.manifest.json`
 
+To run the benchmark plus the publication-readiness gate in one local review
+step, use:
+
+```bash
+docker compose run --rm dev make benchmark-publication
+```
+
+For exploratory local review without touching `docs/results/`, override the
+artifact paths:
+
+```bash
+docker compose run --rm dev make benchmark-publication \
+  BENCHMARK_JSON=.pytest_cache/osip-benchmark.json \
+  BENCHMARK_MD=.pytest_cache/osip-benchmark.md \
+  BENCHMARK_MANIFEST=.pytest_cache/osip-benchmark.manifest.json \
+  BENCHMARK_GIT_COMMIT=local
+```
+
 CI or release tooling can set reproducibility metadata explicitly:
 
 ```bash
