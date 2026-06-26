@@ -3,7 +3,10 @@
 from omnisense_benchmarks.metrics import PercentileSummary, percentile_summary
 from omnisense_benchmarks.publication import (
     BenchmarkArtifact,
+    BenchmarkPublicationGate,
+    BenchmarkPublicationGatePolicy,
     BenchmarkPublicationManifest,
+    BenchmarkPublicationReadinessDecision,
     BenchmarkRuntimeEnvironment,
     BenchmarkScenarioEvidence,
     build_publication_manifest,
@@ -23,7 +26,10 @@ __all__ = [
     "BenchmarkSummary",
     "BenchmarkArtifact",
     "BenchmarkGateResult",
+    "BenchmarkPublicationGate",
+    "BenchmarkPublicationGatePolicy",
     "BenchmarkPublicationManifest",
+    "BenchmarkPublicationReadinessDecision",
     "BenchmarkRuntimeEnvironment",
     "BenchmarkScenarioEvidence",
     "PercentileSummary",

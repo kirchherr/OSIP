@@ -6,6 +6,8 @@ from pathlib import Path
 import pytest
 from omnisense_benchmarks import (
     BenchmarkArtifact,
+    BenchmarkPublicationGate,
+    BenchmarkPublicationGatePolicy,
     BenchmarkPublicationManifest,
     BenchmarkRuntimeEnvironment,
     ScenarioBenchmarkRunner,
@@ -99,3 +101,112 @@ def test_publication_manifest_rejects_inconsistent_scenario_ids() -> None:
 
     with pytest.raises(ValidationError, match="scenario_ids"):
         BenchmarkPublicationManifest.model_validate(payload)
+
+
+async def test_publication_gate_marks_clean_passing_manifest_ready() -> None:
+    result = await ScenarioBenchmarkRunner(SCENARIO_DIR).run_suite(["fall_candidate.yaml"])
+    manifest = build_publication_manifest(
+        result,
+        generated_at=datetime(2026, 6, 26, 12, 0, tzinfo=UTC),
+        git_commit="abc123",
+        git_dirty=False,
+        project_version="0.1.0",
+        artifacts=(
+            BenchmarkArtifact(
+                kind="json_report",
+                path="docs/results/latest.json",
+                media_type="application/json",
+            ),
+            BenchmarkArtifact(
+                kind="markdown_report",
+                path="docs/results/latest.md",
+                media_type="text/markdown",
+            ),
+            BenchmarkArtifact(
+                kind="publication_manifest",
+                path="docs/results/latest.manifest.json",
+                media_type="application/json",
+            ),
+        ),
+        runtime_environment=BenchmarkRuntimeEnvironment(
+            python="3.12.0",
+            platform="test-platform",
+        ),
+        scenario_dir=SCENARIO_DIR,
+        scenario_names=("fall_candidate.yaml",),
+    )
+
+    decision = BenchmarkPublicationGate().evaluate(manifest)
+
+    assert decision.ready is True
+    assert decision.state == "ready"
+    assert decision.reasons == ()
+    assert "git_commit_known" in decision.checked_criteria
+
+
+async def test_publication_gate_blocks_unreviewable_manifest_metadata() -> None:
+    result = await ScenarioBenchmarkRunner(SCENARIO_DIR).run_suite(["fall_candidate.yaml"])
+    manifest = build_publication_manifest(
+        result,
+        generated_at=datetime(2026, 6, 26, 12, 0, tzinfo=UTC),
+        git_commit="unknown",
+        git_dirty=True,
+        project_version="0.1.0",
+        artifacts=(
+            BenchmarkArtifact(
+                kind="json_report",
+                path="docs/results/latest.json",
+                media_type="application/json",
+            ),
+        ),
+        runtime_environment=BenchmarkRuntimeEnvironment(
+            python="3.12.0",
+            platform="test-platform",
+        ),
+        scenario_dir=SCENARIO_DIR,
+        scenario_names=("fall_candidate.yaml",),
+    )
+
+    decision = BenchmarkPublicationGate().evaluate(manifest)
+
+    assert decision.ready is False
+    assert decision.state == "blocked"
+    assert "git_commit must be known" in decision.reasons
+    assert "git worktree must be clean" in decision.reasons
+    assert (
+        "missing publication artifacts: markdown_report, publication_manifest" in decision.reasons
+    )
+
+
+async def test_publication_gate_policy_can_relax_local_review_metadata() -> None:
+    result = await ScenarioBenchmarkRunner(SCENARIO_DIR).run_suite(["fall_candidate.yaml"])
+    manifest = build_publication_manifest(
+        result,
+        generated_at=datetime(2026, 6, 26, 12, 0, tzinfo=UTC),
+        git_commit="unknown",
+        git_dirty=True,
+        project_version="0.1.0",
+        artifacts=(
+            BenchmarkArtifact(
+                kind="json_report",
+                path="docs/results/latest.json",
+                media_type="application/json",
+            ),
+        ),
+        runtime_environment=BenchmarkRuntimeEnvironment(
+            python="3.12.0",
+            platform="test-platform",
+        ),
+        scenario_dir=SCENARIO_DIR,
+        scenario_names=("fall_candidate.yaml",),
+    )
+
+    decision = BenchmarkPublicationGate(
+        BenchmarkPublicationGatePolicy(
+            require_clean_git=False,
+            require_known_git_commit=False,
+            required_artifact_kinds=("json_report",),
+        )
+    ).evaluate(manifest)
+
+    assert decision.ready is True

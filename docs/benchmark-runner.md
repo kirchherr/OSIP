@@ -50,6 +50,34 @@ The manifest is intentionally factual. It does not claim certification or real
 hardware performance; it preserves enough metadata for another reviewer to rerun
 or audit the deterministic benchmark.
 
+## Publication Readiness Gate
+
+`BenchmarkPublicationGate` evaluates whether a manifest is ready for public
+artifact review. The default policy requires:
+
+- benchmark pass,
+- every scenario gate to pass,
+- JSON, Markdown, and manifest artifacts to be declared,
+- known git commit,
+- clean git worktree flag,
+- acceptance criteria and limitations.
+
+Use the standalone checker for CI or release preparation:
+
+```bash
+uv run python scripts/check_benchmark_publication.py docs/results/latest.manifest.json
+```
+
+For local exploratory runs, reviewers can relax metadata-only checks without
+weakening scenario gates:
+
+```bash
+uv run python scripts/check_benchmark_publication.py \
+  docs/results/latest.manifest.json \
+  --allow-dirty \
+  --allow-unknown-git
+```
+
 ## Run
 
 ```bash

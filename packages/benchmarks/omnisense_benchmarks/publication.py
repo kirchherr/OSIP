@@ -18,6 +18,7 @@ from pydantic import Field, model_validator
 from omnisense_benchmarks.runner import ScenarioBenchmarkResult, SuiteBenchmarkResult
 
 type BenchmarkArtifactKind = Literal["json_report", "markdown_report", "publication_manifest"]
+type BenchmarkPublicationReadinessState = Literal["ready", "blocked"]
 
 DEFAULT_ACCEPTANCE_CRITERIA = (
     "all expected contexts are detected",
@@ -112,6 +113,63 @@ class BenchmarkPublicationManifest(OSIPModel):
             msg = "benchmark_passed must match scenario evidence"
             raise ValueError(msg)
         return self
+
+
+class BenchmarkPublicationGatePolicy(OSIPModel):
+    """Release-readiness policy for benchmark publication manifests."""
+
+    require_clean_git: bool = True
+    require_known_git_commit: bool = True
+    min_scenarios: int = Field(default=1, gt=0)
+    required_artifact_kinds: tuple[BenchmarkArtifactKind, ...] = (
+        "json_report",
+        "markdown_report",
+        "publication_manifest",
+    )
+    require_acceptance_criteria: bool = True
+    require_limitations: bool = True
+
+    @model_validator(mode="after")
+    def validate_required_artifacts(self) -> Self:
+        if not self.required_artifact_kinds:
+            msg = "required_artifact_kinds must not be empty"
+            raise ValueError(msg)
+        if len(set(self.required_artifact_kinds)) != len(self.required_artifact_kinds):
+            msg = "required_artifact_kinds must not contain duplicates"
+            raise ValueError(msg)
+        return self
+
+
+class BenchmarkPublicationReadinessDecision(OSIPModel):
+    """Machine-readable readiness result for publishing a benchmark run."""
+
+    state: BenchmarkPublicationReadinessState
+    ready: bool
+    reasons: tuple[str, ...] = Field(default_factory=tuple)
+    checked_criteria: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class BenchmarkPublicationGate:
+    """Evaluate benchmark manifests before public release or artifact review."""
+
+    def __init__(self, policy: BenchmarkPublicationGatePolicy | None = None) -> None:
+        self._policy = policy or BenchmarkPublicationGatePolicy()
+
+    @property
+    def policy(self) -> BenchmarkPublicationGatePolicy:
+        return self._policy
+
+    def evaluate(
+        self,
+        manifest: BenchmarkPublicationManifest,
+    ) -> BenchmarkPublicationReadinessDecision:
+        reasons = tuple(_publication_readiness_failures(manifest, self._policy))
+        return BenchmarkPublicationReadinessDecision(
+            state="blocked" if reasons else "ready",
+            ready=not reasons,
+            reasons=reasons,
+            checked_criteria=_checked_readiness_criteria(self._policy),
+        )
 
 
 def default_runtime_environment(*, container: str | None = None) -> BenchmarkRuntimeEnvironment:
@@ -220,3 +278,69 @@ def _load_sim2real_metadata(
         if scenario.sim2real is not None:
             metadata[scenario.id] = scenario.sim2real
     return metadata
+
+
+def _publication_readiness_failures(
+    manifest: BenchmarkPublicationManifest,
+    policy: BenchmarkPublicationGatePolicy,
+) -> list[str]:
+    failures: list[str] = []
+    if not manifest.benchmark_passed:
+        failures.append("benchmark did not pass")
+    if manifest.scenario_count < policy.min_scenarios:
+        failures.append(
+            f"scenario_count {manifest.scenario_count} is below minimum {policy.min_scenarios}"
+        )
+    failed_scenarios = tuple(
+        evidence for evidence in manifest.scenario_evidence if not evidence.passed
+    )
+    if failed_scenarios:
+        failures.append(
+            "failed scenarios: "
+            + ", ".join(_format_failed_scenario(evidence) for evidence in failed_scenarios)
+        )
+    missing_artifacts = _missing_artifact_kinds(manifest, policy)
+    if missing_artifacts:
+        failures.append("missing publication artifacts: " + ", ".join(missing_artifacts))
+    if policy.require_known_git_commit and manifest.git_commit == "unknown":
+        failures.append("git_commit must be known")
+    if policy.require_clean_git and manifest.git_dirty:
+        failures.append("git worktree must be clean")
+    if policy.require_acceptance_criteria and not manifest.acceptance_criteria:
+        failures.append("acceptance criteria must be documented")
+    if policy.require_limitations and not manifest.limitations:
+        failures.append("limitations must be documented")
+    return failures
+
+
+def _missing_artifact_kinds(
+    manifest: BenchmarkPublicationManifest,
+    policy: BenchmarkPublicationGatePolicy,
+) -> tuple[str, ...]:
+    actual = {artifact.kind for artifact in manifest.artifacts}
+    return tuple(kind for kind in policy.required_artifact_kinds if kind not in actual)
+
+
+def _checked_readiness_criteria(
+    policy: BenchmarkPublicationGatePolicy,
+) -> tuple[str, ...]:
+    criteria = [
+        "benchmark_passed",
+        "scenario_count",
+        "scenario_gate_results",
+        "required_artifacts",
+    ]
+    if policy.require_known_git_commit:
+        criteria.append("git_commit_known")
+    if policy.require_clean_git:
+        criteria.append("git_worktree_clean")
+    if policy.require_acceptance_criteria:
+        criteria.append("acceptance_criteria_documented")
+    if policy.require_limitations:
+        criteria.append("limitations_documented")
+    return tuple(criteria)
+
+
+def _format_failed_scenario(evidence: BenchmarkScenarioEvidence) -> str:
+    gate_text = "/".join(evidence.gate_failures) if evidence.gate_failures else "unknown"
+    return f"{evidence.scenario_id}({gate_text})"
